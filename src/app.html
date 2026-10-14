@@ -731,6 +731,7 @@ function renderSettings(){
       <div class="row"><span>Garder l'écran allumé pendant une commande</span><button class="toggle" role="switch" aria-checked="${!!prefs.wake}" data-act="pref" data-k="wake" aria-label="Garder l'écran allumé"></button></div>
     </div>
     ${syncCard()}
+    ${pushCard()}
     <div class="card"><span class="label">Données</span>
       <div class="btn-row"><button class="btn" data-act="exportData">Copier une sauvegarde</button><button class="btn" data-act="importData">Restaurer</button></div>
       ${S.example ? `<button class="btn btn-soft" data-act="clearExamples">Effacer les exemples et commencer</button>` : ''}
@@ -825,29 +826,47 @@ const Sync = {
 // Notifications push (APK uniquement)
 const LS_TOKEN = 'ecocourse.token';
 let pushStarted = false;
-async function setupPush(){
+const pushDiag = {perm:'?', token:false, err:''};
+async function setupPush(force){
   const P = Native.Push;
-  if (!P || !window.ECOCOURSE_PUSH || !Sync.user || !me || pushStarted) return;
-  pushStarted = true;
+  if (!P || !window.ECOCOURSE_PUSH || !Sync.user || !me) return;
+  if (pushStarted && !force) return;
+  pushStarted = true; pushDiag.err = '';
   try {
-    await P.createChannel({id:'ecocourse', name:'EcoCourse', description:'Ajouts, achats, commandes, budget et DLC', importance:4, visibility:1, vibration:true});
+    if (!setupPush.listening) {
+      setupPush.listening = true;
+      await P.addListener('registration', t => { pushDiag.token = true; pushDiag.err = ''; saveToken(t.value); render(); });
+      await P.addListener('registrationError', e => { pushDiag.err = 'Enregistrement refusé : ' + (e && (e.error || e.message) || 'inconnu'); render(); });
+      await P.addListener('pushNotificationActionPerformed', a => {
+        const t = (a && a.notification && a.notification.title) || '';
+        ui.tab = /consommer|périm/i.test(t) ? 'frigo' : /budget/i.test(t) ? 'budget' : 'liste'; render();
+      });
+    }
+    try { await P.createChannel({id:'ecocourse', name:'EcoCourse', description:'Ajouts, achats, commandes, budget et DLC', importance:4, visibility:1, vibration:true}); } catch(e){}
     let perm = await P.checkPermissions();
     if (perm.receive !== 'granted') perm = await P.requestPermissions();
-    if (perm.receive !== 'granted') { toast('Notifications refusées : activez-les dans les réglages Android'); return; }
-    await P.addListener('registration', t => saveToken(t.value));
-    await P.addListener('registrationError', e => console.warn('Push', e));
-    await P.addListener('pushNotificationActionPerformed', a => {
-      const t = (a && a.notification && a.notification.title) || '';
-      ui.tab = /consommer|périm/i.test(t) ? 'frigo' : /budget/i.test(t) ? 'budget' : 'liste'; render();
-    });
+    pushDiag.perm = perm.receive;
+    if (perm.receive !== 'granted') { pushDiag.err = 'Notifications refusées dans les réglages Android.'; pushStarted = false; render(); return; }
     await P.register();
-  } catch(e){ pushStarted = false; console.warn('Push', e); }
+  } catch(e){ pushStarted = false; pushDiag.err = String((e && e.message) || e); }
+  render();
+}
+function pushCard(){
+  if (!Native.isNative) return '';
+  const ok = pushDiag.token && !pushDiag.err;
+  const line = (k, v, good) => `<div class="row"><span>${k}</span><span class="badge ${good ? 'ok' : 'warn'}">${v}</span></div>`;
+  return `<div class="card"><span class="label">Notifications</span>
+    ${line('Module', Native.Push && window.ECOCOURSE_PUSH ? 'Présent' : 'Absent', !!(Native.Push && window.ECOCOURSE_PUSH))}
+    ${line('Autorisation', pushDiag.perm === 'granted' ? 'Accordée' : pushDiag.perm === '?' ? 'Pas encore demandée' : 'Refusée', pushDiag.perm === 'granted')}
+    ${line('Téléphone enregistré', pushDiag.token ? 'Oui' : 'Non', pushDiag.token)}
+    ${pushDiag.err ? `<div class="sub" style="color:var(--bad);overflow-wrap:anywhere">${esc(pushDiag.err)}</div>` : ''}
+    ${ok ? '' : '<button class="btn btn-primary" data-act="retryPush">Activer les notifications</button>'}</div>`;
 }
 function tokenRef(){ const id = lsGet(LS_TOKEN); return id && Sync.enabled ? firebase.database().ref(ROOT + '/tokens/' + id) : null; }
 function saveToken(token){
   const id = token.replace(/[^A-Za-z0-9_-]/g, '_').slice(-140);
   lsSet(LS_TOKEN, id);
-  firebase.database().ref(ROOT + '/tokens/' + id).set({token, user:me, at:Date.now()});
+  firebase.database().ref(ROOT + '/tokens/' + id).set({token, user:me, at:Date.now()}).catch(e => { pushDiag.err = 'Enregistrement dans la base impossible : ' + e.message; render(); });
 }
 
 // Nouvelle version disponible ?
@@ -1292,6 +1311,7 @@ const ACTIONS = {
   voice, scan,
   addFrigo: () => frigoSheet(null),
   login: () => showLogin(),
+  retryPush: () => setupPush(true),
   skipLogin: () => closeLogin(),
   logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', async () => { const r = tokenRef(); if (r) { try { await r.remove(); } catch(e){} } pushStarted = false; firebase.auth().signOut(); }),
   editFrigo: el => { const f = DB.state.frigo.find(x => x.id === el.dataset.id); if (f) frigoSheet(f); },
