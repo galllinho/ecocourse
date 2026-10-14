@@ -21,8 +21,13 @@ jobs:
       - name: Projet Android
         run: |
           npx cap add android
-          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.WAKE_LOCK" />#' android/app/src/main/AndroidManifest.xml
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.WAKE_LOCK" />#' $M
+          sed -i 's#</manifest>#    <queries><intent><action android:name="android.speech.RecognitionService" /></intent></queries>\n</manifest>#' $M
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
+          if [ -f android-config/google-services.json ]; then cp android-config/google-services.json android/app/; fi
           npx cap sync android
+          grep -E "versionCode|versionName" android/app/build.gradle
       - name: Clé de signature (toujours la même, pour les mises à jour)
         env: { KEYSTORE_B64: "${{ secrets.KEYSTORE_B64 }}" }
         run: |

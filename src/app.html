@@ -291,6 +291,14 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
    on branchera Firebase derrière sans toucher à l'interface.
    ========================================================= */
 
+// ---------- Fonctions natives (dans l'APK) ----------
+const Native = (() => {
+  const C = window.Capacitor;
+  const isNative = !!(C && C.isNativePlatform && C.isNativePlatform());
+  const plug = n => (isNative && C.registerPlugin && C.isPluginAvailable(n)) ? C.registerPlugin(n) : null;
+  return { isNative, Push:plug('PushNotifications'), Scanner:plug('BarcodeScanner'), Speech:plug('SpeechRecognition'), Awake:plug('KeepAwake') };
+})();
+
 // ---------- Constantes ----------
 const USERS = ['Nabs', 'Gigi'];
 const LS_DATA = 'ecocourse.data.v1', LS_ME = 'ecocourse.me', LS_PREFS = 'ecocourse.prefs';
@@ -727,7 +735,7 @@ function renderSettings(){
       ${S.example ? `<button class="btn btn-soft" data-act="clearExamples">Effacer les exemples et commencer</button>` : ''}
       <button class="btn btn-danger" data-act="wipe">Tout effacer</button>
     </div>
-    <div class="sub" style="text-align:center">EcoCourse · version 2</div>`;
+    <div class="sub" style="text-align:center">EcoCourse · version 3${Native.isNative ? '' : ' (navigateur)'}</div>`;
   const cf = $('#cfgForm');
   if (cf) cf.onsubmit = e => {
     e.preventDefault();
@@ -768,7 +776,7 @@ const Sync = {
     firebase.database().ref('.info/connected').on('value', s => { this.connected = !!s.val(); render(); });
     firebase.auth().onAuthStateChanged(u => {
       this.user = u;
-      if (u) { closeLogin(); this.attach(); if (!me) pickMe(); }
+      if (u) { closeLogin(); this.attach(); if (!me) pickMe(); else setupPush(); }
       else { this.detach(); showLogin(); }
       render();
     });
@@ -811,6 +819,34 @@ const Sync = {
   },
   pending(){ return Object.keys(this.outbox()).length; },
 };
+
+// Notifications push (APK uniquement)
+const LS_TOKEN = 'ecocourse.token';
+let pushStarted = false;
+async function setupPush(){
+  const P = Native.Push;
+  if (!P || !window.ECOCOURSE_PUSH || !Sync.user || !me || pushStarted) return;
+  pushStarted = true;
+  try {
+    await P.createChannel({id:'ecocourse', name:'EcoCourse', description:'Ajouts, achats, commandes, budget et DLC', importance:4, visibility:1, vibration:true});
+    let perm = await P.checkPermissions();
+    if (perm.receive !== 'granted') perm = await P.requestPermissions();
+    if (perm.receive !== 'granted') { toast('Notifications refusées : activez-les dans les réglages Android'); return; }
+    await P.addListener('registration', t => saveToken(t.value));
+    await P.addListener('registrationError', e => console.warn('Push', e));
+    await P.addListener('pushNotificationActionPerformed', a => {
+      const t = (a && a.notification && a.notification.title) || '';
+      ui.tab = /consommer|périm/i.test(t) ? 'frigo' : /budget/i.test(t) ? 'budget' : 'liste'; render();
+    });
+    await P.register();
+  } catch(e){ pushStarted = false; console.warn('Push', e); }
+}
+function tokenRef(){ const id = lsGet(LS_TOKEN); return id && Sync.enabled ? firebase.database().ref(ROOT + '/tokens/' + id) : null; }
+function saveToken(token){
+  const id = token.replace(/[^A-Za-z0-9_-]/g, '_').slice(-140);
+  lsSet(LS_TOKEN, id);
+  firebase.database().ref(ROOT + '/tokens/' + id).set({token, user:me, at:Date.now()});
+}
 
 // Ce que l'autre vient de faire (en attendant les notifications push de l'étape 3)
 function announce(prev, next){
@@ -1039,16 +1075,30 @@ function endOrder(){
 // Écran allumé
 let wakeLock = null;
 async function requestWake(){
-  if (!prefs.wake || !('wakeLock' in navigator)) return;
+  if (!prefs.wake) return;
+  if (Native.Awake) { try { await Native.Awake.keepAwake(); } catch(e){} return; }
+  if (!('wakeLock' in navigator)) return;
   try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e){ wakeLock = null; }
 }
-function releaseWake(){ try { wakeLock && wakeLock.release(); } catch(e){} wakeLock = null; }
+function releaseWake(){ if (Native.Awake) Native.Awake.allowSleep().catch(() => {}); try { wakeLock && wakeLock.release(); } catch(e){} wakeLock = null; }
 document.addEventListener('visibilitychange', () => { const st = activeStatus(); if (document.visibilityState === 'visible' && st && st.by === me) requestWake(); });
 
 // ---------- Dictée vocale ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
-function voice(){
+async function voice(){
+  if (Native.Speech) {
+    const S = Native.Speech;
+    try {
+      const {available} = await S.available();
+      if (!available) { toast('Dictée indisponible sur ce téléphone'); return; }
+      const perm = await S.requestPermissions();
+      if (perm.speechRecognition && perm.speechRecognition !== 'granted') { toast('Micro refusé : autorisez-le dans les réglages Android'); return; }
+      const r = await S.start({language:'fr-FR', maxResults:1, prompt:'Dites vos articles', partialResults:false, popup:true});
+      if (r && r.matches && r.matches[0]) addItems(r.matches[0], $('#addStore').value);
+    } catch(e){ /* dictée annulée */ }
+    return;
+  }
   if (!SR) return;
   if (rec) { rec.stop(); return; }
   rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = false; rec.maxAlternatives = 1;
@@ -1067,6 +1117,23 @@ function stopScan(){
 }
 async function scan(){
   if (needMe()) return;
+  if (Native.Scanner) {
+    const B = Native.Scanner;
+    openSheet(`<h2>Scanner un produit</h2><p class="sub" style="margin:0" id="scanMsg">Ouverture de la caméra…</p>
+      <form class="adder-row" id="eanForm"><input class="field num" id="eanInput" inputmode="numeric" placeholder="ou tapez le code" aria-label="Code-barres"><button class="btn btn-primary" type="submit">Chercher</button></form>`);
+    $('#eanForm').onsubmit = e => { e.preventDefault(); const c = $('#eanInput').value.replace(/\D/g, ''); if (c.length >= 8) lookup(c); };
+    try {
+      const {available} = await B.isGoogleBarcodeScannerModuleAvailable();
+      if (!available) { await B.installGoogleBarcodeScannerModule(); $('#scanMsg').textContent = 'Installation du lecteur de code-barres en cours. Réessayez dans quelques secondes, ou tapez le code.'; return; }
+      const {barcodes} = await B.scan({formats:['EAN_13', 'EAN_8', 'UPC_A', 'UPC_E']});
+      if (barcodes && barcodes[0]) lookup(barcodes[0].rawValue || barcodes[0].displayValue);
+      else closeSheet();
+    } catch(e){
+      const m = $('#scanMsg');
+      if (m) m.textContent = /cancel/i.test(String(e && e.message)) ? 'Scan annulé. Vous pouvez taper le code.' : 'Scan impossible. Tapez les chiffres sous le code-barres.';
+    }
+    return;
+  }
   const canCam = 'BarcodeDetector' in window && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
   openSheet(`<h2>Scanner un produit</h2>
     ${canCam ? `<div class="video-box" id="vbox"><video id="scanVideo" playsinline muted></video></div><p class="sub" style="margin:0" id="scanMsg">Visez le code-barres, la ligne rouge au milieu.</p>` : `<p class="sub" style="margin:0" id="scanMsg">La caméra n'est pas disponible ici. Tapez les chiffres sous le code-barres.</p>`}
@@ -1190,7 +1257,7 @@ function pickMe(){
 const ACTIONS = {
   tab: el => { ui.tab = el.dataset.tab; window.scrollTo(0, 0); render(); },
   pickMe, closeSheet: () => closeSheet(),
-  setMe: el => { me = el.dataset.u; lsSet(LS_ME, me); closeSheet(); render(); },
+  setMe: el => { me = el.dataset.u; lsSet(LS_ME, me); closeSheet(); render(); const r = tokenRef(); if (r) r.update({user:me}); setupPush(); },
   toggle: el => toggleItem(el.dataset.id),
   editItem: el => editItem(el.dataset.id),
   addFav: el => { const h = DB.state.history[el.dataset.k]; if (h) addItems(h.name, ui.storeFilter); },
@@ -1204,7 +1271,7 @@ const ACTIONS = {
   addFrigo: () => frigoSheet(null),
   login: () => showLogin(),
   skipLogin: () => closeLogin(),
-  logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', () => firebase.auth().signOut()),
+  logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', async () => { const r = tokenRef(); if (r) { try { await r.remove(); } catch(e){} } pushStarted = false; firebase.auth().signOut(); }),
   editFrigo: el => { const f = DB.state.frigo.find(x => x.id === el.dataset.id); if (f) frigoSheet(f); },
   addExpense: expenseSheet,
   delExpense: el => {
@@ -1267,7 +1334,7 @@ document.addEventListener('submit', e => {
 window.addEventListener('storage', e => { if (e.key === LS_DATA) { DB.load(); render(); } });
 
 // ---------- Démarrage ----------
-$('#micBtn').hidden = !SR;
+$('#micBtn').hidden = !(SR || Native.Speech);
 applyPrefs();
 DB.load();
 render();

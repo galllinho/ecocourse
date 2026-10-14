@@ -2,11 +2,19 @@
   "name": "ecocourse",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "build:www": "node scripts/build-www.js" },
+  "scripts": {
+    "build:www": "node scripts/build-www.js"
+  },
   "dependencies": {
     "@capacitor/android": "6.2.0",
     "@capacitor/core": "6.2.0",
-    "firebase": "10.12.2"
+    "firebase": "10.12.2",
+    "@capacitor/push-notifications": "6.0.5",
+    "@capacitor-mlkit/barcode-scanning": "6.2.0",
+    "@capacitor-community/speech-recognition": "6.0.1",
+    "@capacitor-community/keep-awake": "5.0.1"
   },
-  "devDependencies": { "@capacitor/cli": "6.2.0" }
+  "devDependencies": {
+    "@capacitor/cli": "6.2.0"
+  }
 }
