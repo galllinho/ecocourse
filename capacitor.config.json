@@ -1,0 +1,6 @@
+{
+  "appId": "fr.nabsgigi.ecocourse",
+  "appName": "EcoCourse",
+  "webDir": "www",
+  "android": { "allowMixedContent": false }
+}

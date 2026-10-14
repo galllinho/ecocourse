@@ -1,0 +1,1276 @@
+<title>EcoCourse</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout : appli une colonne, en-tête collant, onglets fixes en bas, feuilles modales qui montent du bas */
+:root{
+  --bg:#f2f5ef; --surface:#ffffff; --sunk:#e8eee5; --ink:#17231b; --muted:#5b6a60; --line:#d7e0d3;
+  --accent:#2c6847; --accent-ink:#ffffff; --accent-soft:#deede2;
+  --ok:#2b7a4b; --ok-soft:#dff0e5; --warn:#a9620a; --warn-soft:#fbeed8; --bad:#bd3a27; --bad-soft:#fbe3de;
+  --shadow:0 1px 2px rgba(23,35,27,.06),0 6px 18px rgba(23,35,27,.07);
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:14px; --tabs-h:62px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111713; --surface:#1a221c; --sunk:#222c25; --ink:#e6eee8; --muted:#97a89c; --line:#2c3830;
+  --accent:#72c297; --accent-ink:#0f1a13; --accent-soft:#1f3428;
+  --ok:#6fcb92; --ok-soft:#1d3426; --warn:#e9a54a; --warn-soft:#3a2c17; --bad:#f07f69; --bad-soft:#3c211c;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111713; --surface:#1a221c; --sunk:#222c25; --ink:#e6eee8; --muted:#97a89c; --line:#2c3830;
+  --accent:#72c297; --accent-ink:#0f1a13; --accent-soft:#1f3428;
+  --ok:#6fcb92; --ok-soft:#1d3426; --warn:#e9a54a; --warn-soft:#3a2c17; --bad:#f07f69; --bad-soft:#3c211c;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* En-tête */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:700;font-size:20px}
+.sync{width:9px;height:9px;border-radius:50%;flex:none;margin-left:2px}
+.sync.on{background:var(--ok)}.sync.off{background:var(--warn)}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.me-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:14px}
+.avatar{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
+.av-Nabs{background:#3d6fb4}.av-Gigi{background:#b4527a}
+.status{display:flex;align-items:center;gap:10px;padding-block:9px;background:var(--warn-soft);color:var(--ink);font-size:14px}
+.status .dot{width:9px;height:9px;border-radius:50%;background:var(--warn);flex:none;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.status-txt{flex:1;min-width:0}
+.example-bar{font-size:13px;color:var(--muted);background:var(--sunk);padding-block:7px}
+
+main{padding-block:18px calc(var(--tabs-h) + 92px + env(safe-area-inset-bottom,0px))}
+.view{display:flex;flex-direction:column;gap:16px}
+.view-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.view-head h1{font-size:28px;line-height:1.1}
+.sub{color:var(--muted);font-size:13.5px}
+.label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* Boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 16px;border-radius:12px;font-weight:600;font-size:14.5px;border:1px solid var(--line);background:var(--surface)}
+.btn-primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn-soft{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.btn-danger{color:var(--bad);border-color:var(--bad-soft);background:var(--bad-soft)}
+.btn-block{width:100%}
+.btn-sm{min-height:34px;padding:0 12px;font-size:13.5px;border-radius:10px}
+.icon-btn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--sunk);color:var(--ink);flex:none}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Ajout */
+.adder{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow)}
+.adder-row{display:flex;gap:8px;align-items:center}
+.field{flex:1;min-width:0;height:42px;border-radius:11px;border:1px solid transparent;background:var(--sunk);padding:0 12px;font-size:15.5px}
+.field:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+select.field{appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 17px) 18px,calc(100% - 12px) 18px;background-size:5px 5px;background-repeat:no-repeat}
+textarea.field{height:140px;padding:10px 12px;resize:vertical}
+.adder-hint{font-size:12.5px;color:var(--muted);padding-left:2px}
+
+/* Puces */
+.chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chips.wrapit{flex-wrap:wrap;overflow:visible}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13.5px;font-weight:500;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.fav{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600}
+.chip .x{opacity:.6;font-size:16px;line-height:1}
+
+/* Liste */
+.group{display:flex;flex-direction:column;gap:6px}
+.group-head{display:flex;justify-content:space-between;align-items:baseline;padding:4px 2px 0}
+.items{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);min-height:58px}
+.item:first-child{border-top:0}
+.check{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none;color:transparent;transition:background .15s,border-color .15s}
+.check svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3}
+.item.done .check{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.item-main{flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;gap:1px;padding:2px 0}
+.item-name{font-weight:600;font-size:15.5px;overflow-wrap:anywhere}
+.item.done .item-name{text-decoration:line-through;color:var(--muted);font-weight:500}
+.qty{color:var(--accent);font-weight:700}
+.item-meta{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tag{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:7px;background:var(--sunk);color:var(--muted);flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thumb{width:36px;height:36px;border-radius:9px;object-fit:cover;flex:none;background:var(--sunk)}
+.mini-av{width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;font-size:9px;font-weight:700;color:#fff}
+.empty{text-align:center;padding:30px 16px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r)}
+.empty b{display:block;color:var(--ink);font-family:var(--f-display);font-size:17px;margin-bottom:4px}
+
+/* Barre "Ranger" */
+.dock{position:fixed;left:0;right:0;bottom:calc(var(--tabs-h) + env(safe-area-inset-bottom,0px));z-index:25;padding-block:10px}
+.dock .btn{box-shadow:var(--shadow);min-height:50px;font-size:15.5px}
+
+/* Frigo */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .v{font-family:var(--f-display);font-size:22px;font-weight:700;line-height:1.1}
+.stat .k{font-size:12px;color:var(--muted)}
+.badge{flex:none;font-size:12px;font-weight:700;padding:4px 9px;border-radius:8px;white-space:nowrap}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.none{background:var(--sunk);color:var(--muted)}
+.stripe{width:4px;align-self:stretch;border-radius:4px;flex:none}
+.stripe.ok{background:var(--ok)}.stripe.warn{background:var(--warn)}.stripe.bad{background:var(--bad)}.stripe.none{background:var(--line)}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r);font-size:14px}
+.alert.warn{background:var(--warn-soft)}.alert.bad{background:var(--bad-soft)}.alert.ok{background:var(--ok-soft)}
+.alert b{font-weight:700}
+
+/* Budget */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.month-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.month-nav h2{font-size:18px;text-transform:capitalize}
+.big{font-family:var(--f-display);font-size:38px;font-weight:700;line-height:1}
+.big small{font-size:16px;color:var(--muted);font-weight:600;font-family:var(--f-body)}
+.gauge{height:12px;border-radius:999px;background:var(--sunk);overflow:hidden;position:relative}
+.gauge > i{display:block;height:100%;border-radius:999px;background:var(--ok);transition:width .4s}
+.gauge.warn > i{background:var(--warn)}.gauge.bad > i{background:var(--bad)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:grid;grid-template-columns:minmax(0,7.5em) 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+.bar-row .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:10px;border-radius:6px;background:var(--sunk);overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.hist{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end}
+.hist-col{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.hist-track{position:relative;height:96px;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.hist-bar{width:100%;max-width:34px;border-radius:7px 7px 3px 3px;background:var(--accent-soft);min-height:3px}
+.hist-col.cur .hist-bar{background:var(--accent)}
+.hist-col.over .hist-bar{background:var(--bad)}
+.hist-lbl{font-size:11.5px;color:var(--muted);text-transform:capitalize}
+.hist-v{font-size:11px;color:var(--muted)}
+.cap-line{position:absolute;left:-4px;right:-4px;border-top:1.5px dashed var(--muted);opacity:.55;pointer-events:none}
+.exp{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.exp:first-child{border-top:0}
+.exp-main{flex:1;min-width:0}
+.exp-amt{font-weight:700}
+
+/* Réglages */
+.set-list{display:flex;flex-direction:column;gap:10px}
+.toggle{position:relative;width:46px;height:28px;border-radius:999px;background:var(--line);flex:none;transition:background .15s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.toggle[aria-checked="true"]{background:var(--accent)}
+.toggle[aria-checked="true"]::after{transform:translateX(18px)}
+.seg{display:flex;background:var(--sunk);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;height:38px;border-radius:9px;font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center;gap:7px}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:var(--shadow)}
+
+/* Onglets */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{display:flex;height:var(--tabs-h)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted);position:relative}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab[aria-current="page"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+.tab .count{position:absolute;top:7px;left:calc(50% + 8px);min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font-size:10.5px;display:grid;place-items:center;padding:0 5px}
+
+/* Feuille modale */
+.backdrop{position:fixed;inset:0;background:rgba(10,18,13,.45);z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:90%;overflow-y:auto;background:var(--surface);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.sheet-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding-top:8px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 4px}
+.sheet h2{font-size:21px}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-row .btn{flex:1}
+.rg-item{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.rg-item:first-of-type{border-top:0}
+.rg-item.off .rg-dates{display:none}
+.rg-dates{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rg-dates input[type=date]{height:34px;flex:1;min-width:130px;font-size:14px}
+.video-box{position:relative;border-radius:var(--r);overflow:hidden;background:#000;aspect-ratio:4/3;max-width:100%}
+.video-box video{width:100%;height:100%;object-fit:cover;display:block}
+.video-box::after{content:"";position:absolute;left:12%;right:12%;top:46%;height:2px;background:#ff5a4a;box-shadow:0 0 8px #ff5a4a}
+
+/* Toast */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabs-h) + 82px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--bg);padding:11px 14px 11px 16px;border-radius:13px;display:flex;align-items:center;gap:14px;font-size:14px;box-shadow:var(--shadow);width:max-content;max-width:calc(100% - 32px)}
+.toast button{color:var(--accent-soft);font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.04em}
+:root[data-theme="dark"] .toast button{color:var(--accent-ink)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* Mode grosses touches */
+:root.big-ui body{font-size:17px}
+:root.big-ui .item{min-height:68px}
+:root.big-ui .item-name{font-size:18px}
+:root.big-ui .check{width:34px;height:34px}
+:root.big-ui .btn{min-height:50px;font-size:16.5px}
+:root.big-ui .tab{font-size:13px}
+</style>
+
+<header class="top">
+  <div class="wrap top-row">
+    <div class="brand"><span class="brand-mark"><svg class="i" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg></span>EcoCourse<span id="syncDot" class="sync" hidden></span></div>
+    <button class="me-chip" data-act="pickMe" id="meChip" aria-label="Changer de profil"></button>
+  </div>
+  <div id="statusBar" hidden></div>
+  <div id="exampleBar" class="example-bar" hidden><div class="wrap">Données d'exemple pour essayer l'appli. Réglages › Effacer les exemples.</div></div>
+</header>
+
+<main class="wrap" id="main">
+  <!-- MA LISTE -->
+  <section class="view" id="view-liste">
+    <div class="view-head">
+      <div><h1>Ma liste</h1><div class="sub num" id="listCount"></div></div>
+      <button class="btn btn-sm btn-soft" data-act="startOrder" id="orderBtn"></button>
+    </div>
+    <form class="adder" id="addForm" autocomplete="off">
+      <div class="adder-row">
+        <input class="field" id="addName" placeholder="Ajouter un article…" aria-label="Article à ajouter" enterkeyhint="done">
+        <button type="button" class="icon-btn" data-act="voice" id="micBtn" aria-label="Dicter des articles" hidden><svg class="i" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <button type="button" class="icon-btn" data-act="scan" aria-label="Scanner un code-barres"><svg class="i" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M14 8v8M17 8v8"/></svg></button>
+      </div>
+      <div class="adder-row">
+        <select class="field" id="addStore" aria-label="Magasin"></select>
+        <button class="btn btn-primary" type="submit"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ajouter</button>
+      </div>
+      <div class="adder-hint">Astuce : « 2 lait » ajoute 2 laits. Plusieurs articles : séparez par des virgules.</div>
+    </form>
+    <div class="fgroup" id="favBox">
+      <span class="label">Vous achetez souvent</span>
+      <div class="chips" id="favChips"></div>
+    </div>
+    <div class="chips" id="storeFilter" role="group" aria-label="Filtrer par magasin"></div>
+    <div id="listBody" class="view"></div>
+  </section>
+
+  <!-- MON FRIGO -->
+  <section class="view" id="view-frigo" hidden>
+    <div class="view-head">
+      <div><h1>Mon frigo</h1><div class="sub num" id="frigoCount"></div></div>
+      <button class="btn btn-sm btn-soft" data-act="addFrigo"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Produit</button>
+    </div>
+    <div id="frigoBody" class="view"></div>
+  </section>
+
+  <!-- BUDGET -->
+  <section class="view" id="view-budget" hidden>
+    <div class="view-head">
+      <div><h1>Budget courses</h1><div class="sub">Total de chaque commande drive</div></div>
+      <button class="btn btn-sm btn-soft" data-act="addExpense"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Dépense</button>
+    </div>
+    <div id="budgetBody" class="view"></div>
+  </section>
+
+  <!-- RÉGLAGES -->
+  <section class="view" id="view-reglages" hidden>
+    <div class="view-head"><h1>Réglages</h1></div>
+    <div id="settingsBody" class="view"></div>
+  </section>
+</main>
+
+<div class="dock" id="dock" hidden><div class="wrap"><button class="btn btn-primary btn-block" data-act="ranger" id="dockBtn"></button></div></div>
+
+<nav class="tabs" aria-label="Navigation">
+  <div class="tabs-in wrap" style="padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))">
+    <button class="tab" data-act="tab" data-tab="liste"><svg class="i" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Liste<span class="count" id="cnt-liste" hidden></span></button>
+    <button class="tab" data-act="tab" data-tab="frigo"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M9 6v1.5M9 13.5V16"/></svg>Frigo<span class="count" id="cnt-frigo" hidden></span></button>
+    <button class="tab" data-act="tab" data-tab="budget"><svg class="i" viewBox="0 0 24 24"><path d="M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7l12-4 2 4M16 14h2"/></svg>Budget<span class="count" id="cnt-budget" hidden>!</span></button>
+    <button class="tab" data-act="tab" data-tab="reglages"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
+  </div>
+</nav>
+
+<div class="backdrop" id="backdrop" data-act="closeSheet" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><div class="wrap"><div class="sheet-in" id="sheetIn"></div></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+/* =========================================================
+   EcoCourse — étape 1 : application complète en mode local.
+   Toutes les données passent par l'objet DB : à l'étape 2,
+   on branchera Firebase derrière sans toucher à l'interface.
+   ========================================================= */
+
+// ---------- Constantes ----------
+const USERS = ['Nabs', 'Gigi'];
+const LS_DATA = 'ecocourse.data.v1', LS_ME = 'ecocourse.me', LS_PREFS = 'ecocourse.prefs';
+const STATUS_TTL = 4 * 3600e3; // une commande "en cours" expire après 4 h
+
+// Rayons, dans l'ordre d'un parcours de magasin. per = périssable par défaut, dlc = jours proposés par défaut.
+const RAYONS = [
+  {id:'fl',  name:'Fruits & légumes', per:true,  dlc:7,  kw:['pomme','banane','tomate','salade','laitue','carotte','oignon','ail','echalote','courgette','poivron','citron','orange','clementine','mandarine','fraise','avocat','patate','concombre','champignon','epinard','haricot vert','poireau','chou','brocoli','persil','coriandre','menthe','basilic','raisin','poire','kiwi','melon','pasteque','aubergine','navet','radis','betterave','mangue','ananas','peche','abricot','cerise','fruit','legume','gingembre','datte fraiche']},
+  {id:'vp',  name:'Viandes & poissons', per:true, dlc:3, kw:['poulet','boeuf','viande','agneau','mouton','merguez','steak','hache','dinde','saumon','poisson','cabillaud','colin','crevette','escalope','cordon','saucisse','veau','cuisse','pilon','brochette','kefta','filet','sardine fraiche','foie']},
+  {id:'cr',  name:'Crèmerie & œufs', per:true,  dlc:12, kw:['lait','yaourt','yogourt','beurre','fromage','creme','oeuf','mozzarella','emmental','gruyere','feta','skyr','kiri','lben','raib','camembert','chevre','ricotta','mascarpone','petit suisse','fromage blanc','danette','compote fraiche']},
+  {id:'bo',  name:'Boulangerie', per:true, dlc:3, kw:['pain','baguette','brioche','croissant','viennoiserie','pain de mie','msemen','batbout','galette','tortilla']},
+  {id:'su',  name:'Surgelés', per:false, dlc:0, kw:['surgele','glace','frites','pizza','nuggets','poisson pane']},
+  {id:'bs',  name:'Boissons', per:false, dlc:0, kw:['eau','jus','soda','coca','sirop','limonade','the glace','boisson']},
+  {id:'ep',  name:'Épicerie', per:false, dlc:0, kw:['pate','pates','spaghetti','riz','farine','sucre','huile','sel','poivre','cafe','the','cereale','conserve','sauce','epice','couscous','semoule','lentille','pois chiche','biscuit','gateau','chocolat','confiture','miel','thon','harissa','olive','vinaigre','moutarde','ketchup','mayonnaise','levure','cumin','paprika','bouillon','soupe','chips','amande','datte','noix']},
+  {id:'hm',  name:'Hygiène & maison', per:false, dlc:0, kw:['savon','shampoing','shampooing','dentifrice','brosse a dent','papier toilette','sopalin','essuie-tout','lessive','vaisselle','eponge','couche','gel douche','deodorant','sac poubelle','javel','adoucissant','mouchoir','coton','rasoir','serviette hygienique','nettoyant']},
+  {id:'au',  name:'Autres', per:false, dlc:0, kw:[]},
+];
+const RAYON = Object.fromEntries(RAYONS.map(r => [r.id, r]));
+
+// ---------- Utilitaires ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const norm = s => String(s).toLowerCase().replace(/œ/g, 'oe').replace(/æ/g, 'ae').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+const hkey = s => norm(s).replace(/[.#$\/\[\]]/g, '_');
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+
+function isoDate(d = new Date()){ const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000); return z.toISOString().slice(0, 10); }
+function plusDays(n){ const d = new Date(); d.setDate(d.getDate() + n); return isoDate(d); }
+function plusMonths(n){ const d = new Date(); d.setMonth(d.getMonth() + n); return isoDate(d); }
+function daysUntil(iso){
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  const t = new Date(y, m - 1, d), n = new Date(); n.setHours(0, 0, 0, 0);
+  return Math.round((t - n) / 864e5);
+}
+function fmtDay(iso){
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  const opts = {day:'numeric', month:'short'};
+  if (y !== new Date().getFullYear()) opts.year = 'numeric';
+  return new Date(y, m - 1, d).toLocaleDateString('fr-FR', opts);
+}
+const fmtTime = ts => new Date(ts).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+function fmtWhen(ts){
+  const d = new Date(ts), t = isoDate(d);
+  if (t === isoDate()) return 'à ' + fmtTime(ts);
+  if (t === plusDays(-1)) return 'hier';
+  return 'le ' + fmtDay(t);
+}
+const euro = n => (Math.round(n * 100) / 100).toLocaleString('fr-FR', {style:'currency', currency:'EUR'});
+const monthKey = iso => iso.slice(0, 7);
+function shiftMonth(key, n){ const [y, m] = key.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+function monthName(key, short){ const [y, m] = key.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('fr-FR', short ? {month:'short'} : {month:'long', year:'numeric'}).replace('.', ''); }
+
+function guessRayon(name){
+  const n = ' ' + norm(name) + ' ';
+  for (const r of RAYONS) if (r.kw.some(k => n.includes(' ' + k))) return r.id;
+  return 'au';
+}
+function parseQty(raw){
+  let s = raw.trim(), m;
+  if ((m = s.match(/^(\d{1,3})\s*(?:x|×)?\s+(.+)$/i))) return {qty:+m[1], name:m[2]};
+  if ((m = s.match(/^(.+?)\s*(?:x|×)\s*(\d{1,3})$/i))) return {qty:+m[2], name:m[1]};
+  return {qty:1, name:s};
+}
+const avatar = (u, cls = 'avatar') => `<span class="${cls} av-${esc(u)}">${esc((u || '?').charAt(0))}</span>`;
+const icon = {
+  check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  trash:'<svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  left:'<svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  right:'<svg class="i" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+};
+
+// ---------- Données ----------
+function emptyState(){
+  return {
+    items: [],      // liste de courses
+    frigo: [],      // stock avec DLC
+    expenses: [],   // dépenses de commandes
+    history: {},    // fréquence d'achat -> favoris automatiques
+    gaspi: [],      // {name, type:'mange'|'jete', at}
+    stores: ['Leclerc', 'Carrefour', 'Lidl', 'Boucherie Halal'],
+    budget: 600,
+    status: null,   // {store, by, at}
+    example: false,
+    updatedAt: Date.now(),
+  };
+}
+function exampleState(){
+  const s = emptyState(), now = Date.now(), H = 3600e3;
+  s.example = true;
+  const it = (name, qty, store, by, ago, checkedBy) => ({id:uid(), name, qty, store, rayon:guessRayon(name), addedBy:by, addedAt:now - ago * H, checked:!!checkedBy, checkedBy:checkedBy || null, checkedAt:checkedBy ? now - 0.3 * H : null, img:null});
+  s.items = [
+    it('Lait demi-écrémé', 2, 'Leclerc', 'Nabs', 30),
+    it('Tomates', 1, '', 'Gigi', 20),
+    it('Escalopes de poulet', 1, 'Boucherie Halal', 'Nabs', 5),
+    it('Merguez', 1, 'Boucherie Halal', 'Gigi', 4),
+    it('Pâtes', 3, 'Lidl', 'Gigi', 26),
+    it('Liquide vaisselle', 1, 'Lidl', 'Nabs', 50),
+    it('Yaourts nature', 2, 'Leclerc', 'Gigi', 28, 'Gigi'),
+    it('Coriandre', 1, '', 'Nabs', 3, 'Gigi'),
+  ];
+  const fr = (name, d, by) => ({id:uid(), name, dlc:d === null ? '' : plusDays(d), qty:1, rayon:guessRayon(name), addedBy:by, addedAt:now - 48 * H});
+  s.frigo = [fr('Crème fraîche', 1, 'Gigi'), fr('Fromage râpé', 5, 'Nabs'), fr('Steak haché', -1, 'Nabs'), fr('Salade', 2, 'Gigi'), fr('Beurre', 21, 'Gigi'), fr('Lben', 0, 'Nabs'), fr('Restes de tajine', null, 'Gigi')];
+  const cur = monthKey(isoDate());
+  const day = (key, d) => key + '-' + String(Math.min(d, 28)).padStart(2, '0');
+  const today = new Date().getDate();
+  const ex = (amount, store, date, by) => ({id:uid(), amount, store, date, by});
+  s.expenses = [
+    ex(87.40, 'Leclerc', day(cur, Math.max(1, today - 9)), 'Nabs'),
+    ex(42.15, 'Lidl', day(cur, Math.max(1, today - 6)), 'Gigi'),
+    ex(35.00, 'Boucherie Halal', day(cur, Math.max(1, today - 2)), 'Nabs'),
+  ];
+  [[1, 512], [2, 588], [3, 476], [4, 631], [5, 540]].forEach(([back, tot]) => {
+    const k = shiftMonth(cur, -back);
+    s.expenses.push(ex(Math.round(tot * .55 * 100) / 100, 'Leclerc', day(k, 6), 'Nabs'));
+    s.expenses.push(ex(Math.round(tot * .28 * 100) / 100, 'Lidl', day(k, 14), 'Gigi'));
+    s.expenses.push(ex(Math.round(tot * .17 * 100) / 100, 'Boucherie Halal', day(k, 21), 'Nabs'));
+  });
+  [['Lait demi-écrémé', 7], ['Pain', 6], ['Œufs', 5], ['Bananes', 4], ['Yaourts nature', 4], ['Eau', 3], ['Tomates', 3], ['Escalopes de poulet', 3], ['Semoule', 2]]
+    .forEach(([n, c]) => s.history[hkey(n)] = {name:n, n:c, last:now});
+  s.gaspi = [
+    ...Array.from({length:9}, (_, i) => ({id:uid(), name:'Produit', type:'mange', at:now - i * 30 * H})),
+    {id:uid(), name:'Salade', type:'jete', at:now - 70 * H},
+  ];
+  s.status = {store:'Leclerc', by:'Gigi', at:now - 0.4 * H};
+  return s;
+}
+
+// Format distant (Firebase) : collections indexées par id, pour que deux téléphones
+// puissent modifier des articles différents en même temps sans s'écraser.
+const KEYED = ['items', 'frigo', 'expenses', 'gaspi'];
+const SCALARS = ['stores', 'budget', 'status', 'example'];
+function toRemote(s){
+  const o = {};
+  KEYED.forEach(k => { o[k] = {}; (s[k] || []).forEach(x => { if (!x.id) x.id = uid(); o[k][x.id] = x; }); });
+  o.history = s.history || {};
+  SCALARS.forEach(k => o[k] = s[k] ?? null);
+  return JSON.parse(JSON.stringify(o));
+}
+function fromRemote(v){
+  const s = emptyState(); v = v || {};
+  KEYED.forEach(k => s[k] = Object.values(v[k] || {}));
+  s.items.sort((a, b) => b.addedAt - a.addedAt);
+  s.history = v.history || {};
+  if (v.stores) s.stores = Object.values(v.stores).filter(Boolean);
+  if (v.budget != null) s.budget = v.budget;
+  s.status = v.status || null;
+  s.example = !!v.example;
+  return s;
+}
+function diffRemote(a, b){
+  const u = {};
+  [...KEYED, 'history'].forEach(k => {
+    const A = a[k] || {}, B = b[k] || {};
+    for (const id in B) if (JSON.stringify(A[id]) !== JSON.stringify(B[id])) u[`${k}/${id}`] = B[id];
+    for (const id in A) if (!(id in B)) u[`${k}/${id}`] = null;
+  });
+  SCALARS.forEach(k => { if (JSON.stringify(a[k] ?? null) !== JSON.stringify(b[k] ?? null)) u[k] = b[k] ?? null; });
+  return u;
+}
+
+const DB = {
+  state: null,
+  load(){
+    const raw = lsGet(LS_DATA);
+    if (raw) { try { this.state = Object.assign(emptyState(), JSON.parse(raw)); return; } catch(e){} }
+    this.state = exampleState(); this.save();
+  },
+  save(){ this.state.updatedAt = Date.now(); lsSet(LS_DATA, JSON.stringify(this.state)); },
+  commit(fn){
+    const before = toRemote(this.state);
+    fn(this.state); this.save(); render();
+    Sync.push(diffRemote(before, toRemote(this.state)));
+  },
+  replace(next){
+    const before = toRemote(this.state);
+    this.state = next; this.save(); render();
+    Sync.push(diffRemote(before, toRemote(next)));
+  },
+};
+
+// Préférences propres à ce téléphone
+let me = lsGet(LS_ME);
+const prefs = (() => { try { return Object.assign({theme:'system', bigUi:false, wake:true}, JSON.parse(lsGet(LS_PREFS) || '{}')); } catch(e){ return {theme:'system', bigUi:false, wake:true}; } })();
+const savePrefs = () => lsSet(LS_PREFS, JSON.stringify(prefs));
+const ui = { tab:'liste', storeFilter:'', budgetMonth:monthKey(isoDate()), pendingProduct:null };
+
+function applyPrefs(){
+  const root = document.documentElement;
+  if (prefs.theme === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', prefs.theme);
+  root.classList.toggle('big-ui', !!prefs.bigUi);
+}
+
+// ---------- Rendu ----------
+function render(){
+  const S = DB.state;
+  // Profil
+  $('#meChip').innerHTML = me ? `${avatar(me)}${esc(me)}` : 'Qui êtes-vous ?';
+  // Bandeau "commande en cours"
+  const st = activeStatus();
+  const bar = $('#statusBar');
+  if (st) {
+    bar.hidden = false; bar.className = 'status';
+    const mine = st.by === me;
+    bar.innerHTML = `<div class="wrap" style="display:flex;align-items:center;gap:10px;width:100%"><span class="dot"></span><span class="status-txt">${mine ? 'Vous préparez' : `<b>${esc(st.by)}</b> prépare`} une commande <b>${esc(st.store)}</b> · depuis ${fmtTime(st.at)}</span>${mine ? '<button class="btn btn-sm" data-act="endOrder">Terminé</button>' : ''}</div>`;
+  } else bar.hidden = true;
+  $('#exampleBar').hidden = !S.example;
+  const dot = $('#syncDot');
+  dot.hidden = !Sync.enabled;
+  dot.className = 'sync ' + (Sync.user && Sync.connected ? 'on' : 'off');
+  dot.title = Sync.user ? (Sync.connected ? 'Synchronisé' : 'Hors ligne, envoi dès le retour du réseau') : 'Non connecté';
+
+  // Onglets
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.tab === ui.tab ? 'page' : 'false'));
+  ['liste', 'frigo', 'budget', 'reglages'].forEach(v => $('#view-' + v).hidden = v !== ui.tab);
+  const urgent = S.frigo.filter(f => f.dlc && daysUntil(f.dlc) <= 1).length;
+  const cf = $('#cnt-frigo'); cf.hidden = !urgent; cf.textContent = urgent;
+  const spent = monthTotal(monthKey(isoDate()));
+  $('#cnt-budget').hidden = !(S.budget && spent >= S.budget * .8);
+
+  renderList(); renderFrigo(); renderBudget(); renderSettings();
+}
+
+function activeStatus(){
+  const st = DB.state.status;
+  return st && Date.now() - st.at < STATUS_TTL ? st : null;
+}
+
+function storeOptions(selected, withAny = true){
+  return (withAny ? `<option value="">N'importe quel magasin</option>` : '') +
+    DB.state.stores.map(s => `<option ${s === selected ? 'selected' : ''} value="${esc(s)}">${esc(s)}</option>`).join('');
+}
+
+function renderList(){
+  const S = DB.state;
+  const sel = $('#addStore'), prev = sel.value;
+  sel.innerHTML = storeOptions(ui.storeFilter || prev);
+  if (!ui.storeFilter && prev && S.stores.includes(prev)) sel.value = prev;
+
+  const st = activeStatus();
+  $('#orderBtn').innerHTML = st && st.by === me ? 'Commande en cours' : 'Je prépare une commande';
+  $('#orderBtn').hidden = !!(st && st.by === me);
+
+  // Favoris automatiques : les plus achetés, absents de la liste
+  const onList = new Set(S.items.filter(i => !i.checked).map(i => hkey(i.name)));
+  const favs = Object.entries(S.history).filter(([k]) => !onList.has(k)).sort((a, b) => b[1].n - a[1].n).slice(0, 10);
+  $('#favBox').hidden = !favs.length;
+  $('#favChips').innerHTML = favs.map(([k, h]) => `<button class="chip fav" data-act="addFav" data-k="${esc(k)}">+ ${esc(h.name)}</button>`).join('');
+
+  // Filtre magasin
+  $('#storeFilter').innerHTML = [['', 'Tous']].concat(S.stores.map(s => [s, s])).map(([v, l]) => {
+    const n = S.items.filter(i => !i.checked && (!v || i.store === v || !i.store)).length;
+    return `<button class="chip" data-act="filter" data-v="${esc(v)}" aria-pressed="${ui.storeFilter === v}">${esc(l)} <span class="num" style="opacity:.6">${n}</span></button>`;
+  }).join('');
+
+  const visible = S.items.filter(i => !ui.storeFilter || i.store === ui.storeFilter || !i.store);
+  const todo = visible.filter(i => !i.checked), done = visible.filter(i => i.checked);
+  const allTodo = S.items.filter(i => !i.checked).length;
+  $('#listCount').textContent = allTodo ? `${allTodo} article${allTodo > 1 ? 's' : ''} à prendre` : 'Tout est pris';
+  const cl = $('#cnt-liste'); cl.hidden = true;
+
+  let html = '';
+  if (!todo.length && !done.length) {
+    html = `<div class="empty"><b>${ui.storeFilter ? 'Rien pour ' + esc(ui.storeFilter) : 'Liste vide'}</b>Ajoutez un article ci-dessus, dictez-le ou touchez un favori.</div>`;
+  } else {
+    for (const r of RAYONS) {
+      const g = todo.filter(i => (i.rayon || 'au') === r.id);
+      if (!g.length) continue;
+      html += `<div class="group"><div class="group-head"><span class="label">${esc(r.name)}</span><span class="sub num">${g.length}</span></div><ul class="items">${g.map(itemRow).join('')}</ul></div>`;
+    }
+    if (done.length) html += `<div class="group"><div class="group-head"><span class="label">Dans le panier</span><span class="sub num">${done.length}</span></div><ul class="items">${done.map(itemRow).join('')}</ul></div>`;
+  }
+  $('#listBody').innerHTML = html;
+
+  const checkedAll = S.items.filter(i => i.checked).length;
+  $('#dock').hidden = !(ui.tab === 'liste' && checkedAll);
+  $('#dockBtn').innerHTML = `Ranger les courses (${checkedAll})`;
+}
+
+function itemRow(i){
+  const meta = i.checked
+    ? `${avatar(i.checkedBy, 'mini-av')} pris par ${esc(i.checkedBy || '?')} ${i.checkedAt ? fmtWhen(i.checkedAt) : ''}`
+    : `${avatar(i.addedBy, 'mini-av')} ajouté par ${esc(i.addedBy || '?')} ${fmtWhen(i.addedAt)}`;
+  return `<li class="item ${i.checked ? 'done' : ''}">
+    <button class="check" data-act="toggle" data-id="${i.id}" aria-pressed="${i.checked}" aria-label="${i.checked ? 'Décocher' : 'Cocher'} ${esc(i.name)}">${icon.check}</button>
+    ${i.img ? `<img class="thumb" src="${esc(i.img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+    <button class="item-main" data-act="editItem" data-id="${i.id}">
+      <span class="item-name">${i.qty > 1 ? `<span class="qty num">${i.qty}×</span> ` : ''}${esc(i.name)}</span>
+      <span class="item-meta">${meta}</span>
+    </button>
+    ${i.store ? `<span class="tag">${esc(i.store)}</span>` : ''}
+  </li>`;
+}
+
+function dlcInfo(dlc){
+  const d = daysUntil(dlc);
+  if (d === null) return {cls:'none', txt:'Sans date', d:Infinity};
+  if (d < 0) return {cls:'bad', txt:`Périmé depuis ${-d} j`, d};
+  if (d === 0) return {cls:'bad', txt:"Aujourd'hui", d};
+  if (d === 1) return {cls:'warn', txt:'Demain', d};
+  if (d <= 3) return {cls:'warn', txt:`Dans ${d} j`, d};
+  return {cls:'ok', txt:d <= 30 ? `Dans ${d} j` : fmtDay(dlc), d};
+}
+
+function renderFrigo(){
+  const S = DB.state;
+  const list = S.frigo.map(f => ({f, info:dlcInfo(f.dlc)})).sort((a, b) => a.info.d - b.info.d);
+  $('#frigoCount').textContent = list.length ? `${list.length} produit${list.length > 1 ? 's' : ''}` : '';
+  const mk = monthKey(isoDate());
+  const g = S.gaspi.filter(x => monthKey(isoDate(new Date(x.at))) === mk);
+  const eaten = g.filter(x => x.type === 'mange').length, thrown = g.filter(x => x.type === 'jete').length;
+  const rate = eaten + thrown ? Math.round(eaten / (eaten + thrown) * 100) : null;
+
+  let html = `<div class="stats">
+    <div class="stat"><div class="v num">${eaten}</div><div class="k">consommés ce mois</div></div>
+    <div class="stat"><div class="v num" style="color:${thrown ? 'var(--bad)' : 'inherit'}">${thrown}</div><div class="k">jetés ce mois</div></div>
+    <div class="stat"><div class="v num">${rate === null ? '–' : rate + ' %'}</div><div class="k">sauvés du gaspi</div></div>
+  </div>`;
+  const expired = list.filter(x => x.info.d < 0), soon = list.filter(x => x.info.d >= 0 && x.info.d <= 1);
+  if (expired.length || soon.length) {
+    const parts = [];
+    if (soon.length) parts.push(`<b>${soon.length}</b> à consommer d'ici demain`);
+    if (expired.length) parts.push(`<b>${expired.length}</b> périmé${expired.length > 1 ? 's' : ''}`);
+    html += `<div class="alert ${expired.length ? 'bad' : 'warn'}"><span>${parts.join(' · ')}. Touchez un produit pour le marquer consommé ou jeté.</span></div>`;
+  }
+  if (!list.length) html += `<div class="empty"><b>Frigo vide</b>Cochez des articles dans la liste puis « Ranger les courses », ou ajoutez un produit ici.</div>`;
+  const groups = [
+    ['Périmé', x => x.info.d < 0],
+    ["À consommer vite", x => x.info.d >= 0 && x.info.d <= 3],
+    ['Cette semaine', x => x.info.d > 3 && x.info.d <= 7],
+    ['Plus tard', x => x.info.d > 7 && x.info.d !== Infinity],
+    ['Sans date', x => x.info.d === Infinity],
+  ];
+  for (const [name, test] of groups) {
+    const g2 = list.filter(test);
+    if (!g2.length) continue;
+    html += `<div class="group"><div class="group-head"><span class="label">${name}</span><span class="sub num">${g2.length}</span></div><ul class="items">${g2.map(({f, info}) => `
+      <li class="item"><span class="stripe ${info.cls}"></span>
+        <button class="item-main" data-act="editFrigo" data-id="${f.id}">
+          <span class="item-name">${f.qty > 1 ? `<span class="qty num">${f.qty}×</span> ` : ''}${esc(f.name)}</span>
+          <span class="item-meta">${f.dlc ? 'DLC ' + fmtDay(f.dlc) : 'Ajoutez une date'} · rangé par ${esc(f.addedBy || '?')}</span>
+        </button>
+        <span class="badge ${info.cls}">${info.txt}</span>
+      </li>`).join('')}</ul></div>`;
+  }
+  $('#frigoBody').innerHTML = html;
+}
+
+function monthExpenses(key){ return DB.state.expenses.filter(e => monthKey(e.date) === key); }
+function monthTotal(key){ return monthExpenses(key).reduce((a, e) => a + e.amount, 0); }
+
+function renderBudget(){
+  const S = DB.state, key = ui.budgetMonth, cur = monthKey(isoDate());
+  const exps = monthExpenses(key).sort((a, b) => b.date.localeCompare(a.date));
+  const total = exps.reduce((a, e) => a + e.amount, 0);
+  const pct = S.budget ? total / S.budget * 100 : 0;
+  const cls = pct >= 100 ? 'bad' : pct >= 80 ? 'warn' : '';
+  let alert = '';
+  if (S.budget && key === cur) {
+    const left = S.budget - total;
+    if (pct >= 100) alert = `<div class="alert bad"><span><b>Budget dépassé</b> de ${euro(-left)} ce mois-ci.</span></div>`;
+    else if (pct >= 80) alert = `<div class="alert warn"><span><b>${Math.round(pct)} % du budget utilisé.</b> Il reste ${euro(left)} jusqu'à la fin du mois.</span></div>`;
+  }
+  // Par magasin
+  const byStore = {};
+  exps.forEach(e => byStore[e.store || 'Autre'] = (byStore[e.store || 'Autre'] || 0) + e.amount);
+  const storeRows = Object.entries(byStore).sort((a, b) => b[1] - a[1]);
+  const maxS = storeRows.length ? storeRows[0][1] : 1;
+  // 6 derniers mois
+  const months = Array.from({length:6}, (_, i) => shiftMonth(key, i - 5));
+  const totals = months.map(monthTotal);
+  const scale = Math.max(S.budget || 0, ...totals, 1) * 1.08;
+  const prevTotal = monthTotal(shiftMonth(key, -1));
+  const diff = total - prevTotal;
+
+  $('#budgetBody').innerHTML = `
+    <div class="card">
+      <div class="month-nav">
+        <button class="icon-btn" data-act="month" data-v="-1" aria-label="Mois précédent">${icon.left}</button>
+        <h2>${monthName(key)}</h2>
+        <button class="icon-btn" data-act="month" data-v="1" aria-label="Mois suivant" ${key >= cur ? 'disabled style="opacity:.35"' : ''}>${icon.right}</button>
+      </div>
+      <div class="row" style="align-items:flex-end">
+        <div class="big num">${euro(total)} <small>/ ${euro(S.budget || 0)}</small></div>
+        <span class="badge ${cls || 'ok'} num">${Math.round(pct)} %</span>
+      </div>
+      <div class="gauge ${cls}" role="meter" aria-valuemin="0" aria-valuemax="${S.budget}" aria-valuenow="${total.toFixed(2)}"><i style="width:${Math.min(pct, 100)}%"></i></div>
+      <div class="row sub num"><span>${exps.length} commande${exps.length > 1 ? 's' : ''}</span><span>${prevTotal ? (diff >= 0 ? '+' : '−') + euro(Math.abs(diff)) + ' vs ' + monthName(shiftMonth(key, -1), true) : ''}</span></div>
+    </div>
+    ${alert}
+    ${storeRows.length ? `<div class="card"><span class="label">Par magasin</span><div class="bars">${storeRows.map(([s, v]) => `
+      <div class="bar-row"><span class="lbl">${esc(s)}</span><span class="bar"><i style="width:${v / maxS * 100}%"></i></span><span class="num">${euro(v)}</span></div>`).join('')}</div></div>` : ''}
+    <div class="card"><span class="label">6 derniers mois</span>
+      <div class="hist">
+        ${months.map((m, i) => `<div class="hist-col ${m === key ? 'cur' : ''} ${S.budget && totals[i] > S.budget ? 'over' : ''}">
+          <span class="hist-v num">${totals[i] ? Math.round(totals[i]) : '&nbsp;'}</span>
+          <span class="hist-track">${S.budget ? `<span class="cap-line" style="bottom:${S.budget / scale * 100}%"></span>` : ''}<span class="hist-bar" style="height:${totals[i] / scale * 100}%"></span></span>
+          <span class="hist-lbl">${monthName(m, true)}</span></div>`).join('')}
+      </div>
+      <span class="sub">Ligne pointillée : budget de ${euro(S.budget || 0)} par mois.</span>
+    </div>
+    <div class="group"><div class="group-head"><span class="label">Commandes du mois</span></div>
+      ${exps.length ? `<div class="items">${exps.map(e => `<div class="exp">${avatar(e.by)}<div class="exp-main"><div style="font-weight:600">${esc(e.store || 'Autre')}</div><div class="sub">${fmtDay(e.date)} · ${esc(e.by || '')}${e.note ? ' · ' + esc(e.note) : ''}</div></div><span class="exp-amt num">${euro(e.amount)}</span><button class="icon-btn" style="width:36px;height:36px;background:none;color:var(--muted)" data-act="delExpense" data-id="${e.id}" aria-label="Supprimer">${icon.trash}</button></div>`).join('')}</div>`
+        : `<div class="empty"><b>Aucune dépense</b>Après chaque drive, ajoutez le montant total du ticket.</div>`}
+    </div>`;
+}
+
+function renderSettings(){
+  const S = DB.state;
+  $('#settingsBody').innerHTML = `
+    <div class="card"><span class="label">Ce téléphone est celui de</span>
+      <div class="seg">${USERS.map(u => `<button data-act="setMe" data-u="${u}" aria-pressed="${me === u}">${avatar(u)}${u}</button>`).join('')}</div>
+    </div>
+    <div class="card"><span class="label">Magasins</span>
+      <div class="chips wrapit">${S.stores.map(s => `<button class="chip" data-act="delStore" data-s="${esc(s)}" aria-label="Retirer ${esc(s)}">${esc(s)} <span class="x">×</span></button>`).join('')}</div>
+      <form class="adder-row" id="storeForm"><input class="field" id="storeName" placeholder="Ajouter un magasin" aria-label="Nouveau magasin"><button class="btn" type="submit">Ajouter</button></form>
+    </div>
+    <div class="card"><span class="label">Budget mensuel</span>
+      <form class="adder-row" id="budgetForm"><input class="field num" id="budgetInput" inputmode="decimal" value="${S.budget || ''}" aria-label="Budget mensuel en euros"><button class="btn" type="submit">Enregistrer</button></form>
+      <span class="sub">Alerte à 80 % puis au dépassement.</span>
+    </div>
+    <div class="card set-list"><span class="label">Affichage</span>
+      <div class="seg">${[['system', 'Auto'], ['light', 'Clair'], ['dark', 'Sombre']].map(([v, l]) => `<button data-act="theme" data-v="${v}" aria-pressed="${prefs.theme === v}">${l}</button>`).join('')}</div>
+      <div class="row"><span>Grosses touches</span><button class="toggle" role="switch" aria-checked="${!!prefs.bigUi}" data-act="pref" data-k="bigUi" aria-label="Grosses touches"></button></div>
+      <div class="row"><span>Garder l'écran allumé pendant une commande</span><button class="toggle" role="switch" aria-checked="${!!prefs.wake}" data-act="pref" data-k="wake" aria-label="Garder l'écran allumé"></button></div>
+    </div>
+    ${syncCard()}
+    <div class="card"><span class="label">Données</span>
+      <div class="btn-row"><button class="btn" data-act="exportData">Copier une sauvegarde</button><button class="btn" data-act="importData">Restaurer</button></div>
+      ${S.example ? `<button class="btn btn-soft" data-act="clearExamples">Effacer les exemples et commencer</button>` : ''}
+      <button class="btn btn-danger" data-act="wipe">Tout effacer</button>
+    </div>
+    <div class="sub" style="text-align:center">EcoCourse · version 2</div>`;
+  const cf = $('#cfgForm');
+  if (cf) cf.onsubmit = e => {
+    e.preventDefault();
+    const cfg = parseConfig($('#cfgTxt').value);
+    if (!cfg) { $('#cfgErr').hidden = false; return; }
+    lsSet(LS_CFG, JSON.stringify(cfg)); location.reload();
+  };
+}
+
+// ---------- Synchronisation Firebase ----------
+const LS_CFG = 'ecocourse.firebase', LS_OUT = 'ecocourse.outbox', ROOT = 'households/main';
+function parseConfig(t){
+  const o = {};
+  for (const m of String(t).matchAll(/["']?(\w+)["']?\s*:\s*["']([^"']+)["']/g)) o[m[1]] = m[2];
+  return o.apiKey && o.databaseURL && o.projectId ? o : null;
+}
+function loadScript(src){
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+const Sync = {
+  available: false, enabled: false, user: null, connected: false, ref: null, first: true,
+  config(){
+    try { const c = JSON.parse(lsGet(LS_CFG) || 'null'); if (c) return c; } catch(e){}
+    return window.ECOCOURSE_FIREBASE || null;
+  },
+  async boot(){
+    await loadScript('config.js').catch(() => {});
+    try {
+      await loadScript('vendor/firebase-app-compat.js');
+      await loadScript('vendor/firebase-auth-compat.js');
+      await loadScript('vendor/firebase-database-compat.js');
+      this.available = !!window.firebase;
+    } catch(e){ this.available = false; }
+    const cfg = this.config();
+    if (!this.available || !cfg) { render(); return; }
+    try { firebase.initializeApp(cfg); } catch(e){ console.warn(e); render(); return; }
+    this.enabled = true;
+    firebase.database().ref('.info/connected').on('value', s => { this.connected = !!s.val(); render(); });
+    firebase.auth().onAuthStateChanged(u => {
+      this.user = u;
+      if (u) { closeLogin(); this.attach(); if (!me) pickMe(); }
+      else { this.detach(); showLogin(); }
+      render();
+    });
+  },
+  attach(){
+    if (this.ref) return;
+    this.ref = firebase.database().ref(ROOT);
+    const out = this.outbox();
+    if (Object.keys(out).length) this.send(out);   // modifications faites hors ligne
+    this.first = true;
+    this.ref.on('value', snap => {
+      const v = snap.val();
+      if (v === null && this.first) {
+        // Base vide : on démarre avec les données de ce téléphone (sans les exemples)
+        this.first = false;
+        const base = DB.state.example ? Object.assign(emptyState(), {stores:DB.state.stores, budget:DB.state.budget}) : DB.state;
+        this.ref.set(toRemote(base));
+        return;
+      }
+      const next = fromRemote(v);
+      if (!this.first) announce(DB.state, next);
+      this.first = false;
+      DB.state = next; DB.save(); render();
+    }, () => toast("Accès refusé à la base. Vérifiez les règles Firebase."));
+  },
+  detach(){ if (this.ref) { this.ref.off(); this.ref = null; } },
+  outbox(){ try { return JSON.parse(lsGet(LS_OUT) || '{}'); } catch(e){ return {}; } },
+  push(u){
+    if (!this.enabled || !Object.keys(u).length) return;
+    lsSet(LS_OUT, JSON.stringify(Object.assign(this.outbox(), u)));
+    if (this.ref) this.send(u);
+  },
+  send(u){
+    this.ref.update(u).then(() => {
+      const out = this.outbox();
+      for (const k in u) if (JSON.stringify(out[k]) === JSON.stringify(u[k])) delete out[k];
+      lsSet(LS_OUT, JSON.stringify(out));
+      render();
+    }).catch(e => console.warn('Synchro refusée', e));
+  },
+  pending(){ return Object.keys(this.outbox()).length; },
+};
+
+// Ce que l'autre vient de faire (en attendant les notifications push de l'étape 3)
+function announce(prev, next){
+  if (!me) return;
+  const pi = Object.fromEntries(prev.items.map(i => [i.id, i]));
+  const added = next.items.filter(i => !pi[i.id] && i.addedBy && i.addedBy !== me);
+  const taken = next.items.filter(i => pi[i.id] && !pi[i.id].checked && i.checked && i.checkedBy && i.checkedBy !== me);
+  const st = next.status, ps = prev.status;
+  const msgs = [];
+  if (st && st.by !== me && (!ps || ps.at !== st.at)) msgs.push(`${st.by} prépare une commande ${st.store}`);
+  if (added.length) msgs.push(added.length === 1 ? `${added[0].addedBy} a ajouté « ${added[0].name} »` : `${added[0].addedBy} a ajouté ${added.length} articles`);
+  if (taken.length) msgs.push(taken.length === 1 ? `${taken[0].checkedBy} a pris « ${taken[0].name} »` : `${taken[0].checkedBy} a pris ${taken.length} articles`);
+  const pf = new Set(prev.frigo.map(f => f.id)), stocked = next.frigo.filter(f => !pf.has(f.id) && f.addedBy !== me);
+  if (stocked.length) msgs.push(`${stocked[0].addedBy} a rangé ${stocked.length} produit${stocked.length > 1 ? 's' : ''} au frigo`);
+  if (msgs.length) { toast(msgs.join(' · ')); if (navigator.vibrate) navigator.vibrate(40); }
+}
+
+const AUTH_MSG = {
+  'auth/invalid-credential':'E-mail ou mot de passe incorrect.', 'auth/wrong-password':'E-mail ou mot de passe incorrect.',
+  'auth/user-not-found':'E-mail ou mot de passe incorrect.', 'auth/invalid-email':'Adresse e-mail invalide.',
+  'auth/too-many-requests':"Trop d'essais. Réessayez dans quelques minutes.", 'auth/network-request-failed':'Pas de connexion internet.',
+  'auth/user-disabled':'Ce compte est désactivé.',
+};
+let loginOpen = false;
+function showLogin(){
+  loginOpen = true;
+  openSheet(`<h2>Connexion</h2><p class="sub" style="margin:0">Connectez-vous avec le compte créé pour vous dans Firebase. Vous ne le ferez qu'une fois sur ce téléphone.</p>
+    <form id="loginForm" class="set-list">
+      <div class="fgroup"><label class="label" for="lgMail">E-mail</label><input class="field" id="lgMail" type="email" autocomplete="username" autofocus></div>
+      <div class="fgroup"><label class="label" for="lgPass">Mot de passe</label><input class="field" id="lgPass" type="password" autocomplete="current-password"></div>
+      <p class="sub" id="lgErr" style="margin:0;color:var(--bad)" hidden></p>
+      <button class="btn btn-primary" type="submit" id="lgBtn">Se connecter</button>
+      <button type="button" class="btn" data-act="skipLogin">Plus tard (sans synchro)</button>
+    </form>`, null, true);
+  $('#loginForm').onsubmit = async e => {
+    e.preventDefault();
+    const err = $('#lgErr'), btn = $('#lgBtn'); err.hidden = true; btn.disabled = true; btn.textContent = 'Connexion…';
+    try { await firebase.auth().signInWithEmailAndPassword($('#lgMail').value.trim(), $('#lgPass').value); }
+    catch(x){ err.textContent = AUTH_MSG[x.code] || `Connexion impossible (${x.code || 'erreur inconnue'}).`; err.hidden = false; btn.disabled = false; btn.textContent = 'Se connecter'; }
+  };
+}
+function closeLogin(){ if (loginOpen) { loginOpen = false; closeSheet(true); } }
+
+function syncCard(){
+  const head = '<span class="label">Synchronisation</span>';
+  if (!Sync.available) return `<div class="card">${head}<div class="sub">Mode local : les données restent sur cet appareil. La synchro entre vos deux téléphones fonctionne dans l'application installée.</div></div>`;
+  if (!Sync.enabled) return `<div class="card">${head}<div class="sub">Collez le bloc <b>firebaseConfig</b> copié depuis la console Firebase.</div>
+    <form class="set-list" id="cfgForm"><textarea class="field" id="cfgTxt" placeholder="apiKey: &quot;…&quot;, databaseURL: &quot;…&quot;, …"></textarea>
+    <p class="sub" id="cfgErr" style="margin:0;color:var(--bad)" hidden>Il faut au moins apiKey, projectId et databaseURL. Si databaseURL manque, créez d'abord la Realtime Database puis recopiez la configuration.</p>
+    <button class="btn btn-primary" type="submit">Activer la synchro</button></form></div>`;
+  if (!Sync.user) return `<div class="card">${head}<div class="sub">Non connecté. Vos modifications restent sur ce téléphone et seront envoyées après la connexion.</div><button class="btn btn-primary" data-act="login">Se connecter</button></div>`;
+  const n = Sync.pending();
+  return `<div class="card">${head}
+    <div class="row"><span>Compte</span><span class="sub" style="overflow-wrap:anywhere;text-align:right">${esc(Sync.user.email)}</span></div>
+    <div class="row"><span>État</span><span class="badge ${Sync.connected ? 'ok' : 'warn'}">${Sync.connected ? 'Synchronisé' : 'Hors ligne'}</span></div>
+    ${n ? `<div class="sub">${n} modification${n > 1 ? 's' : ''} en attente d'envoi.</div>` : ''}
+    <button class="btn" data-act="logout">Se déconnecter</button></div>`;
+}
+
+// ---------- Feuilles & toasts ----------
+let sheetCleanup = null, sheetLocked = false;
+function openSheet(html, onClose, locked){
+  closeSheet(true);
+  sheetLocked = !!locked;
+  $('#sheetIn').innerHTML = '<div class="grab"></div>' + html;
+  $('#sheet').hidden = false; $('#backdrop').hidden = false;
+  sheetCleanup = onClose || null;
+  const f = $('#sheetIn').querySelector('[autofocus]'); if (f) setTimeout(() => f.focus(), 60);
+}
+function closeSheet(force){
+  if (sheetLocked && force !== true) return;
+  sheetLocked = false;
+  $('#sheet').hidden = true; $('#backdrop').hidden = true;
+  if (sheetCleanup) { const c = sheetCleanup; sheetCleanup = null; c(); }
+}
+let toastTimer;
+function toast(msg, actionLabel, action){
+  const t = $('#toast');
+  t.innerHTML = `<span>${esc(msg)}</span>` + (actionLabel ? `<button id="toastAct">${esc(actionLabel)}</button>` : '');
+  t.hidden = false;
+  if (actionLabel) $('#toastAct').onclick = () => { t.hidden = true; action(); };
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, actionLabel ? 6000 : 2800);
+}
+function confirmSheet(title, text, okLabel, onOk, danger){
+  openSheet(`<h2>${esc(title)}</h2><p class="sub" style="margin:0">${esc(text)}</p>
+    <div class="btn-row"><button class="btn" data-act="closeSheet">Annuler</button><button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" id="okBtn">${esc(okLabel)}</button></div>`);
+  $('#okBtn').onclick = () => { closeSheet(); onOk(); };
+}
+
+// ---------- Actions : liste ----------
+function needMe(){ if (!me) { pickMe(); return true; } return false; }
+
+function addItems(raw, store, extra){
+  if (needMe()) return;
+  const parts = raw.split(/\s*[,;\n]\s*|\s+et\s+/i).map(s => s.trim()).filter(Boolean);
+  if (!parts.length) return;
+  const added = [];
+  DB.commit(S => {
+    for (const p of parts) {
+      const {qty, name: n0} = parseQty(p);
+      const name = cap(n0), k = hkey(name);
+      const existing = S.items.find(i => !i.checked && hkey(i.name) === k && (i.store || '') === (store || ''));
+      if (existing) existing.qty += qty;
+      else S.items.unshift(Object.assign({id:uid(), name, qty, store:store || '', rayon:guessRayon(name), addedBy:me, addedAt:Date.now(), checked:false, checkedBy:null, checkedAt:null, img:null}, parts.length === 1 ? extra : null));
+      const h = S.history[k] || {name, n:0};
+      h.n++; h.name = name; h.last = Date.now(); S.history[k] = h;
+      added.push(name);
+    }
+  });
+  toast(added.length > 1 ? `${added.length} articles ajoutés` : `« ${added[0]} » ajouté`);
+}
+
+function toggleItem(id){
+  if (needMe()) return;
+  DB.commit(S => {
+    const i = S.items.find(x => x.id === id); if (!i) return;
+    i.checked = !i.checked; i.checkedBy = i.checked ? me : null; i.checkedAt = i.checked ? Date.now() : null;
+  });
+}
+
+function removeItem(id){
+  const S = DB.state, idx = S.items.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const it = S.items[idx];
+  DB.commit(s => s.items.splice(idx, 1));
+  toast(`« ${it.name} » supprimé`, 'Annuler', () => DB.commit(s => s.items.splice(Math.min(idx, s.items.length), 0, it)));
+}
+
+function editItem(id){
+  const it = DB.state.items.find(x => x.id === id); if (!it) return;
+  openSheet(`<h2>Modifier l'article</h2>
+    <form id="editForm" class="set-list">
+      <div class="fgroup"><label class="label" for="eName">Nom</label><input class="field" id="eName" value="${esc(it.name)}"></div>
+      <div class="adder-row">
+        <div class="fgroup" style="flex:0 0 96px"><label class="label" for="eQty">Quantité</label><input class="field num" id="eQty" type="number" min="1" max="999" value="${it.qty}"></div>
+        <div class="fgroup" style="flex:1;min-width:0"><label class="label" for="eStore">Magasin</label><select class="field" id="eStore">${storeOptions(it.store)}</select></div>
+      </div>
+      <div class="fgroup"><label class="label" for="eRayon">Rayon</label><select class="field" id="eRayon">${RAYONS.map(r => `<option value="${r.id}" ${r.id === it.rayon ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></div>
+      <div class="btn-row"><button type="button" class="btn btn-danger" id="eDel">${icon.trash}Supprimer</button><button class="btn btn-primary" type="submit">Enregistrer</button></div>
+    </form>`);
+  $('#eDel').onclick = () => { closeSheet(); removeItem(id); };
+  $('#editForm').onsubmit = e => {
+    e.preventDefault();
+    const name = cap($('#eName').value.trim()); if (!name) return;
+    DB.commit(S => { const x = S.items.find(y => y.id === id); if (!x) return;
+      x.name = name; x.qty = Math.max(1, parseInt($('#eQty').value, 10) || 1); x.store = $('#eStore').value; x.rayon = $('#eRayon').value; });
+    closeSheet();
+  };
+}
+
+// Ranger les courses : articles cochés -> frigo (périssables) + dépense facultative
+function ranger(){
+  if (needMe()) return;
+  const checked = DB.state.items.filter(i => i.checked);
+  if (!checked.length) return;
+  const st = activeStatus();
+  const stores = [...new Set(checked.map(i => i.store).filter(Boolean))];
+  const draft = { rows:{}, amount:'', store: (st && st.by === me && st.store) || (stores.length === 1 ? stores[0] : '') };
+  checked.forEach(i => { const r = RAYON[i.rayon] || RAYON.au; draft.rows[i.id] = {frigo:r.per, dlc:r.per ? plusDays(r.dlc) : ''}; });
+
+  const quick = [['+3 j', () => plusDays(3)], ['+7 j', () => plusDays(7)], ['+15 j', () => plusDays(15)], ['+1 mois', () => plusMonths(1)]];
+  const draw = () => {
+    const nF = Object.values(draft.rows).filter(r => r.frigo).length;
+    openSheet(`<h2>Ranger les courses</h2>
+      <p class="sub" style="margin:0">Les produits marqués « Au frigo » vont dans Mon frigo avec leur date. Les autres quittent simplement la liste.</p>
+      <div>${checked.map(i => { const d = draft.rows[i.id]; return `
+        <div class="rg-item ${d.frigo ? '' : 'off'}">
+          <div class="row"><span style="font-weight:600;min-width:0;overflow-wrap:anywhere">${i.qty > 1 ? i.qty + '× ' : ''}${esc(i.name)}</span>
+            <span class="row" style="gap:8px;flex:none"><span class="sub">Au frigo</span><button class="toggle" role="switch" aria-checked="${d.frigo}" data-act="rgToggle" data-id="${i.id}" aria-label="Mettre ${esc(i.name)} au frigo"></button></span></div>
+          <div class="rg-dates">${quick.map(([l, f], qi) => `<button class="chip" data-act="rgQuick" data-id="${i.id}" data-q="${qi}" aria-pressed="${d.dlc === f()}">${l}</button>`).join('')}
+            <input class="field" type="date" data-rgdate="${i.id}" value="${d.dlc}" aria-label="DLC de ${esc(i.name)}"></div>
+        </div>`; }).join('')}</div>
+      <div class="card" style="padding:12px;background:var(--sunk);border:0">
+        <span class="label">Dépense de cette commande (facultatif)</span>
+        <div class="adder-row"><input class="field num" id="rgAmount" inputmode="decimal" placeholder="Montant €" value="${esc(draft.amount)}" style="background:var(--surface)"><select class="field" id="rgStore" style="background-color:var(--surface)">${storeOptions(draft.store, false)}</select></div>
+      </div>
+      <button class="btn btn-primary btn-block" id="rgGo">Ranger ${checked.length} article${checked.length > 1 ? 's' : ''}${nF ? ` · ${nF} au frigo` : ''}</button>`);
+    if (!draft.store) $('#rgStore').value = DB.state.stores[0] || '';
+    $('#rgAmount').oninput = e => draft.amount = e.target.value;
+    $('#rgStore').onchange = e => draft.store = e.target.value;
+    document.querySelectorAll('[data-rgdate]').forEach(inp => inp.onchange = e => { draft.rows[inp.dataset.rgdate].dlc = e.target.value; draw(); });
+    $('#rgGo').onclick = commitRanger;
+  };
+  ui.rgDraw = draw; ui.rgDraft = draft; ui.rgQuick = quick;
+
+  function commitRanger(){
+    const amount = parseFloat(String(draft.amount).replace(',', '.').replace(/[^\d.]/g, ''));
+    const store = $('#rgStore').value;
+    let nF = 0;
+    DB.commit(S => {
+      const ids = new Set(checked.map(i => i.id));
+      checked.forEach(i => {
+        const d = draft.rows[i.id];
+        if (d.frigo) { nF++; S.frigo.push({id:uid(), name:i.name, dlc:d.dlc || '', qty:i.qty, rayon:i.rayon, addedBy:me, addedAt:Date.now(), img:i.img || null}); }
+      });
+      S.items = S.items.filter(i => !ids.has(i.id));
+      if (amount > 0) S.expenses.push({id:uid(), amount:Math.round(amount * 100) / 100, store, date:isoDate(), by:me});
+      if (S.status && S.status.by === me) S.status = null;
+    });
+    closeSheet(); releaseWake();
+    toast(nF ? `${nF} produit${nF > 1 ? 's' : ''} rangé${nF > 1 ? 's' : ''} au frigo${amount > 0 ? ' · dépense ajoutée' : ''}` : 'Courses rangées');
+  }
+  draw();
+}
+
+// Commande en cours
+function startOrder(){
+  if (needMe()) return;
+  openSheet(`<h2>Je prépare une commande</h2><p class="sub" style="margin:0">${me === 'Nabs' ? 'Gigi' : 'Nabs'} verra un bandeau et pourra ajouter un oubli à temps. La liste se filtre sur le magasin choisi.</p>
+    <div class="chips wrapit">${DB.state.stores.map(s => `<button class="chip" data-act="pickOrderStore" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>`);
+}
+function setOrder(store){
+  closeSheet();
+  ui.storeFilter = store;
+  DB.commit(S => S.status = {store, by:me, at:Date.now()});
+  requestWake();
+  toast(`Commande ${store} en cours`);
+}
+function endOrder(){
+  DB.commit(S => { if (S.status && S.status.by === me) S.status = null; });
+  ui.storeFilter = ''; releaseWake(); render();
+  const n = DB.state.items.filter(i => i.checked).length;
+  if (n) toast(`${n} article${n > 1 ? 's' : ''} coché${n > 1 ? 's' : ''}`, 'Ranger', ranger);
+}
+
+// Écran allumé
+let wakeLock = null;
+async function requestWake(){
+  if (!prefs.wake || !('wakeLock' in navigator)) return;
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e){ wakeLock = null; }
+}
+function releaseWake(){ try { wakeLock && wakeLock.release(); } catch(e){} wakeLock = null; }
+document.addEventListener('visibilitychange', () => { const st = activeStatus(); if (document.visibilityState === 'visible' && st && st.by === me) requestWake(); });
+
+// ---------- Dictée vocale ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function voice(){
+  if (!SR) return;
+  if (rec) { rec.stop(); return; }
+  rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = false; rec.maxAlternatives = 1;
+  const btn = $('#micBtn'); btn.style.background = 'var(--bad-soft)'; btn.style.color = 'var(--bad)';
+  rec.onresult = e => { const txt = e.results[0][0].transcript; addItems(txt, $('#addStore').value); };
+  rec.onerror = e => toast(e.error === 'not-allowed' ? "Micro refusé : autorisez-le dans les réglages" : "Je n'ai pas compris, réessayez");
+  rec.onend = () => { rec = null; btn.style.background = ''; btn.style.color = ''; };
+  try { rec.start(); toast('Je vous écoute… ex. « lait, 2 baguettes et tomates »'); } catch(e){ rec = null; }
+}
+
+// ---------- Code-barres + Open Food Facts ----------
+let scanStream = null, scanLoop = null;
+function stopScan(){
+  if (scanLoop) cancelAnimationFrame(scanLoop); scanLoop = null;
+  if (scanStream) scanStream.getTracks().forEach(t => t.stop()); scanStream = null;
+}
+async function scan(){
+  if (needMe()) return;
+  const canCam = 'BarcodeDetector' in window && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+  openSheet(`<h2>Scanner un produit</h2>
+    ${canCam ? `<div class="video-box" id="vbox"><video id="scanVideo" playsinline muted></video></div><p class="sub" style="margin:0" id="scanMsg">Visez le code-barres, la ligne rouge au milieu.</p>` : `<p class="sub" style="margin:0" id="scanMsg">La caméra n'est pas disponible ici. Tapez les chiffres sous le code-barres.</p>`}
+    <form class="adder-row" id="eanForm"><input class="field num" id="eanInput" inputmode="numeric" placeholder="ex. 3017620422003" aria-label="Code-barres" ${canCam ? '' : 'autofocus'}><button class="btn btn-primary" type="submit">Chercher</button></form>`, stopScan);
+  $('#eanForm').onsubmit = e => { e.preventDefault(); const c = $('#eanInput').value.replace(/\D/g, ''); if (c.length >= 8) lookup(c); };
+  if (!canCam) return;
+  try {
+    const det = new BarcodeDetector({formats:['ean_13', 'ean_8', 'upc_a', 'upc_e']});
+    scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const v = $('#scanVideo'); if (!v) { stopScan(); return; }
+    v.srcObject = scanStream; await v.play();
+    const tick = async () => {
+      if (!scanStream) return;
+      try { const r = await det.detect(v); if (r.length) { const code = r[0].rawValue; stopScan(); if (navigator.vibrate) navigator.vibrate(60); lookup(code); return; } } catch(e){}
+      scanLoop = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch(e){
+    stopScan();
+    const vb = $('#vbox'); if (vb) vb.remove();
+    const m = $('#scanMsg'); if (m) m.textContent = "Caméra inaccessible. Tapez les chiffres sous le code-barres.";
+  }
+}
+async function lookup(code){
+  const m = $('#scanMsg'); if (m) m.textContent = `Recherche du code ${code}…`;
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name_fr,product_name,generic_name_fr,brands,image_front_small_url`);
+    const data = await res.json();
+    const p = data && data.status === 1 ? data.product : null;
+    const name = p && (p.product_name_fr || p.product_name || p.generic_name_fr);
+    if (!name) { if (m) m.textContent = `Code ${code} inconnu d'Open Food Facts. Tapez le nom à la main.`; return; }
+    const brand = p.brands ? p.brands.split(',')[0].trim() : '';
+    const full = brand && !norm(name).includes(norm(brand)) ? `${name} ${brand}` : name;
+    closeSheet();
+    $('#addName').value = full; $('#addName').focus();
+    ui.pendingProduct = {name:full, img:p.image_front_small_url || null, code};
+    toast('Produit trouvé : vérifiez puis touchez Ajouter');
+  } catch(e){
+    if (m) m.textContent = "Pas de connexion à Open Food Facts. Réessayez ou tapez le nom.";
+  }
+}
+
+// ---------- Frigo ----------
+function frigoSheet(f){
+  const isNew = !f;
+  const draft = f ? {...f} : {name:'', dlc:plusDays(7), qty:1};
+  const quick = [['+3 j', 3], ['+7 j', 7], ['+15 j', 15], ['+1 mois', 'm']];
+  openSheet(`<h2>${isNew ? 'Ajouter au frigo' : esc(f.name)}</h2>
+    <form id="frForm" class="set-list">
+      ${isNew ? `<div class="fgroup"><label class="label" for="frName">Produit</label><input class="field" id="frName" autofocus placeholder="ex. Reste de couscous"></div>` : ''}
+      <div class="fgroup"><span class="label">Date limite (DLC)</span>
+        <div class="rg-dates">${quick.map(([l, v]) => `<button type="button" class="chip" data-frq="${v}">${l}</button>`).join('')}<button type="button" class="chip" data-frq="none">Sans date</button></div>
+        <input class="field" type="date" id="frDate" value="${draft.dlc || ''}" aria-label="Date limite"></div>
+      <button class="btn btn-primary" type="submit">${isNew ? 'Ajouter' : 'Enregistrer la date'}</button>
+      ${isNew ? '' : `<div class="btn-row"><button type="button" class="btn" id="frEat" style="color:var(--ok)">Consommé</button><button type="button" class="btn" id="frThrow" style="color:var(--bad)">Jeté</button></div>
+      <button type="button" class="btn btn-soft" id="frRebuy">Remettre sur la liste</button>`}
+    </form>`);
+  const markQuick = () => document.querySelectorAll('[data-frq]').forEach(b => {
+    const v = b.dataset.frq, val = v === 'none' ? '' : v === 'm' ? plusMonths(1) : plusDays(+v);
+    b.setAttribute('aria-pressed', $('#frDate').value === val);
+  });
+  document.querySelectorAll('[data-frq]').forEach(b => b.onclick = () => {
+    const v = b.dataset.frq; $('#frDate').value = v === 'none' ? '' : v === 'm' ? plusMonths(1) : plusDays(+v); markQuick();
+  });
+  $('#frDate').onchange = markQuick; markQuick();
+  $('#frForm').onsubmit = e => {
+    e.preventDefault();
+    if (isNew) {
+      if (needMe()) return;
+      const {qty, name} = parseQty($('#frName').value); if (!name.trim()) return;
+      DB.commit(S => S.frigo.push({id:uid(), name:cap(name.trim()), dlc:$('#frDate').value, qty, rayon:guessRayon(name), addedBy:me, addedAt:Date.now()}));
+    } else DB.commit(S => { const x = S.frigo.find(y => y.id === f.id); if (x) x.dlc = $('#frDate').value; });
+    closeSheet();
+  };
+  if (!isNew) {
+    $('#frEat').onclick = () => outFrigo(f, 'mange');
+    $('#frThrow').onclick = () => outFrigo(f, 'jete');
+    $('#frRebuy').onclick = () => { closeSheet(); addItems(f.name, ''); };
+  }
+}
+function outFrigo(f, type){
+  closeSheet();
+  DB.commit(S => { S.frigo = S.frigo.filter(x => x.id !== f.id); S.gaspi.push({id:uid(), name:f.name, type, at:Date.now()}); });
+  toast(`${f.name} : ${type === 'mange' ? 'consommé' : 'jeté'}. Le racheter ?`, 'Ajouter', () => addItems(f.name, ''));
+}
+
+// ---------- Budget ----------
+function expenseSheet(){
+  if (needMe()) return;
+  const st = activeStatus();
+  openSheet(`<h2>Nouvelle dépense</h2>
+    <form id="exForm" class="set-list">
+      <div class="fgroup"><label class="label" for="exAmt">Montant total du ticket</label><input class="field num" id="exAmt" inputmode="decimal" placeholder="ex. 87,40" autofocus style="font-size:22px;height:52px"></div>
+      <div class="fgroup"><label class="label" for="exStore">Magasin</label><select class="field" id="exStore">${storeOptions(st ? st.store : '', false)}<option value="Autre">Autre</option></select></div>
+      <div class="adder-row">
+        <div class="fgroup" style="flex:1;min-width:0"><label class="label" for="exDate">Date</label><input class="field" type="date" id="exDate" value="${isoDate()}"></div>
+        <div class="fgroup" style="flex:1;min-width:0"><label class="label" for="exBy">Payé par</label><select class="field" id="exBy">${USERS.map(u => `<option ${u === me ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
+      </div>
+      <div class="fgroup"><label class="label" for="exNote">Note (facultatif)</label><input class="field" id="exNote" placeholder="ex. courses de la semaine"></div>
+      <p class="sub" id="exErr" style="margin:0;color:var(--bad)" hidden>Entrez un montant, par exemple 42,50.</p>
+      <button class="btn btn-primary" type="submit">Enregistrer</button>
+    </form>`);
+  $('#exForm').onsubmit = e => {
+    e.preventDefault();
+    const a = parseFloat($('#exAmt').value.replace(',', '.').replace(/[^\d.]/g, ''));
+    if (!(a > 0)) { $('#exErr').hidden = false; return; }
+    const date = $('#exDate').value || isoDate();
+    DB.commit(S => S.expenses.push({id:uid(), amount:Math.round(a * 100) / 100, store:$('#exStore').value, date, by:$('#exBy').value, note:$('#exNote').value.trim()}));
+    ui.budgetMonth = monthKey(date); render();
+    closeSheet(); toast(`${euro(a)} ajouté`);
+  };
+}
+
+// ---------- Profil ----------
+function pickMe(){
+  openSheet(`<h2>Qui utilise ce téléphone ?</h2><p class="sub" style="margin:0">On l'affiche à côté de ce que vous ajoutez et cochez. Modifiable dans Réglages.</p>
+    <div class="seg" style="padding:4px">${USERS.map(u => `<button data-act="setMe" data-u="${u}" style="height:56px;font-size:16px">${avatar(u)}${u}</button>`).join('')}</div>`);
+}
+
+// ---------- Délégation des clics ----------
+const ACTIONS = {
+  tab: el => { ui.tab = el.dataset.tab; window.scrollTo(0, 0); render(); },
+  pickMe, closeSheet: () => closeSheet(),
+  setMe: el => { me = el.dataset.u; lsSet(LS_ME, me); closeSheet(); render(); },
+  toggle: el => toggleItem(el.dataset.id),
+  editItem: el => editItem(el.dataset.id),
+  addFav: el => { const h = DB.state.history[el.dataset.k]; if (h) addItems(h.name, ui.storeFilter); },
+  filter: el => { ui.storeFilter = el.dataset.v; render(); },
+  ranger,
+  rgToggle: el => { const d = ui.rgDraft.rows[el.dataset.id]; d.frigo = !d.frigo; ui.rgDraw(); },
+  rgQuick: el => { ui.rgDraft.rows[el.dataset.id].dlc = ui.rgQuick[+el.dataset.q][1](); ui.rgDraw(); },
+  startOrder, endOrder,
+  pickOrderStore: el => setOrder(el.dataset.s),
+  voice, scan,
+  addFrigo: () => frigoSheet(null),
+  login: () => showLogin(),
+  skipLogin: () => closeLogin(),
+  logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', () => firebase.auth().signOut()),
+  editFrigo: el => { const f = DB.state.frigo.find(x => x.id === el.dataset.id); if (f) frigoSheet(f); },
+  addExpense: expenseSheet,
+  delExpense: el => {
+    const e = DB.state.expenses.find(x => x.id === el.dataset.id); if (!e) return;
+    DB.commit(S => S.expenses = S.expenses.filter(x => x.id !== e.id));
+    toast(`Dépense de ${euro(e.amount)} supprimée`, 'Annuler', () => DB.commit(S => S.expenses.push(e)));
+  },
+  month: el => { ui.budgetMonth = shiftMonth(ui.budgetMonth, +el.dataset.v); render(); },
+  delStore: el => { const s = el.dataset.s; DB.commit(S => S.stores = S.stores.filter(x => x !== s)); toast(`${s} retiré`, 'Annuler', () => DB.commit(S => S.stores.push(s))); },
+  theme: el => { prefs.theme = el.dataset.v; savePrefs(); applyPrefs(); render(); },
+  pref: el => { const k = el.dataset.k; prefs[k] = !prefs[k]; savePrefs(); applyPrefs(); render(); },
+  exportData: async () => {
+    const txt = JSON.stringify(DB.state);
+    try { await navigator.clipboard.writeText(txt); toast('Sauvegarde copiée. Collez-la dans une note.'); }
+    catch(e){ openSheet(`<h2>Sauvegarde</h2><p class="sub" style="margin:0">Sélectionnez tout et copiez ce texte.</p><textarea class="field" readonly id="expTxt">${esc(txt)}</textarea>`); $('#expTxt').select(); }
+  },
+  importData: () => {
+    openSheet(`<h2>Restaurer une sauvegarde</h2><p class="sub" style="margin:0">Collez le texte copié avec « Copier une sauvegarde ». Les données actuelles seront remplacées.</p>
+      <textarea class="field" id="impTxt" placeholder="Collez ici…"></textarea><p class="sub" id="impErr" style="margin:0;color:var(--bad)" hidden>Ce texte n'est pas une sauvegarde EcoCourse.</p>
+      <button class="btn btn-primary" id="impGo">Restaurer</button>`);
+    $('#impGo').onclick = () => {
+      try { const d = JSON.parse($('#impTxt').value); if (!Array.isArray(d.items)) throw 0; DB.replace(Object.assign(emptyState(), d)); closeSheet(); toast('Sauvegarde restaurée'); }
+      catch(e){ $('#impErr').hidden = false; }
+    };
+  },
+  clearExamples: () => confirmSheet('Effacer les exemples ?', 'La liste, le frigo et le budget repartent à zéro. Vos magasins et votre budget mensuel sont gardés.', 'Effacer', () => {
+    const keep = {stores:DB.state.stores, budget:DB.state.budget};
+    DB.replace(Object.assign(emptyState(), keep)); toast("C'est parti !");
+  }),
+  wipe: () => confirmSheet('Tout effacer ?', 'Liste, frigo, dépenses et historique seront supprimés' + (Sync.user ? ' sur vos deux téléphones.' : ' de ce téléphone.'), 'Tout effacer', () => { DB.replace(Object.assign(emptyState(), {stores:DB.state.stores, budget:DB.state.budget})); toast('Données effacées'); }, true),
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const fn = ACTIONS[el.dataset.act];
+  if (fn) { e.preventDefault(); fn(el, e); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').hidden) closeSheet(); });
+
+// Formulaires permanents
+$('#addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('#addName').value.trim(); if (!v) return;
+  const p = ui.pendingProduct, extra = p && p.name === v ? {img:p.img, code:p.code} : null;
+  addItems(v, $('#addStore').value, extra);
+  ui.pendingProduct = null;
+  if (me) $('#addName').value = '';
+});
+document.addEventListener('submit', e => {
+  if (e.target.id === 'storeForm') {
+    e.preventDefault(); const s = $('#storeName').value.trim();
+    if (s && !DB.state.stores.some(x => norm(x) === norm(s))) DB.commit(S => S.stores.push(s));
+  }
+  if (e.target.id === 'budgetForm') {
+    e.preventDefault(); const b = parseFloat($('#budgetInput').value.replace(',', '.'));
+    if (b >= 0) { DB.commit(S => S.budget = Math.round(b)); toast(`Budget : ${euro(Math.round(b))} par mois`); }
+  }
+});
+// Synchro entre onglets ouverts sur le même appareil
+window.addEventListener('storage', e => { if (e.key === LS_DATA) { DB.load(); render(); } });
+
+// ---------- Démarrage ----------
+$('#micBtn').hidden = !SR;
+applyPrefs();
+DB.load();
+render();
+if (!me) pickMe();
+Sync.boot();
+</script>

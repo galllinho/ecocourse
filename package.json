@@ -1,0 +1,12 @@
+{
+  "name": "ecocourse",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "build:www": "node scripts/build-www.js" },
+  "dependencies": {
+    "@capacitor/android": "6.2.0",
+    "@capacitor/core": "6.2.0",
+    "firebase": "10.12.2"
+  },
+  "devDependencies": { "@capacitor/cli": "6.2.0" }
+}

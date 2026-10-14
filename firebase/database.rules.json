@@ -1,0 +1,12 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "households": {
+      "main": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}
