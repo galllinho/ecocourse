@@ -213,6 +213,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
     <button class="me-chip" data-act="pickMe" id="meChip" aria-label="Changer de profil"></button>
   </div>
   <div id="statusBar" hidden></div>
+  <div id="updateBar" class="status" style="background:var(--accent-soft)" hidden></div>
   <div id="exampleBar" class="example-bar" hidden><div class="wrap">Données d'exemple pour essayer l'appli. Réglages › Effacer les exemples.</div></div>
 </header>
 
@@ -735,7 +736,7 @@ function renderSettings(){
       ${S.example ? `<button class="btn btn-soft" data-act="clearExamples">Effacer les exemples et commencer</button>` : ''}
       <button class="btn btn-danger" data-act="wipe">Tout effacer</button>
     </div>
-    <div class="sub" style="text-align:center">EcoCourse · version 3${Native.isNative ? '' : ' (navigateur)'}</div>`;
+    <div class="sub" style="text-align:center">EcoCourse · version ${window.ECOCOURSE_BUILD ? '1.' + window.ECOCOURSE_BUILD : 'test'}${Native.isNative ? '' : ' (navigateur)'}</div>`;
   const cf = $('#cfgForm');
   if (cf) cf.onsubmit = e => {
     e.preventDefault();
@@ -768,6 +769,7 @@ const Sync = {
       await loadScript('vendor/firebase-auth-compat.js');
       await loadScript('vendor/firebase-database-compat.js');
       this.available = !!window.firebase;
+      checkUpdate();
     } catch(e){ this.available = false; }
     const cfg = this.config();
     if (!this.available || !cfg) { render(); return; }
@@ -847,6 +849,26 @@ function saveToken(token){
   lsSet(LS_TOKEN, id);
   firebase.database().ref(ROOT + '/tokens/' + id).set({token, user:me, at:Date.now()});
 }
+
+// Nouvelle version disponible ?
+let lastUpdateCheck = 0;
+async function checkUpdate(){
+  const cur = +window.ECOCOURSE_BUILD || 0;
+  if (!Native.isNative || !cur || Date.now() - lastUpdateCheck < 3 * 3600e3) return;
+  lastUpdateCheck = Date.now();
+  try {
+    const r = await fetch('https://api.github.com/repos/galllinho/ecocourse/releases/latest', {cache:'no-store'});
+    if (!r.ok) return;
+    const rel = await r.json();
+    const n = parseInt(String(rel.tag_name || '').replace(/\D/g, ''), 10);
+    const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+    if (!(n > cur) || !apk) return;
+    const bar = $('#updateBar');
+    bar.innerHTML = `<div class="wrap" style="display:flex;align-items:center;gap:10px;width:100%"><span class="status-txt"><b>Nouvelle version disponible.</b> Elle s'installe par-dessus, sans rien perdre.</span><a class="btn btn-sm btn-primary" href="${esc(apk.browser_download_url)}" style="text-decoration:none">Télécharger</a></div>`;
+    bar.hidden = false;
+  } catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
 
 // Ce que l'autre vient de faire (en attendant les notifications push de l'étape 3)
 function announce(prev, next){
