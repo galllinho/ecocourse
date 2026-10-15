@@ -74,6 +74,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke
 .field{flex:1;min-width:0;height:42px;border-radius:11px;border:1px solid transparent;background:var(--sunk);padding:0 12px;font-size:15.5px}
 .field:focus{outline:none;border-color:var(--accent);background:var(--surface)}
 select.field{appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 17px) 18px,calc(100% - 12px) 18px;background-size:5px 5px;background-repeat:no-repeat}
+input[type=search].field{-webkit-appearance:none;appearance:none}
 textarea.field{height:140px;padding:10px 12px;resize:vertical}
 .adder-hint{font-size:12.5px;color:var(--muted);padding-left:2px}
 
@@ -1400,7 +1401,7 @@ function outFrigo(f, type, silent){
 }
 
 // ---------- Recettes ----------
-const TAGS = {antigaspi:'Anti-gaspi', proteine:'Protéiné', leger:'Léger', vege:'Végé', rapide:'Rapide', maghreb:'Tunisien', petitdej:'Petit-déj', dessert:'Dessert', fitness:'Sportif'};
+const TAGS = {maghreb:'Tunisien', asiatique:'Asiatique', italien:'Italien', classique:'Classiques', proteine:'Protéiné', leger:'Léger', vege:'Végé', rapide:'Rapide', antigaspi:'Anti-gaspi', petitdej:'Petit-déj', dessert:'Dessert', fitness:'Sportif'};
 // Objectifs AnounisFitness -> critères par portion
 const GOALS = {
   muscle:  {n:'Prise de muscle', txt:'au moins 35 g de protéines par portion', ok:m => m.p >= 35, sort:(a, b) => b.m.p - a.m.p},
@@ -1419,7 +1420,7 @@ function currentGoal(){ const f = myFitness(); return (f && GOALS[f.objectif]) |
 
 function macros(r, portions = 2){
   const t = {kcal:0, p:0, g:0, l:0};
-  r.ing.forEach(([k, g]) => { const P = PROD[k]; if (!P) return; const f = g / 100; t.kcal += P.nut[0] * f; t.p += P.nut[1] * f; t.g += P.nut[2] * f; t.l += P.nut[3] * f; });
+  r.ing.forEach(([k, g, note, opt]) => { const P = PROD[k]; if (!P || opt) return; const f = g / 100; t.kcal += P.nut[0] * f; t.p += P.nut[1] * f; t.g += P.nut[2] * f; t.l += P.nut[3] * f; });
   return {kcal:Math.round(t.kcal / 2), p:Math.round(t.p / 2), g:Math.round(t.g / 2), l:Math.round(t.l / 2)};
 }
 const MACROS = Object.fromEntries(RECETTES.map(r => [r.id, macros(r)]));
@@ -1456,7 +1457,7 @@ function qtyLabel(k, grams){
   if (P.u) { const n = Math.max(1, Math.round(grams / P.u[0] * 2) / 2); return `${String(n).replace('.', ',')} ${n > 1 ? P.u[2] : P.u[1]}`; }
   return grams >= 1000 ? `${String(Math.round(grams / 100) / 10).replace('.', ',')} kg` : `${Math.round(grams / 5) * 5} g`;
 }
-function ingName(k, note){ const P = PROD[k]; return P.n + (note ? ` (${note})` : ''); }
+function ingName(k, note){ const P = PROD[k]; return P.n + (note ? (P.n.includes('(') ? `, ${note}` : ` (${note})`) : ''); }
 
 function recipeCard(r, a, goal){
   const m = a.m;
@@ -1496,7 +1497,9 @@ function renderRecettes(){
         ${Sync.user ? (Object.keys(Fit.profiles).length ? 'Choisissez votre profil AnounisFitness pour adapter les recettes à votre objectif.' : 'Activez le mode à deux dans AnounisFitness pour adapter les recettes à votre objectif.') : 'Connectez-vous pour relier AnounisFitness.'}</span>
         ${Object.keys(Fit.profiles).length ? '<button class="btn btn-sm btn-soft" data-act="pickFit" style="align-self:flex-start">Relier mon profil AnounisFitness</button>' : ''}</div>`;
     }
-    const list = analysed.filter(x => !x.r.tags.includes('dessert') && goal.ok(x.a.m)).sort((x, y) => goal.sort(x.a, y.a));
+    const cats = [['', 'Tout'], ['maghreb', 'Tunisien'], ['asiatique', 'Asiatique'], ['italien', 'Italien'], ['classique', 'Classiques'], ['petitdej', 'Petit-déj']];
+    html += `<div class="chips" role="group" aria-label="Cuisine">${cats.map(([v, l]) => `<button class="chip" data-act="recTag" data-v="${v}" aria-pressed="${ui.recTag === v}">${l}</button>`).join('')}</div>`;
+    const list = analysed.filter(x => !x.r.tags.includes('dessert') && (!ui.recTag || x.r.tags.includes(ui.recTag)) && goal.ok(x.a.m)).sort((x, y) => goal.sort(x.a, y.a));
     html += `<ul class="items">${list.map(x => recipeCard(x.r, x.a, null)).join('')}</ul>`;
     html += `<p class="sub" style="margin:0">Calories et protéines calculées à partir des ingrédients (table Ciqual) : valeurs indicatives.</p>`;
   } else if (mode === 'menu') {
@@ -1505,12 +1508,24 @@ function renderRecettes(){
     const tags = Object.keys(TAGS);
     html += `<div class="chips" role="group" aria-label="Filtrer">${[['', 'Toutes']].concat(tags.map(t => [t, TAGS[t]])).map(([v, l]) =>
       `<button class="chip" data-act="recTag" data-v="${v}" aria-pressed="${ui.recTag === v}">${l}</button>`).join('')}</div>`;
-    const list = analysed.filter(x => !ui.recTag || x.r.tags.includes(ui.recTag)).sort((x, y) => x.r.n.localeCompare(y.r.n, 'fr'));
-    html += `<ul class="items">${list.map(x => recipeCard(x.r, x.a, goal)).join('')}</ul>`;
+    html += `<input class="field" id="recSearch" type="search" placeholder="Chercher une recette ou un ingrédient…" value="${esc(ui.recQ || '')}" aria-label="Chercher une recette">`;
+    html += `<ul class="items" id="recList">${recListHtml(analysed, goal)}</ul>`;
   }
   $('#recBody').innerHTML = html;
 }
 
+function recListHtml(analysed, goal){
+  const q = norm(ui.recQ || '');
+  const list = analysed.filter(x => (!ui.recTag || x.r.tags.includes(ui.recTag)) &&
+    (!q || norm(x.r.n).includes(q) || x.r.ing.some(([k]) => norm(PROD[k].n).includes(q)))).sort((x, y) => x.r.n.localeCompare(y.r.n, 'fr'));
+  return list.length ? list.map(x => recipeCard(x.r, x.a, goal)).join('') : '<li class="item"><span class="sub">Aucune recette ne correspond.</span></li>';
+}
+document.addEventListener('input', e => {
+  if (e.target.id !== 'recSearch') return;
+  ui.recQ = e.target.value;
+  const idx = stockIndex(), analysed = RECETTES.map(r => ({r, a:analyse(r, idx)}));
+  $('#recList').innerHTML = recListHtml(analysed, currentGoal());
+});
 function recipeSheet(id, portions){
   const r = RECETTES.find(x => x.id === id); if (!r) return;
   portions = portions || ui.recPortions || 2;
