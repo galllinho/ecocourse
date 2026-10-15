@@ -84,3 +84,54 @@ exports.rappelDlc = onSchedule({ schedule: '0 18 * * *', timeZone: 'Europe/Paris
   if (expired.length) parts.push(`${expired.length} produit${expired.length > 1 ? 's' : ''} périmé${expired.length > 1 ? 's' : ''}`);
   return notify(null, soon.length ? `${soon.length} produit${soon.length > 1 ? 's' : ''} à consommer vite` : 'Produits périmés', parts.join(' · '), 'dlc');
 });
+
+// ---------- Rappel Conso : rappels officiels de produits (data.economie.gouv.fr) ----------
+// On compare les codes-barres des produits suivis (scannés) aux fiches de rappel publiées.
+const RC_DATASETS = ['rappelconso-v2-gtin-trie', 'rappelconso-v2-gtin-espaces'];
+const pick = (rec, re) => { for (const [k, v] of Object.entries(rec)) if (re.test(k) && v != null && String(v).trim()) return Array.isArray(v) ? v.join(', ') : String(v); return ''; };
+async function rappelsPour(code) {
+  for (const ds of RC_DATASETS) {
+    const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/${ds}/records?where=${encodeURIComponent(`search("${code}")`)}&limit=10`;
+    try {
+      const r = await fetch(url, { headers: { 'User-Agent': 'EcoCourse (appli familiale)' } });
+      if (!r.ok) { console.warn('RappelConso', ds, r.status); continue; }
+      const { results = [] } = await r.json();
+      return results.filter(rec => JSON.stringify(rec).replace(/\s/g, '').includes(code)).map(rec => ({
+        ref: String(pick(rec, /^(id|numero_fiche|reference_fiche|rappel_guid|rappelguid)$/i) || pick(rec, /fiche|guid/i) || code).slice(0, 60),
+        title: pick(rec, /^(titre|libelle|nom_de_la_marque_du_produit|noms_des_modeles_ou_references)$/i) || pick(rec, /libelle|titre|modele/i),
+        brand: pick(rec, /marque_produit|nom_de_la_marque|marque/i),
+        risk: pick(rec, /risques?_encourus|motif_rappel|motif/i),
+        advice: pick(rec, /conduites?_a_tenir|conduite/i),
+        link: pick(rec, /lien_vers_la_fiche|fiche_rappel/i) || (pick(rec, /lien/i).startsWith('http') ? pick(rec, /lien/i) : ''),
+      }));
+    } catch (e) { console.warn('RappelConso', ds, e.message); }
+  }
+  return [];
+}
+async function verifierRappels(produits) {
+  const known = (await db().child('recalls').get()).val() || {};
+  const parCode = {};
+  produits.filter(p => p && p.code && /^\d{8,14}$/.test(p.code)).forEach(p => { (parCode[p.code] = parCode[p.code] || []).push(p); });
+  const nouveaux = [];
+  for (const code of Object.keys(parCode)) {
+    for (const rc of await rappelsPour(code)) {
+      const id = `${code}_${rc.ref}`.replace(/[.#$\/\[\]\s]/g, '_');
+      if (known[id]) continue;
+      const entry = { id, code, product: parCode[code][0].name, title: rc.title || '', brand: rc.brand || '', risk: rc.risk || '', advice: rc.advice || '', link: rc.link || '', at: Date.now() };
+      await db().child(`recalls/${id}`).set(entry); known[id] = entry; nouveaux.push(entry);
+    }
+  }
+  for (const r of nouveaux) await notify(null, 'Rappel produit', `${r.product} fait l'objet d'un rappel officiel. Ne le consommez pas.`, `rappel-${r.id}`);
+  return nouveaux.length;
+}
+// Dès qu'un produit scanné rejoint le frigo
+exports.rappelNouveauProduit = onValueCreated(opts('frigo/{id}'), async ev => {
+  const f = ev.data.val();
+  if (f && f.code) await verifierRappels([f]);
+});
+// Tous les matins, pour les rappels publiés après l'achat
+exports.rappelConsoQuotidien = onSchedule({ schedule: '0 9 * * *', timeZone: 'Europe/Paris', region: REGION }, async () => {
+  const frigo = Object.values((await db().child('frigo').get()).val() || {});
+  const n = await verifierRappels(frigo);
+  console.log(`RappelConso : ${frigo.filter(f => f.code).length} code(s) vérifié(s), ${n} nouveau(x) rappel(s)`);
+});

@@ -248,16 +248,24 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
   <section class="view" id="view-frigo" hidden>
     <div class="view-head">
       <div><h1>Mon frigo</h1><div class="sub num" id="frigoCount"></div></div>
-      <button class="btn btn-sm btn-soft" data-act="addFrigo"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Produit</button>
+      <span class="row" style="gap:6px"><button class="btn btn-sm" data-act="ticket">Ticket</button><button class="btn btn-sm btn-soft" data-act="addFrigo"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Produit</button></span>
     </div>
     <div id="frigoBody" class="view"></div>
+  </section>
+
+  <!-- RECETTES -->
+  <section class="view" id="view-recettes" hidden>
+    <div class="view-head">
+      <div><h1>Recettes</h1><div class="sub">Anti-gaspi, healthy et menu de la semaine</div></div>
+    </div>
+    <div id="recBody" class="view"></div>
   </section>
 
   <!-- BUDGET -->
   <section class="view" id="view-budget" hidden>
     <div class="view-head">
       <div><h1>Budget courses</h1><div class="sub">Total de chaque commande drive</div></div>
-      <button class="btn btn-sm btn-soft" data-act="addExpense"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Dépense</button>
+      <span class="row" style="gap:6px"><button class="btn btn-sm" data-act="ticket">Ticket</button><button class="btn btn-sm btn-soft" data-act="addExpense"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Dépense</button></span>
     </div>
     <div id="budgetBody" class="view"></div>
   </section>
@@ -275,6 +283,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
   <div class="tabs-in wrap" style="padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))">
     <button class="tab" data-act="tab" data-tab="liste"><svg class="i" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Liste<span class="count" id="cnt-liste" hidden></span></button>
     <button class="tab" data-act="tab" data-tab="frigo"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M9 6v1.5M9 13.5V16"/></svg>Frigo<span class="count" id="cnt-frigo" hidden></span></button>
+    <button class="tab" data-act="tab" data-tab="recettes"><svg class="i" viewBox="0 0 24 24"><path d="M6 13.5V20h12v-6.5M6 13.5a4 4 0 0 1-.9-7.9A5 5 0 0 1 12 3a5 5 0 0 1 6.9 2.6 4 4 0 0 1-.9 7.9zM6 16.5h12"/></svg>Recettes</button>
     <button class="tab" data-act="tab" data-tab="budget"><svg class="i" viewBox="0 0 24 24"><path d="M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7l12-4 2 4M16 14h2"/></svg>Budget<span class="count" id="cnt-budget" hidden>!</span></button>
     <button class="tab" data-act="tab" data-tab="reglages"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
   </div>
@@ -284,6 +293,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><div class="wrap"><div class="sheet-in" id="sheetIn"></div></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<script src="data.js"></script>
 <script>
 'use strict';
 /* =========================================================
@@ -368,6 +378,47 @@ function parseQty(raw){
   if ((m = s.match(/^(.+?)\s*(?:x|×)\s*(\d{1,3})$/i))) return {qty:+m[2], name:m[1]};
   return {qty:1, name:s};
 }
+// ---------- Base produits (data.js) ----------
+const PROD = window.ECO_PRODUITS || {}, RECETTES = window.ECO_RECETTES || [], DUREES = window.ECO_DUREES || [];
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const kwRe = w => new RegExp(`[\\s'’-]${reEsc(w)}(s|x|es)?(?=[\\s'’,.()-])`);
+const KW_RE = Object.entries(PROD).flatMap(([k, p]) => p.kw.map(w => [w, k])).sort((a, b) => b[0].length - a[0].length).map(([w, k]) => [kwRe(w), k]);
+const DUREES_RE = DUREES.map(d => ({...d, re:d.kw.map(kwRe)}));
+const pkCache = new Map();
+function productKey(name){
+  if (pkCache.has(name)) return pkCache.get(name);
+  const n = ' ' + norm(name).replace(/[^a-z0-9' -]/g, ' ') + ' ';
+  let key = null;
+  for (const [re, k] of KW_RE) if (re.test(n)) { key = k; break; }
+  pkCache.set(name, key);
+  return key;
+}
+const PLACES = {frigo:'Frigo', congel:'Congélo', placard:'Placard'};
+const PRIX_RAYON = {fl:2, vp:6, cr:2, bo:1.2, su:3, bs:1.5, ep:1.8, hm:3, au:2};
+// Durée de conservation, emplacement et prix indicatif d'un produit
+function shelfInfo(name, rayon){
+  const k = productKey(name);
+  if (k) { const p = PROD[k]; return {key:k, f:p.f, o:p.o || null, z:p.z || null, place:p.place, prix:p.prix}; }
+  const n = ' ' + norm(name) + ' ';
+  const d = DUREES_RE.find(x => x.re.some(re => re.test(n)));
+  const r = RAYON[rayon || guessRayon(name)] || RAYON.au;
+  if (d) return {key:null, f:d.f, o:d.o || null, z:d.z || null, place:d.place, prix:PRIX_RAYON[r.id]};
+  return {key:null, f:r.per ? r.dlc : null, o:null, z:r.per ? 90 : null, place:r.id === 'su' ? 'congel' : r.per ? 'frigo' : 'placard', prix:PRIX_RAYON[r.id]};
+}
+// Faut-il suivre la date de ce produit par défaut ? (périssable ou conservation courte)
+function trackByDefault(name, rayon){
+  const s = shelfInfo(name, rayon), r = RAYON[rayon || guessRayon(name)] || RAYON.au;
+  return r.per || (s.f !== null && s.f <= 60) || s.place === 'congel';
+}
+function defaultDlc(s){ return s.f ? plusDays(s.place === 'congel' && s.z ? s.z : s.f) : ''; }
+// Prix d'un produit : payé > dernier prix connu (tickets) > estimation
+function priceOf(f){
+  if (f.prix > 0) return f.prix;
+  const p = DB.state.prices[hkey(f.name)];
+  if (p && p.p > 0) return p.p * (f.qty || 1);
+  return (shelfInfo(f.name, f.rayon).prix || 2) * (f.qty || 1);
+}
+
 const avatar = (u, cls = 'avatar') => `<span class="${cls} av-${esc(u)}">${esc((u || '?').charAt(0))}</span>`;
 const icon = {
   check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -383,7 +434,10 @@ function emptyState(){
     frigo: [],      // stock avec DLC
     expenses: [],   // dépenses de commandes
     history: {},    // fréquence d'achat -> favoris automatiques
-    gaspi: [],      // {name, type:'mange'|'jete', at}
+    gaspi: [],      // {name, type:'mange'|'jete', at, value}
+    menu: [],       // menu de la semaine {id:'date_slot', date, slot, rid, portions}
+    recalls: [],    // rappels de produits trouvés par le serveur
+    prices: {},     // dernier prix connu par produit (tickets)
     stores: ['Leclerc', 'Carrefour', 'Lidl', 'Boucherie Halal'],
     budget: 600,
     status: null,   // {store, by, at}
@@ -405,8 +459,8 @@ function exampleState(){
     it('Yaourts nature', 2, 'Leclerc', 'Gigi', 28, 'Gigi'),
     it('Coriandre', 1, '', 'Nabs', 3, 'Gigi'),
   ];
-  const fr = (name, d, by) => ({id:uid(), name, dlc:d === null ? '' : plusDays(d), qty:1, rayon:guessRayon(name), addedBy:by, addedAt:now - 48 * H});
-  s.frigo = [fr('Crème fraîche', 1, 'Gigi'), fr('Fromage râpé', 5, 'Nabs'), fr('Steak haché', -1, 'Nabs'), fr('Salade', 2, 'Gigi'), fr('Beurre', 21, 'Gigi'), fr('Lben', 0, 'Nabs'), fr('Restes de tajine', null, 'Gigi')];
+  const fr = (name, d, by, place) => ({id:uid(), name, dlc:d === null ? '' : plusDays(d), qty:1, rayon:guessRayon(name), place:place || 'frigo', addedBy:by, addedAt:now - 48 * H});
+  s.frigo = [fr('Crème fraîche', 1, 'Gigi'), fr('Fromage râpé', 5, 'Nabs'), fr('Steak haché', -1, 'Nabs'), fr('Salade', 2, 'Gigi'), fr('Beurre', 21, 'Gigi'), fr('Lben', 0, 'Nabs'), fr('Restes de tajine', null, 'Gigi'), fr('Œufs', 12, 'Nabs'), fr('Courgettes', 3, 'Gigi'), fr('Blanc de poulet', 60, 'Nabs', 'congel'), fr('Pâtes', 200, 'Gigi', 'placard')];
   const cur = monthKey(isoDate());
   const day = (key, d) => key + '-' + String(Math.min(d, 28)).padStart(2, '0');
   const today = new Date().getDate();
@@ -425,8 +479,8 @@ function exampleState(){
   [['Lait demi-écrémé', 7], ['Pain', 6], ['Œufs', 5], ['Bananes', 4], ['Yaourts nature', 4], ['Eau', 3], ['Tomates', 3], ['Escalopes de poulet', 3], ['Semoule', 2]]
     .forEach(([n, c]) => s.history[hkey(n)] = {name:n, n:c, last:now});
   s.gaspi = [
-    ...Array.from({length:9}, (_, i) => ({id:uid(), name:'Produit', type:'mange', at:now - i * 30 * H})),
-    {id:uid(), name:'Salade', type:'jete', at:now - 70 * H},
+    ...Array.from({length:9}, (_, i) => ({id:uid(), name:'Produit', type:'mange', at:now - i * 30 * H, value:2.4})),
+    {id:uid(), name:'Salade', type:'jete', at:now - 70 * H, value:1.2},
   ];
   s.status = {store:'Leclerc', by:'Gigi', at:now - 0.4 * H};
   return s;
@@ -434,12 +488,13 @@ function exampleState(){
 
 // Format distant (Firebase) : collections indexées par id, pour que deux téléphones
 // puissent modifier des articles différents en même temps sans s'écraser.
-const KEYED = ['items', 'frigo', 'expenses', 'gaspi'];
+const KEYED = ['items', 'frigo', 'expenses', 'gaspi', 'menu', 'recalls'];
 const SCALARS = ['stores', 'budget', 'status', 'example'];
 function toRemote(s){
   const o = {};
   KEYED.forEach(k => { o[k] = {}; (s[k] || []).forEach(x => { if (!x.id) x.id = uid(); o[k][x.id] = x; }); });
   o.history = s.history || {};
+  o.prices = s.prices || {};
   SCALARS.forEach(k => o[k] = s[k] ?? null);
   return JSON.parse(JSON.stringify(o));
 }
@@ -448,6 +503,7 @@ function fromRemote(v){
   KEYED.forEach(k => s[k] = Object.values(v[k] || {}));
   s.items.sort((a, b) => b.addedAt - a.addedAt);
   s.history = v.history || {};
+  s.prices = v.prices || {};
   if (v.stores) s.stores = Object.values(v.stores).filter(Boolean);
   if (v.budget != null) s.budget = v.budget;
   s.status = v.status || null;
@@ -456,7 +512,7 @@ function fromRemote(v){
 }
 function diffRemote(a, b){
   const u = {};
-  [...KEYED, 'history'].forEach(k => {
+  [...KEYED, 'history', 'prices'].forEach(k => {
     const A = a[k] || {}, B = b[k] || {};
     for (const id in B) if (JSON.stringify(A[id]) !== JSON.stringify(B[id])) u[`${k}/${id}`] = B[id];
     for (const id in A) if (!(id in B)) u[`${k}/${id}`] = null;
@@ -489,7 +545,7 @@ const DB = {
 let me = lsGet(LS_ME);
 const prefs = (() => { try { return Object.assign({theme:'system', bigUi:false, wake:true}, JSON.parse(lsGet(LS_PREFS) || '{}')); } catch(e){ return {theme:'system', bigUi:false, wake:true}; } })();
 const savePrefs = () => lsSet(LS_PREFS, JSON.stringify(prefs));
-const ui = { tab:'liste', storeFilter:'', budgetMonth:monthKey(isoDate()), pendingProduct:null };
+const ui = { tab:'liste', storeFilter:'', budgetMonth:monthKey(isoDate()), pendingProduct:null, place:'all', recMode:'antigaspi', recTag:'', recPortions:2, menuSlot:null };
 
 function applyPrefs(){
   const root = document.documentElement;
@@ -518,13 +574,13 @@ function render(){
 
   // Onglets
   document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.tab === ui.tab ? 'page' : 'false'));
-  ['liste', 'frigo', 'budget', 'reglages'].forEach(v => $('#view-' + v).hidden = v !== ui.tab);
+  ['liste', 'frigo', 'recettes', 'budget', 'reglages'].forEach(v => $('#view-' + v).hidden = v !== ui.tab);
   const urgent = S.frigo.filter(f => f.dlc && daysUntil(f.dlc) <= 1).length;
   const cf = $('#cnt-frigo'); cf.hidden = !urgent; cf.textContent = urgent;
   const spent = monthTotal(monthKey(isoDate()));
   $('#cnt-budget').hidden = !(S.budget && spent >= S.budget * .8);
 
-  renderList(); renderFrigo(); renderBudget(); renderSettings();
+  renderList(); renderFrigo(); if (ui.tab === 'recettes') renderRecettes(); renderBudget(); renderSettings();
 }
 
 function activeStatus(){
@@ -610,26 +666,41 @@ function dlcInfo(dlc){
 
 function renderFrigo(){
   const S = DB.state;
-  const list = S.frigo.map(f => ({f, info:dlcInfo(f.dlc)})).sort((a, b) => a.info.d - b.info.d);
-  $('#frigoCount').textContent = list.length ? `${list.length} produit${list.length > 1 ? 's' : ''}` : '';
+  const all = S.frigo.map(f => ({f, info:dlcInfo(f.dlc), place:f.place || 'frigo'}));
+  const counts = {all:all.length, frigo:0, congel:0, placard:0};
+  all.forEach(x => counts[x.place]++);
+  if (ui.place !== 'all' && !counts[ui.place]) ui.place = 'all';
+  const list = all.filter(x => ui.place === 'all' || x.place === ui.place).sort((a, b) => a.info.d - b.info.d);
+  $('#frigoCount').textContent = all.length ? `${all.length} produit${all.length > 1 ? 's' : ''}` : '';
   const mk = monthKey(isoDate());
   const g = S.gaspi.filter(x => monthKey(isoDate(new Date(x.at))) === mk);
-  const eaten = g.filter(x => x.type === 'mange').length, thrown = g.filter(x => x.type === 'jete').length;
-  const rate = eaten + thrown ? Math.round(eaten / (eaten + thrown) * 100) : null;
+  const eaten = g.filter(x => x.type === 'mange'), thrown = g.filter(x => x.type === 'jete');
+  const val = arr => arr.reduce((a, x) => a + (x.value || 0), 0);
+  const saved = val(eaten), lost = val(thrown);
 
-  let html = `<div class="stats">
-    <div class="stat"><div class="v num">${eaten}</div><div class="k">consommés ce mois</div></div>
-    <div class="stat"><div class="v num" style="color:${thrown ? 'var(--bad)' : 'inherit'}">${thrown}</div><div class="k">jetés ce mois</div></div>
-    <div class="stat"><div class="v num">${rate === null ? '–' : rate + ' %'}</div><div class="k">sauvés du gaspi</div></div>
+  let html = '';
+  // Rappels de produits non lus
+  const recalls = (S.recalls || []).filter(r => !r.seen);
+  recalls.forEach(r => {
+    html += `<div class="alert bad" style="flex-direction:column;gap:8px"><span><b>Rappel produit : ${esc(r.product || r.title || 'produit')}</b>${r.brand ? ' (' + esc(r.brand) + ')' : ''}. ${esc(r.risk || 'Ce produit fait l’objet d’un rappel officiel.')}</span>
+      <span class="sub" style="color:inherit">${esc(r.advice || 'Ne le consommez pas et rapportez-le au magasin.')}</span>
+      <div class="btn-row">${r.link ? `<a class="btn btn-sm" href="${esc(r.link)}" target="_blank" rel="noopener" style="text-decoration:none">Voir la fiche</a>` : ''}<button class="btn btn-sm" data-act="seenRecall" data-id="${esc(r.id)}">J'ai vu</button></div></div>`;
+  });
+  html += `<div class="stats">
+    <div class="stat"><div class="v num">${eaten.length}</div><div class="k">consommés ce mois</div></div>
+    <div class="stat"><div class="v num" style="color:${thrown.length ? 'var(--bad)' : 'inherit'}">${thrown.length}</div><div class="k">jetés ce mois</div></div>
+    <div class="stat"><div class="v num" style="color:var(--ok)">${saved ? '≈ ' + Math.round(saved) + ' €' : '–'}</div><div class="k">sauvés${lost ? ` · ${Math.round(lost)} € jetés` : ''}</div></div>
   </div>`;
   const expired = list.filter(x => x.info.d < 0), soon = list.filter(x => x.info.d >= 0 && x.info.d <= 1);
   if (expired.length || soon.length) {
     const parts = [];
     if (soon.length) parts.push(`<b>${soon.length}</b> à consommer d'ici demain`);
     if (expired.length) parts.push(`<b>${expired.length}</b> périmé${expired.length > 1 ? 's' : ''}`);
-    html += `<div class="alert ${expired.length ? 'bad' : 'warn'}"><span>${parts.join(' · ')}. Touchez un produit pour le marquer consommé ou jeté.</span></div>`;
+    html += `<div class="alert ${expired.length ? 'bad' : 'warn'}" style="justify-content:space-between;align-items:center;flex-wrap:wrap"><span>${parts.join(' · ')}.</span>${soon.length ? '<button class="btn btn-sm" data-act="recUrgent">Idées de recettes</button>' : ''}</div>`;
   }
-  if (!list.length) html += `<div class="empty"><b>Frigo vide</b>Cochez des articles dans la liste puis « Ranger les courses », ou ajoutez un produit ici.</div>`;
+  if (all.length) html += `<div class="chips" role="group" aria-label="Emplacement">${[['all', 'Tout'], ['frigo', 'Frigo'], ['congel', 'Congélo'], ['placard', 'Placard']].map(([v, l]) =>
+    `<button class="chip" data-act="place" data-v="${v}" aria-pressed="${ui.place === v}">${l} <span class="num" style="opacity:.6">${counts[v]}</span></button>`).join('')}</div>`;
+  if (!all.length) html += `<div class="empty"><b>Frigo vide</b>Cochez des articles dans la liste puis « Ranger les courses », scannez un ticket, ou ajoutez un produit ici.</div>`;
   const groups = [
     ['Périmé', x => x.info.d < 0],
     ["À consommer vite", x => x.info.d >= 0 && x.info.d <= 3],
@@ -640,11 +711,11 @@ function renderFrigo(){
   for (const [name, test] of groups) {
     const g2 = list.filter(test);
     if (!g2.length) continue;
-    html += `<div class="group"><div class="group-head"><span class="label">${name}</span><span class="sub num">${g2.length}</span></div><ul class="items">${g2.map(({f, info}) => `
+    html += `<div class="group"><div class="group-head"><span class="label">${name}</span><span class="sub num">${g2.length}</span></div><ul class="items">${g2.map(({f, info, place}) => `
       <li class="item"><span class="stripe ${info.cls}"></span>
         <button class="item-main" data-act="editFrigo" data-id="${f.id}">
           <span class="item-name">${f.qty > 1 ? `<span class="qty num">${f.qty}×</span> ` : ''}${esc(f.name)}</span>
-          <span class="item-meta">${f.dlc ? 'DLC ' + fmtDay(f.dlc) : 'Ajoutez une date'} · rangé par ${esc(f.addedBy || '?')}</span>
+          <span class="item-meta">${ui.place === 'all' && place !== 'frigo' ? `<span class="tag" style="max-width:none">${PLACES[place]}</span>` : ''}${f.openedAt ? '<span class="tag" style="max-width:none">Ouvert</span>' : ''}${f.dlc ? 'DLC ' + fmtDay(f.dlc) : 'Ajoutez une date'}</span>
         </button>
         <span class="badge ${info.cls}">${info.txt}</span>
       </li>`).join('')}</ul></div>`;
@@ -732,6 +803,7 @@ function renderSettings(){
     </div>
     ${syncCard()}
     ${pushCard()}
+    ${fitCard()}
     <div class="card"><span class="label">Données</span>
       <div class="btn-row"><button class="btn" data-act="exportData">Copier une sauvegarde</button><button class="btn" data-act="importData">Restaurer</button></div>
       ${S.example ? `<button class="btn btn-soft" data-act="clearExamples">Effacer les exemples et commencer</button>` : ''}
@@ -804,8 +876,18 @@ const Sync = {
       this.first = false;
       DB.state = next; DB.save(); render();
     }, () => toast("Accès refusé à la base. Vérifiez les règles Firebase."));
+    // Profils publiés par AnounisFitness (même projet Firebase)
+    firebase.database().ref('fitness/couple').on('value', snap => {
+      Fit.profiles = snap.val() || {}; Fit.loaded = true;
+      if (!prefs.fitnessId) {
+        const ids = Object.keys(Fit.profiles);
+        const byName = ids.filter(id => me && norm(Fit.profiles[id].name || '') === norm(me));
+        if (byName.length === 1) { prefs.fitnessId = byName[0]; savePrefs(); }
+      }
+      if (ui.tab === 'recettes' || ui.tab === 'reglages') render();
+    }, () => { Fit.loaded = true; });
   },
-  detach(){ if (this.ref) { this.ref.off(); this.ref = null; } },
+  detach(){ if (this.ref) { this.ref.off(); this.ref = null; try { firebase.database().ref('fitness/couple').off(); } catch(e){} } },
   outbox(){ try { return JSON.parse(lsGet(LS_OUT) || '{}'); } catch(e){ return {}; } },
   push(u){
     if (!this.enabled || !Object.keys(u).length) return;
@@ -902,6 +984,8 @@ function announce(prev, next){
   if (taken.length) msgs.push(taken.length === 1 ? `${taken[0].checkedBy} a pris « ${taken[0].name} »` : `${taken[0].checkedBy} a pris ${taken.length} articles`);
   const pf = new Set(prev.frigo.map(f => f.id)), stocked = next.frigo.filter(f => !pf.has(f.id) && f.addedBy !== me);
   if (stocked.length) msgs.push(`${stocked[0].addedBy} a rangé ${stocked.length} produit${stocked.length > 1 ? 's' : ''} au frigo`);
+  const pr = new Set((prev.recalls || []).map(r => r.id)), nr = (next.recalls || []).filter(r => !pr.has(r.id));
+  if (nr.length) msgs.unshift(`Rappel produit : ${nr[0].product || nr[0].title}`);
   if (msgs.length) { toast(msgs.join(' · ')); if (navigator.vibrate) navigator.vibrate(40); }
 }
 
@@ -931,6 +1015,20 @@ function showLogin(){
 }
 function closeLogin(){ if (loginOpen) { loginOpen = false; closeSheet(true); } }
 
+function fitCard(){
+  if (!Sync.user) return '';
+  const ids = Object.keys(Fit.profiles), f = myFitness();
+  return `<div class="card"><span class="label">AnounisFitness</span>
+    ${ids.length ? `<div class="sub">Profil relié à ce téléphone : ${f ? `<b>${esc(f.name)}</b> · ${esc((GOALS[f.objectif] || GOALS.defaut).n)}` : 'aucun'}. Les recettes « Healthy » suivent son objectif.</div>
+      <button class="btn" data-act="pickFit">${f ? 'Changer de profil' : 'Relier mon profil'}</button>`
+    : '<div class="sub">Aucun profil partagé. Dans AnounisFitness, connectez-vous au mode à deux avec le même compte : vos objectifs apparaîtront ici.</div>'}</div>`;
+}
+function fitPicker(){
+  const ids = Object.keys(Fit.profiles);
+  openSheet(`<h2>Mon profil AnounisFitness</h2><p class="sub" style="margin:0">Choisissez le profil de la personne qui utilise ce téléphone.</p>
+    <div class="items">${ids.map(id => { const p = Fit.profiles[id]; return `<button class="exp" data-act="setFit" data-id="${esc(id)}" style="width:100%;text-align:left"><span class="avatar" style="background:${esc(p.color || '#3d6fb4')}">${esc((p.name || '?').charAt(0))}</span><div class="exp-main"><div style="font-weight:600">${esc(p.name || 'Profil')}</div><div class="sub">${esc((GOALS[p.objectif] || GOALS.defaut).n)}</div></div>${prefs.fitnessId === id ? '<span class="badge ok">Relié</span>' : ''}</button>`; }).join('')}</div>
+    ${prefs.fitnessId ? '<button class="btn" data-act="setFit" data-id="">Ne plus relier</button>' : ''}`);
+}
 function syncCard(){
   const head = '<span class="label">Synchronisation</span>';
   if (!Sync.available) return `<div class="card">${head}<div class="sub">Mode local : les données restent sur cet appareil. La synchro entre vos deux téléphones fonctionne dans l'application installée.</div></div>`;
@@ -1038,7 +1136,7 @@ function editItem(id){
   };
 }
 
-// Ranger les courses : articles cochés -> frigo (périssables) + dépense facultative
+// Ranger les courses : articles cochés -> frigo/congélo/placard avec date + dépense facultative
 function ranger(){
   if (needMe()) return;
   const checked = DB.state.items.filter(i => i.checked);
@@ -1046,32 +1144,34 @@ function ranger(){
   const st = activeStatus();
   const stores = [...new Set(checked.map(i => i.store).filter(Boolean))];
   const draft = { rows:{}, amount:'', store: (st && st.by === me && st.store) || (stores.length === 1 ? stores[0] : '') };
-  checked.forEach(i => { const r = RAYON[i.rayon] || RAYON.au; draft.rows[i.id] = {frigo:r.per, dlc:r.per ? plusDays(r.dlc) : ''}; });
+  checked.forEach(i => { const s = shelfInfo(i.name, i.rayon); draft.rows[i.id] = {frigo:trackByDefault(i.name, i.rayon), place:s.place, dlc:defaultDlc(s)}; });
 
   const quick = [['+3 j', () => plusDays(3)], ['+7 j', () => plusDays(7)], ['+15 j', () => plusDays(15)], ['+1 mois', () => plusMonths(1)]];
   const draw = () => {
     const nF = Object.values(draft.rows).filter(r => r.frigo).length;
     openSheet(`<h2>Ranger les courses</h2>
-      <p class="sub" style="margin:0">Les produits marqués « Au frigo » vont dans Mon frigo avec leur date. Les autres quittent simplement la liste.</p>
+      <p class="sub" style="margin:0">Les produits à suivre rejoignent l’onglet Frigo avec leur emplacement et leur date, proposée selon le produit. Les autres quittent simplement la liste.</p>
       <div>${checked.map(i => { const d = draft.rows[i.id]; return `
         <div class="rg-item ${d.frigo ? '' : 'off'}">
           <div class="row"><span style="font-weight:600;min-width:0;overflow-wrap:anywhere">${i.qty > 1 ? i.qty + '× ' : ''}${esc(i.name)}</span>
-            <span class="row" style="gap:8px;flex:none"><span class="sub">Au frigo</span><button class="toggle" role="switch" aria-checked="${d.frigo}" data-act="rgToggle" data-id="${i.id}" aria-label="Mettre ${esc(i.name)} au frigo"></button></span></div>
+            <span class="row" style="gap:8px;flex:none"><span class="sub">Suivre</span><button class="toggle" role="switch" aria-checked="${d.frigo}" data-act="rgToggle" data-id="${i.id}" aria-label="Suivre la date de ${esc(i.name)}"></button></span></div>
+          <div class="rg-dates">${Object.entries(PLACES).map(([v, l]) => `<button class="chip" data-act="rgPlace" data-id="${i.id}" data-v="${v}" aria-pressed="${d.place === v}">${l}</button>`).join('')}</div>
           <div class="rg-dates">${quick.map(([l, f], qi) => `<button class="chip" data-act="rgQuick" data-id="${i.id}" data-q="${qi}" aria-pressed="${d.dlc === f()}">${l}</button>`).join('')}
-            <input class="field" type="date" data-rgdate="${i.id}" value="${d.dlc}" aria-label="DLC de ${esc(i.name)}"></div>
+            <input class="field" type="date" data-rgdate="${i.id}" value="${d.dlc}" aria-label="Date limite de ${esc(i.name)}"></div>
         </div>`; }).join('')}</div>
       <div class="card" style="padding:12px;background:var(--sunk);border:0">
         <span class="label">Dépense de cette commande (facultatif)</span>
         <div class="adder-row"><input class="field num" id="rgAmount" inputmode="decimal" placeholder="Montant €" value="${esc(draft.amount)}" style="background:var(--surface)"><select class="field" id="rgStore" style="background-color:var(--surface)">${storeOptions(draft.store, false)}</select></div>
+        <button class="btn btn-sm" data-act="ticket" style="align-self:flex-start">Ou scanner le ticket</button>
       </div>
-      <button class="btn btn-primary btn-block" id="rgGo">Ranger ${checked.length} article${checked.length > 1 ? 's' : ''}${nF ? ` · ${nF} au frigo` : ''}</button>`);
+      <button class="btn btn-primary btn-block" id="rgGo">Ranger ${checked.length} article${checked.length > 1 ? 's' : ''}${nF ? ` · ${nF} suivi${nF > 1 ? 's' : ''}` : ''}</button>`);
     if (!draft.store) $('#rgStore').value = DB.state.stores[0] || '';
     $('#rgAmount').oninput = e => draft.amount = e.target.value;
     $('#rgStore').onchange = e => draft.store = e.target.value;
     document.querySelectorAll('[data-rgdate]').forEach(inp => inp.onchange = e => { draft.rows[inp.dataset.rgdate].dlc = e.target.value; draw(); });
     $('#rgGo').onclick = commitRanger;
   };
-  ui.rgDraw = draw; ui.rgDraft = draft; ui.rgQuick = quick;
+  ui.rgDraw = draw; ui.rgDraft = draft; ui.rgQuick = quick; ui.rgItems = checked;
 
   function commitRanger(){
     const amount = parseFloat(String(draft.amount).replace(',', '.').replace(/[^\d.]/g, ''));
@@ -1081,14 +1181,14 @@ function ranger(){
       const ids = new Set(checked.map(i => i.id));
       checked.forEach(i => {
         const d = draft.rows[i.id];
-        if (d.frigo) { nF++; S.frigo.push({id:uid(), name:i.name, dlc:d.dlc || '', qty:i.qty, rayon:i.rayon, addedBy:me, addedAt:Date.now(), img:i.img || null}); }
+        if (d.frigo) { nF++; S.frigo.push({id:uid(), name:i.name, dlc:d.dlc || '', qty:i.qty, rayon:i.rayon, place:d.place, addedBy:me, addedAt:Date.now(), img:i.img || null, code:i.code || null}); }
       });
       S.items = S.items.filter(i => !ids.has(i.id));
       if (amount > 0) S.expenses.push({id:uid(), amount:Math.round(amount * 100) / 100, store, date:isoDate(), by:me});
       if (S.status && S.status.by === me) S.status = null;
     });
     closeSheet(); releaseWake();
-    toast(nF ? `${nF} produit${nF > 1 ? 's' : ''} rangé${nF > 1 ? 's' : ''} au frigo${amount > 0 ? ' · dépense ajoutée' : ''}` : 'Courses rangées');
+    toast(nF ? `${nF} produit${nF > 1 ? 's' : ''} rangé${nF > 1 ? 's' : ''}${amount > 0 ? ' · dépense ajoutée' : ''}` : 'Courses rangées');
   }
   draw();
 }
@@ -1220,16 +1320,29 @@ async function lookup(code){
 // ---------- Frigo ----------
 function frigoSheet(f){
   const isNew = !f;
-  const draft = f ? {...f} : {name:'', dlc:plusDays(7), qty:1};
+  const draft = f ? {...f, place:f.place || 'frigo'} : {name:'', dlc:plusDays(7), qty:1, place:'frigo'};
   const quick = [['+3 j', 3], ['+7 j', 7], ['+15 j', 15], ['+1 mois', 'm']];
-  openSheet(`<h2>${isNew ? 'Ajouter au frigo' : esc(f.name)}</h2>
+  const s = shelfInfo(draft.name || '', draft.rayon);
+  const canFreeze = !isNew && draft.place !== 'congel';
+  const freezeDays = s.z || 90;
+  const canOpen = !isNew && !draft.openedAt && draft.place !== 'congel' && s.o;
+  openSheet(`<h2>${isNew ? 'Ajouter un produit' : esc(f.name)}</h2>
     <form id="frForm" class="set-list">
       ${isNew ? `<div class="fgroup"><label class="label" for="frName">Produit</label><input class="field" id="frName" autofocus placeholder="ex. Reste de couscous"></div>` : ''}
-      <div class="fgroup"><span class="label">Date limite (DLC)</span>
+      <div class="fgroup"><span class="label">Emplacement</span>
+        <div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button type="button" data-frplace="${v}" aria-pressed="${draft.place === v}">${l}</button>`).join('')}</div></div>
+      <div class="fgroup"><span class="label">Date limite</span>
         <div class="rg-dates">${quick.map(([l, v]) => `<button type="button" class="chip" data-frq="${v}">${l}</button>`).join('')}<button type="button" class="chip" data-frq="none">Sans date</button></div>
         <input class="field" type="date" id="frDate" value="${draft.dlc || ''}" aria-label="Date limite"></div>
-      <button class="btn btn-primary" type="submit">${isNew ? 'Ajouter' : 'Enregistrer la date'}</button>
-      ${isNew ? '' : `<div class="btn-row"><button type="button" class="btn" id="frEat" style="color:var(--ok)">Consommé</button><button type="button" class="btn" id="frThrow" style="color:var(--bad)">Jeté</button></div>
+      ${isNew ? '' : `<div class="fgroup"><label class="label" for="frPrix">Prix payé (pour les euros sauvés)</label><input class="field num" id="frPrix" inputmode="decimal" placeholder="≈ ${esc(String(priceOf(f).toFixed(2)).replace('.', ','))} € estimé" value="${f.prix ? String(f.prix).replace('.', ',') : ''}"></div>`}
+      <button class="btn btn-primary" type="submit">${isNew ? 'Ajouter' : 'Enregistrer'}</button>
+      ${isNew ? '' : `
+      ${canOpen || canFreeze || draft.place === 'congel' ? `<div class="btn-row">
+        ${canOpen ? `<button type="button" class="btn" id="frOpen">Ouvert aujourd'hui<br><span class="sub">à finir sous ${s.o} j</span></button>` : ''}
+        ${canFreeze ? `<button type="button" class="btn" id="frFreeze">Congeler<br><span class="sub">garde ${freezeDays >= 60 ? Math.round(freezeDays / 30) + ' mois' : freezeDays + ' j'}</span></button>` : ''}
+        ${draft.place === 'congel' ? `<button type="button" class="btn" id="frThaw">Décongeler<br><span class="sub">à manger sous 24 h</span></button>` : ''}
+      </div>` : ''}
+      <div class="btn-row"><button type="button" class="btn" id="frEat" style="color:var(--ok)">Consommé</button><button type="button" class="btn" id="frThrow" style="color:var(--bad)">Jeté</button></div>
       <button type="button" class="btn btn-soft" id="frRebuy">Remettre sur la liste</button>`}
     </form>`);
   const markQuick = () => document.querySelectorAll('[data-frq]').forEach(b => {
@@ -1239,26 +1352,416 @@ function frigoSheet(f){
   document.querySelectorAll('[data-frq]').forEach(b => b.onclick = () => {
     const v = b.dataset.frq; $('#frDate').value = v === 'none' ? '' : v === 'm' ? plusMonths(1) : plusDays(+v); markQuick();
   });
+  document.querySelectorAll('[data-frplace]').forEach(b => b.onclick = () => {
+    draft.place = b.dataset.frplace;
+    document.querySelectorAll('[data-frplace]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  });
   $('#frDate').onchange = markQuick; markQuick();
+  if (isNew) $('#frName').oninput = e => {
+    const si = shelfInfo(e.target.value);
+    if (si.key || si.f) { draft.place = si.place; $('#frDate').value = defaultDlc(si); markQuick();
+      document.querySelectorAll('[data-frplace]').forEach(x => x.setAttribute('aria-pressed', x.dataset.frplace === draft.place)); }
+  };
+  const update = patch => DB.commit(S => { const x = S.frigo.find(y => y.id === f.id); if (x) Object.assign(x, patch); });
   $('#frForm').onsubmit = e => {
     e.preventDefault();
     if (isNew) {
       if (needMe()) return;
       const {qty, name} = parseQty($('#frName').value); if (!name.trim()) return;
-      DB.commit(S => S.frigo.push({id:uid(), name:cap(name.trim()), dlc:$('#frDate').value, qty, rayon:guessRayon(name), addedBy:me, addedAt:Date.now()}));
-    } else DB.commit(S => { const x = S.frigo.find(y => y.id === f.id); if (x) x.dlc = $('#frDate').value; });
+      DB.commit(S => S.frigo.push({id:uid(), name:cap(name.trim()), dlc:$('#frDate').value, qty, rayon:guessRayon(name), place:draft.place, addedBy:me, addedAt:Date.now()}));
+    } else {
+      const p = parseFloat(($('#frPrix').value || '').replace(',', '.'));
+      update({dlc:$('#frDate').value, place:draft.place, prix:p > 0 ? Math.round(p * 100) / 100 : (f.prix || null)});
+    }
     closeSheet();
   };
   if (!isNew) {
     $('#frEat').onclick = () => outFrigo(f, 'mange');
     $('#frThrow').onclick = () => outFrigo(f, 'jete');
     $('#frRebuy').onclick = () => { closeSheet(); addItems(f.name, ''); };
+    if ($('#frOpen')) $('#frOpen').onclick = () => {
+      const lim = plusDays(s.o), dlc = f.dlc && f.dlc < lim ? f.dlc : lim;
+      update({openedAt:Date.now(), dlc}); closeSheet(); toast(`${f.name} : à finir avant le ${fmtDay(dlc)}`);
+    };
+    if ($('#frFreeze')) $('#frFreeze').onclick = () => {
+      const dlc = plusDays(freezeDays);
+      update({place:'congel', frozenAt:Date.now(), dlcAvant:f.dlc || null, dlc}); closeSheet(); toast(`${f.name} congelé, à consommer avant le ${fmtDay(dlc)}`);
+    };
+    if ($('#frThaw')) $('#frThaw').onclick = () => {
+      update({place:'frigo', frozenAt:null, dlc:plusDays(1)}); closeSheet(); toast(`${f.name} décongelé : à consommer d'ici demain`);
+    };
   }
 }
-function outFrigo(f, type){
+function outFrigo(f, type, silent){
+  if (!silent) closeSheet();
+  const value = Math.round(priceOf(f) * 100) / 100;
+  DB.commit(S => { S.frigo = S.frigo.filter(x => x.id !== f.id); S.gaspi.push({id:uid(), name:f.name, type, at:Date.now(), value}); });
+  if (!silent) toast(`${f.name} : ${type === 'mange' ? 'consommé' : 'jeté'}. Le racheter ?`, 'Ajouter', () => addItems(f.name, ''));
+}
+
+// ---------- Recettes ----------
+const TAGS = {antigaspi:'Anti-gaspi', proteine:'Protéiné', leger:'Léger', vege:'Végé', rapide:'Rapide', maghreb:'Tunisien', petitdej:'Petit-déj', dessert:'Dessert', fitness:'Sportif'};
+// Objectifs AnounisFitness -> critères par portion
+const GOALS = {
+  muscle:  {n:'Prise de muscle', txt:'au moins 35 g de protéines par portion', ok:m => m.p >= 35, sort:(a, b) => b.m.p - a.m.p},
+  recompo: {n:'Perdre du gras et prendre du muscle', txt:'au moins 30 g de protéines et 650 kcal maximum', ok:m => m.p >= 30 && m.kcal <= 650, sort:(a, b) => (b.m.p / b.m.kcal) - (a.m.p / a.m.kcal)},
+  perte:   {n:'Perte de poids', txt:'500 kcal maximum et au moins 25 g de protéines', ok:m => m.kcal <= 500 && m.p >= 25, sort:(a, b) => a.m.kcal - b.m.kcal},
+  forme:   {n:'Retrouver la forme', txt:'650 kcal maximum et au moins 20 g de protéines', ok:m => m.kcal <= 650 && m.p >= 20, sort:(a, b) => (b.m.p / b.m.kcal) - (a.m.p / a.m.kcal)},
+  defaut:  {n:'Équilibré et protéiné', txt:'au moins 25 g de protéines et 650 kcal maximum', ok:m => m.p >= 25 && m.kcal <= 650, sort:(a, b) => b.m.p - a.m.p},
+};
+const Fit = { profiles:{}, loaded:false };
+function myFitness(){
+  const ps = Fit.profiles, ids = Object.keys(ps);
+  if (prefs.fitnessId && ps[prefs.fitnessId]) return {id:prefs.fitnessId, ...ps[prefs.fitnessId]};
+  return null;
+}
+function currentGoal(){ const f = myFitness(); return (f && GOALS[f.objectif]) || GOALS.defaut; }
+
+function macros(r, portions = 2){
+  const t = {kcal:0, p:0, g:0, l:0};
+  r.ing.forEach(([k, g]) => { const P = PROD[k]; if (!P) return; const f = g / 100; t.kcal += P.nut[0] * f; t.p += P.nut[1] * f; t.g += P.nut[2] * f; t.l += P.nut[3] * f; });
+  return {kcal:Math.round(t.kcal / 2), p:Math.round(t.p / 2), g:Math.round(t.g / 2), l:Math.round(t.l / 2)};
+}
+const MACROS = Object.fromEntries(RECETTES.map(r => [r.id, macros(r)]));
+function stockIndex(){
+  const idx = {};
+  DB.state.frigo.forEach(f => { const k = productKey(f.name); if (!k) return; const d = daysUntil(f.dlc);
+    if (d !== null && d < 0) return; /* un produit périmé n'est jamais proposé en cuisine */ (idx[k] = idx[k] || []).push({f, d:d === null ? 99 : d}); });
+  Object.values(idx).forEach(a => a.sort((x, y) => x.d - y.d));
+  return idx;
+}
+// Produits interchangeables en cuisine (pour ne pas rater un anti-gaspi)
+const SUBST = {cremel:['creme'], creme:['cremel'], fblanc:['skyr','yaourt','lben'], skyr:['fblanc','yaourt'], yaourt:['skyr','fblanc','lben'],
+  emmental:['mozza','parmesan','chevre'], mozza:['emmental'], poulet:['dinde','cuisse'], dinde:['poulet'], hache:['kefta'], kefta:['hache'],
+  cabillaud:['saumon'], tomate:['tconc'], tconc:['tomate'], pain:['painmie'], painmie:['pain'], epinard:['salade'], pomme:['banane'], lait:[]};
+const inStock = (idx, k) => idx[k] || (SUBST[k] || []).map(s => idx[s]).find(Boolean) || null;
+function analyse(r, idx){
+  const have = [], missing = [], urgent = [];
+  let score = 0;
+  r.ing.forEach(([k, g, note, opt]) => {
+    const P = PROD[k]; if (!P) return;
+    const st = inStock(idx, k);
+    if (st) {
+      have.push(k);
+      const d = st[0].d, place = st[0].f.place || 'frigo';
+      if (d <= 3 && place !== 'congel') { score += 10 - Math.max(d, -1) * 2; urgent.push({k, f:st[0].f, d}); }
+      else if (!P.base) score += 1;
+    } else if (!P.base && !opt) missing.push(k);
+  });
+  return {have, missing, urgent, score, m:MACROS[r.id]};
+}
+function qtyLabel(k, grams){
+  const P = PROD[k]; if (!P) return '';
+  if (P.base && grams <= 20) return '';
+  if (P.u) { const n = Math.max(1, Math.round(grams / P.u[0] * 2) / 2); return `${String(n).replace('.', ',')} ${n > 1 ? P.u[2] : P.u[1]}`; }
+  return grams >= 1000 ? `${String(Math.round(grams / 100) / 10).replace('.', ',')} kg` : `${Math.round(grams / 5) * 5} g`;
+}
+function ingName(k, note){ const P = PROD[k]; return P.n + (note ? ` (${note})` : ''); }
+
+function recipeCard(r, a, goal){
+  const m = a.m;
+  const fits = goal && goal.ok(m);
+  return `<li class="item" style="align-items:flex-start">
+    <button class="item-main" data-act="openRec" data-id="${r.id}">
+      <span class="item-name">${esc(r.n)}</span>
+      <span class="item-meta"><span class="num">${r.t} min</span> · <span class="num">${m.kcal} kcal</span> · <b class="num" style="color:var(--accent)">${m.p} g prot.</b>${fits ? ' · <span class="badge ok" style="padding:2px 7px">Objectif</span>' : ''}</span>
+      ${a.urgent.length ? `<span class="item-meta" style="color:var(--warn);font-weight:600">Utilise : ${a.urgent.slice(0, 3).map(u => esc(u.f.name) + (u.d <= 0 ? ' (aujourd’hui)' : u.d === 1 ? ' (demain)' : ` (${u.d} j)`)).join(', ')}</span>`
+        : `<span class="item-meta">${a.missing.length ? `Il manque ${a.missing.length} ingrédient${a.missing.length > 1 ? 's' : ''}` : 'Vous avez tout'}</span>`}
+    </button>
+  </li>`;
+}
+
+function renderRecettes(){
+  const mode = ui.recMode;
+  const idx = stockIndex();
+  const fit = myFitness(), goal = currentGoal();
+  let html = `<div class="seg" role="group" aria-label="Type de recettes">${[['antigaspi', 'Anti-gaspi'], ['healthy', 'Healthy'], ['menu', 'Menu'], ['toutes', 'Toutes']].map(([v, l]) =>
+    `<button data-act="recMode" data-v="${v}" aria-pressed="${mode === v}">${l}</button>`).join('')}</div>`;
+  const analysed = RECETTES.map(r => ({r, a:analyse(r, idx)}));
+
+  if (mode === 'antigaspi') {
+    const list = analysed.filter(x => x.a.have.some(k => !PROD[k].base)).sort((x, y) => y.a.score - x.a.score || x.a.missing.length - y.a.missing.length);
+    const urgentCount = DB.state.frigo.filter(f => f.dlc && daysUntil(f.dlc) <= 3 && (f.place || 'frigo') !== 'congel').length;
+    html += `<p class="sub" style="margin:0">Les recettes qui utilisent d’abord ce qui périme bientôt${urgentCount ? ` (${urgentCount} produit${urgentCount > 1 ? 's' : ''} à finir d’ici 3 jours)` : ''}.</p>`;
+    html += list.length ? `<ul class="items">${list.slice(0, 15).map(x => recipeCard(x.r, x.a, null)).join('')}</ul>`
+      : `<div class="empty"><b>Rien à sauver pour l’instant</b>Ajoutez des produits au frigo : les recettes qui les utilisent apparaîtront ici.</div>`;
+  } else if (mode === 'healthy') {
+    if (fit) {
+      const today = fit.last && fit.last.date && isoDate(new Date(fit.last.date)) === isoDate();
+      html += `<div class="card" style="gap:6px;padding:12px 14px"><span class="label">Objectif AnounisFitness · ${esc(fit.name || '')}</span>
+        <span style="font-weight:600">${esc(goal.n)}</span><span class="sub">Recettes avec ${esc(goal.txt)}.</span>
+        ${today ? `<span class="badge ok" style="align-self:flex-start;white-space:normal">Séance « ${esc(fit.last.name)} » faite aujourd’hui : misez sur les protéines ce soir.</span>` : ''}</div>`;
+    } else {
+      html += `<div class="card" style="gap:6px;padding:12px 14px"><span style="font-weight:600">${esc(goal.n)}</span><span class="sub">Recettes avec ${esc(goal.txt)}.
+        ${Sync.user ? (Object.keys(Fit.profiles).length ? 'Choisissez votre profil AnounisFitness pour adapter les recettes à votre objectif.' : 'Activez le mode à deux dans AnounisFitness pour adapter les recettes à votre objectif.') : 'Connectez-vous pour relier AnounisFitness.'}</span>
+        ${Object.keys(Fit.profiles).length ? '<button class="btn btn-sm btn-soft" data-act="pickFit" style="align-self:flex-start">Relier mon profil AnounisFitness</button>' : ''}</div>`;
+    }
+    const list = analysed.filter(x => !x.r.tags.includes('dessert') && goal.ok(x.a.m)).sort((x, y) => goal.sort(x.a, y.a));
+    html += `<ul class="items">${list.map(x => recipeCard(x.r, x.a, null)).join('')}</ul>`;
+    html += `<p class="sub" style="margin:0">Calories et protéines calculées à partir des ingrédients (table Ciqual) : valeurs indicatives.</p>`;
+  } else if (mode === 'menu') {
+    html += renderMenu(analysed);
+  } else {
+    const tags = Object.keys(TAGS);
+    html += `<div class="chips" role="group" aria-label="Filtrer">${[['', 'Toutes']].concat(tags.map(t => [t, TAGS[t]])).map(([v, l]) =>
+      `<button class="chip" data-act="recTag" data-v="${v}" aria-pressed="${ui.recTag === v}">${l}</button>`).join('')}</div>`;
+    const list = analysed.filter(x => !ui.recTag || x.r.tags.includes(ui.recTag)).sort((x, y) => x.r.n.localeCompare(y.r.n, 'fr'));
+    html += `<ul class="items">${list.map(x => recipeCard(x.r, x.a, goal)).join('')}</ul>`;
+  }
+  $('#recBody').innerHTML = html;
+}
+
+function recipeSheet(id, portions){
+  const r = RECETTES.find(x => x.id === id); if (!r) return;
+  portions = portions || ui.recPortions || 2;
+  const idx = stockIndex(), a = analyse(r, idx), m = a.m, k = portions / 2;
+  const goal = currentGoal();
+  const planned = DB.state.menu.find(x => x.id === ui.menuSlot && x.rid === id);
+  openSheet(`<h2>${esc(r.n)}</h2>
+    <div class="item-meta" style="font-size:13.5px">${r.t} min · ${r.tags.map(t => TAGS[t]).filter(Boolean).join(' · ')}</div>
+    <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+      ${[['kcal', m.kcal], ['prot.', m.p + ' g'], ['gluc.', m.g + ' g'], ['lip.', m.l + ' g']].map(([l, v]) => `<div class="stat" style="padding:8px"><div class="v num" style="font-size:18px">${v}</div><div class="k">${l}</div></div>`).join('')}
+    </div>
+    <div class="row"><span class="sub">Par portion · ${goal.ok(m) ? `<b style="color:var(--ok)">conforme à « ${esc(goal.n)} »</b>` : 'valeurs indicatives'}</span>
+      <span class="row" style="gap:6px;flex:none"><button class="icon-btn" style="width:34px;height:34px" data-act="recPortions" data-id="${r.id}" data-v="-1" aria-label="Moins de portions">−</button><b class="num">${portions} pers.</b><button class="icon-btn" style="width:34px;height:34px" data-act="recPortions" data-id="${r.id}" data-v="1" aria-label="Plus de portions">+</button></span></div>
+    <div class="items" style="padding:2px 0">${r.ing.map(([key, g, note, opt]) => {
+      const P = PROD[key]; if (!P) return '';
+      const st = inStock(idx, key), q = qtyLabel(key, g * k);
+      const state = st ? `<span class="badge ok">${productKey(st[0].f.name) !== key ? esc(st[0].f.name) : 'Chez vous'}${st[0].d <= 3 && st[0].d !== 99 ? ' · ' + dlcInfo(st[0].f.dlc).txt.toLowerCase() : ''}</span>` : P.base ? '<span class="badge none">Placard</span>' : opt ? '<span class="badge none">Facultatif</span>' : '<span class="badge warn">À acheter</span>';
+      return `<div class="exp"><div class="exp-main"><div style="font-weight:600">${esc(ingName(key, note))}</div>${q ? `<div class="sub num">${q}</div>` : ''}</div>${state}</div>`;
+    }).join('')}</div>
+    ${a.missing.length ? `<button class="btn btn-primary" data-act="recMissing" data-id="${r.id}">Ajouter les ${a.missing.length} manquant${a.missing.length > 1 ? 's' : ''} à la liste</button>` : ''}
+    <div class="btn-row"><button class="btn" data-act="planRec" data-id="${r.id}">${planned ? 'Changer de jour' : 'Mettre au menu'}</button><button class="btn btn-soft" data-act="cooked" data-id="${r.id}">J’ai cuisiné</button></div>
+    ${planned ? `<button class="btn btn-danger" data-act="unplan" data-id="${esc(planned.id)}">Retirer du menu</button>` : ''}
+    <div class="fgroup"><span class="label">Préparation</span><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>`);
+  ui.recOpen = id; ui.recPortions = portions;
+}
+function addMissing(id){
+  const r = RECETTES.find(x => x.id === id); if (!r) return;
+  const a = analyse(r, stockIndex());
+  const onList = new Set(DB.state.items.filter(i => !i.checked).map(i => productKey(i.name)));
+  const names = a.missing.filter(k => !onList.has(k)).map(k => { const ing = r.ing.find(x => x[0] === k); return ingName(k, ing[2] && ing[2].length < 20 ? ing[2] : null); });
   closeSheet();
-  DB.commit(S => { S.frigo = S.frigo.filter(x => x.id !== f.id); S.gaspi.push({id:uid(), name:f.name, type, at:Date.now()}); });
-  toast(`${f.name} : ${type === 'mange' ? 'consommé' : 'jeté'}. Le racheter ?`, 'Ajouter', () => addItems(f.name, ''));
+  if (!names.length) { toast('Tout est déjà sur la liste'); return; }
+  addItems(names.join(', '), '');
+}
+function cookedSheet(id){
+  const r = RECETTES.find(x => x.id === id); if (!r) return;
+  const idx = stockIndex();
+  const used = [...new Set(r.ing.map(([k]) => { const st = inStock(idx, k); return st && st[0].f; }).filter(Boolean))].filter(f => !PROD[productKey(f.name)].base);
+  const sel = new Set(used.map(f => f.id));
+  openSheet(`<h2>Bon appétit !</h2><p class="sub" style="margin:0">Quels produits avez-vous terminés ? Ils seront comptés comme consommés (et sauvés du gaspi).</p>
+    <div>${used.map(f => `<div class="row" style="padding:8px 0;border-top:1px solid var(--line)"><span style="font-weight:600;min-width:0;overflow-wrap:anywhere">${esc(f.name)}</span><button class="toggle" role="switch" aria-checked="true" data-ckid="${f.id}" aria-label="${esc(f.name)} terminé"></button></div>`).join('') || '<p class="sub">Aucun produit du frigo n’est utilisé par cette recette.</p>'}</div>
+    <button class="btn btn-primary" id="ckGo">Valider</button>`);
+  document.querySelectorAll('[data-ckid]').forEach(b => b.onclick = () => { const on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', on); on ? sel.add(b.dataset.ckid) : sel.delete(b.dataset.ckid); });
+  $('#ckGo').onclick = () => {
+    const done = used.filter(f => sel.has(f.id));
+    done.forEach(f => outFrigo(f, 'mange', true));
+    closeSheet();
+    toast(done.length ? `${done.length} produit${done.length > 1 ? 's' : ''} sauvé${done.length > 1 ? 's' : ''} du gaspi` : 'Noté');
+  };
+}
+
+// ---------- Menu de la semaine ----------
+const SLOTS = [['midi', 'Midi'], ['soir', 'Soir']];
+function weekDays(){ return Array.from({length:7}, (_, i) => plusDays(i)); }
+function dayLabel(iso, i){ if (i === 0) return "Aujourd'hui"; if (i === 1) return 'Demain'; const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric'}); }
+function renderMenu(analysed){
+  const menu = Object.fromEntries(DB.state.menu.map(x => [x.id, x]));
+  const days = weekDays();
+  let html = `<p class="sub" style="margin:0">Prévoyez vos repas : les ingrédients manquants partent sur la liste en un geste. Le menu est partagé entre vous deux.</p>`;
+  html += `<div class="items">${days.map((d, i) => `<div class="exp" style="flex-direction:column;align-items:stretch;gap:6px">
+      <span class="label" style="text-transform:capitalize">${dayLabel(d, i)}</span>
+      ${SLOTS.map(([s, l]) => { const e = menu[`${d}_${s}`]; const r = e && RECETTES.find(x => x.id === e.rid);
+        return `<button class="row" data-act="slot" data-v="${d}_${s}" style="gap:10px;padding:6px 0;text-align:left"><span class="sub" style="width:3em;flex:none">${l}</span>
+          <span style="flex:1;min-width:0;font-weight:${r ? 600 : 400};color:${r ? 'var(--ink)' : 'var(--muted)'}">${r ? esc(r.n) + (e.portions && e.portions !== 2 ? ` <span class="sub">· ${e.portions} pers.</span>` : '') : '+ Choisir une recette'}</span></button>`; }).join('')}
+    </div>`).join('')}</div>`;
+  const need = menuNeeds();
+  html += need.length ? `<button class="btn btn-primary btn-block" data-act="menuToList">Ajouter les ingrédients du menu à la liste (${need.length})</button>`
+    : (DB.state.menu.length ? '<p class="sub" style="margin:0;text-align:center">Vous avez tout ce qu’il faut pour ce menu.</p>' : '');
+  return html;
+}
+// Ingrédients manquants pour tout le menu à venir, regroupés
+function menuNeeds(){
+  const idx = stockIndex(), days = new Set(weekDays());
+  const onList = new Set(DB.state.items.filter(i => !i.checked).map(i => productKey(i.name)));
+  const need = {};
+  DB.state.menu.filter(e => days.has(e.date)).forEach(e => {
+    const r = RECETTES.find(x => x.id === e.rid); if (!r) return;
+    r.ing.forEach(([k, g, note, opt]) => { const P = PROD[k]; if (!P || P.base || opt || inStock(idx, k) || onList.has(k)) return; need[k] = (need[k] || 0) + g * (e.portions || 2) / 2; });
+  });
+  return Object.entries(need).map(([k, g]) => ({k, g}));
+}
+function slotPicker(slotId){
+  ui.menuSlot = slotId;
+  const cur = DB.state.menu.find(x => x.id === slotId);
+  if (cur) { recipeSheet(cur.rid, cur.portions); return; }
+  const idx = stockIndex(), goal = currentGoal();
+  const list = RECETTES.filter(r => !r.tags.includes('dessert') && !r.tags.includes('petitdej')).map(r => ({r, a:analyse(r, idx)})).sort((x, y) => y.a.score - x.a.score);
+  const [d, s] = slotId.split('_');
+  openSheet(`<h2>${dayLabel(d, weekDays().indexOf(d))} · ${s === 'midi' ? 'midi' : 'soir'}</h2>
+    <p class="sub" style="margin:0">En premier : les recettes qui utilisent ce qui périme bientôt.</p>
+    <ul class="items">${list.map(x => `<li class="item"><button class="item-main" data-act="pickSlotRec" data-id="${x.r.id}"><span class="item-name">${esc(x.r.n)}</span>
+      <span class="item-meta">${x.r.t} min · ${x.a.m.kcal} kcal · ${x.a.m.p} g prot.${goal.ok(x.a.m) ? ' · objectif' : ''}${x.a.urgent.length ? ` · <b style="color:var(--warn)">anti-gaspi</b>` : ''}</span></button></li>`).join('')}</ul>`);
+}
+function planSheet(id){
+  const days = weekDays();
+  openSheet(`<h2>Mettre au menu</h2><p class="sub" style="margin:0">${esc(RECETTES.find(x => x.id === id).n)}</p>
+    <div class="items">${days.map((d, i) => `<div class="exp"><span style="flex:1;text-transform:capitalize;font-weight:600">${dayLabel(d, i)}</span>
+      ${SLOTS.map(([s, l]) => `<button class="chip" data-act="planTo" data-id="${id}" data-v="${d}_${s}">${l}</button>`).join('')}</div>`).join('')}</div>`);
+}
+function planTo(rid, slotId, portions){
+  if (needMe()) return;
+  const [date, slot] = slotId.split('_');
+  const old = plusDays(-1), from = ui.menuSlot;
+  DB.commit(S => {
+    S.menu = S.menu.filter(x => x.id !== slotId && !(from && x.id === from && x.rid === rid) && x.date >= old);
+    S.menu.push({id:slotId, date, slot, rid, portions:portions || ui.recPortions || 2, by:me, at:Date.now()});
+  });
+  closeSheet(); ui.menuSlot = null;
+  toast(`Au menu : ${dayLabel(date, weekDays().indexOf(date)).toLowerCase()} ${slot === 'midi' ? 'midi' : 'soir'}`);
+}
+
+// ---------- Scan du ticket de caisse ----------
+// Analyse le texte d'un ticket (photo lue par OCR ou PDF du drive) : articles avec prix + total.
+const TK_SKIP = /(sous[- ]?total|total|tva|t\.v\.a|\bcb\b|carte|esp[eè]ces|rendu|remise|r[ée]duction|avantage|fid[ée]lit|ticket|caisse|merci|siret|siren|t[ée]l[ ée.:]|www|http|facture|commande|livraison|frais|eco[- ]?part|consigne|points?\b|solde|montant|paiement|bancaire|transaction|\bdate\b|heure|n°|cagnotte|coupon|bon d|économis|economis|nombre d|articles?\s*:|net a payer|a payer|à payer|ht\b|ttc|code|magasin|adresse|client)/i;
+function tkNum(s){ return parseFloat(String(s).replace(/\s/g, '').replace(',', '.')); }
+function tkClean(name){
+  let n = name.replace(/^[\s\d*#.:-]{0,6}(?=[A-Za-zÀ-ÿ])/, '').replace(/\s{2,}/g, ' ').replace(/[|_]+/g, ' ').trim();
+  n = n.replace(/\s+\d{1,3}\s*$/, '').replace(/\s+x\s*$/i, '').trim();
+  return n ? cap(n.toLowerCase()) : '';
+}
+function parseReceipt(text){
+  const lines = String(text).split(/\r?\n/).map(l => l.replace(/[€]/g, ' € ').replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const items = []; let total = null;
+  const PRICE = /(-?\d{1,4}[.,]\d{2})\s*(?:€|eur)?\s*[A-Da-d0-9*]?\s*$/;
+  let pending = '';
+  for (const raw of lines) {
+    const pm = raw.match(PRICE);
+    if (!pm) { pending = TK_SKIP.test(raw) ? '' : raw; continue; }
+    const price = tkNum(pm[1]);
+    let body = raw.slice(0, pm.index).trim();
+    if (/total|a payer|à payer|net a payer|montant/i.test(raw) && !/sous[- ]?total/i.test(raw)) { if (price > 0 && (total === null || price > total)) total = price; continue; }
+    if (TK_SKIP.test(body) || price <= 0 || price > 300) continue;
+    let qty = 1, unit = null, m;
+    // "désignation  2  1,15  2,30" (quantité, prix unitaire, montant)
+    if ((m = body.match(/^(.*?)\s+(\d{1,2})\s+(\d{1,4}[.,]\d{2})\s*(?:€)?$/))) { body = m[1]; qty = +m[2]; unit = tkNum(m[3]); }
+    // "2 x 1,15" ou "x2"
+    else if ((m = body.match(/^(.*?)\s*(\d{1,2})\s*[xX×*]\s*(\d{1,4}[.,]\d{2})\s*(?:€)?$/))) { body = m[1]; qty = +m[2]; unit = tkNum(m[3]); }
+    else if ((m = body.match(/^(\d{1,2})\s*[xX×*]\s+(.*)$/))) { qty = +m[1]; body = m[2]; }
+    let name = tkClean(body);
+    // Article sur deux lignes : « LAIT DEMI ECREME » puis « 2 x 1,15   2,30 »
+    if ((name.match(/[a-zà-ÿ]/gi) || []).length < 3 && pending) name = tkClean(pending);
+    pending = '';
+    if ((name.match(/[a-zà-ÿ]/gi) || []).length < 3) continue;
+    items.push({name, qty:qty || 1, price, unit:unit || Math.round(price / (qty || 1) * 100) / 100});
+  }
+  const sum = Math.round(items.reduce((a, x) => a + x.price, 0) * 100) / 100;
+  return {items, total, sum};
+}
+
+// Texte d'un PDF (facture drive) : on reconstitue les lignes à partir des positions
+async function pdfText(file){
+  await loadScript('vendor/pdf.min.js').catch(() => { throw new Error('script'); });
+  const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+  const doc = await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const out = [];
+  for (let p = 1; p <= Math.min(doc.numPages, 6); p++) {
+    const tc = await (await doc.getPage(p)).getTextContent();
+    const rows = new Map();
+    tc.items.forEach(it => { const y = Math.round(it.transform[5] / 3); const r = rows.get(y) || []; r.push(it); rows.set(y, r); });
+    [...rows.entries()].sort((a, b) => b[0] - a[0]).forEach(([, r]) => out.push(r.sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')));
+  }
+  return out.join('\n');
+}
+// Photo : réduction + niveaux de gris, puis OCR en français (tout se fait sur le téléphone)
+async function imageText(file, onProgress){
+  await loadScript('vendor/tesseract/tesseract.min.js').catch(() => { throw new Error('script'); });
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+  const sc = Math.min(1, 1800 / Math.max(img.width, img.height));
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+  const ctx = c.getContext('2d'); ctx.filter = 'grayscale(1) contrast(1.35)'; ctx.drawImage(img, 0, 0, c.width, c.height);
+  const worker = await Tesseract.createWorker('fra', 1, {
+    workerPath:'vendor/tesseract/worker.min.js', corePath:'vendor/tesseract/', langPath:'vendor/tesseract/lang', gzip:true,
+    logger:m => { if (m.status === 'recognizing text' && onProgress) onProgress(Math.round(m.progress * 100)); },
+  });
+  try { const {data} = await worker.recognize(c); return data.text; } finally { worker.terminate(); }
+}
+
+function ticketSheet(){
+  if (needMe()) return;
+  openSheet(`<h2>Scanner un ticket</h2>
+    <p class="sub" style="margin:0">Photo du ticket papier ou PDF de la facture drive. L’appli remplit la dépense, propose les produits à suivre dans le frigo et retient les prix pour calculer les euros sauvés. La lecture se fait sur le téléphone.</p>
+    <input type="file" id="tkCam" accept="image/*" capture="environment" hidden>
+    <input type="file" id="tkFile" accept="image/*,application/pdf" hidden>
+    <div class="btn-row"><button class="btn btn-primary" id="tkCamBtn">Prendre en photo</button><button class="btn" id="tkFileBtn">Choisir un fichier</button></div>
+    <p class="sub" id="tkMsg" style="margin:0">Astuce : ticket bien à plat, sous une bonne lumière, cadré en entier.</p>`);
+  $('#tkCamBtn').onclick = () => $('#tkCam').click();
+  $('#tkFileBtn').onclick = () => $('#tkFile').click();
+  const go = async e => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const msg = $('#tkMsg');
+    document.querySelectorAll('#tkCamBtn,#tkFileBtn').forEach(b => b.disabled = true);
+    try {
+      msg.textContent = 'Lecture du ticket…';
+      const text = /pdf/i.test(file.type) || /\.pdf$/i.test(file.name) ? await pdfText(file) : await imageText(file, p => { if ($('#tkMsg')) $('#tkMsg').textContent = `Lecture du ticket… ${p} %`; });
+      const res = parseReceipt(text);
+      if (!res.items.length && !res.total) { msg.textContent = 'Je n’ai trouvé aucun article ni total. Reprenez la photo de plus près, bien droite, ou saisissez la dépense à la main.'; document.querySelectorAll('#tkCamBtn,#tkFileBtn').forEach(b => b.disabled = false); return; }
+      ticketReview(res);
+    } catch(err) {
+      console.warn(err);
+      msg.textContent = /Failed to fetch|load|script/i.test(String(err && err.message)) ? 'Le lecteur de ticket n’est disponible que dans l’appli installée.' : 'Lecture impossible : ' + ((err && err.message) || err);
+      document.querySelectorAll('#tkCamBtn,#tkFileBtn').forEach(b => b.disabled = false);
+    }
+  };
+  $('#tkCam').onchange = go; $('#tkFile').onchange = go;
+}
+function matchListItem(name){
+  const k = productKey(name), words = norm(name).split(' ').filter(w => w.length >= 4);
+  return DB.state.items.find(i => !i.checkedBought && ((k && productKey(i.name) === k) || norm(i.name).split(' ').some(w => w.length >= 4 && words.includes(w))));
+}
+function ticketReview(res){
+  const st = activeStatus();
+  const rows = res.items.map(it => { const s = shelfInfo(it.name); const li = matchListItem(it.name); return {...it, track:trackByDefault(it.name), place:s.place, dlc:defaultDlc(s), list:li ? li.id : null}; });
+  const amount = res.total || res.sum;
+  const draw = () => {
+    const nT = rows.filter(r => r.track).length, nL = new Set(rows.map(r => r.list).filter(Boolean)).size;
+    openSheet(`<h2>Vérifier le ticket</h2>
+      <p class="sub" style="margin:0">${rows.length} article${rows.length > 1 ? 's' : ''} lu${rows.length > 1 ? 's' : ''}${res.total && Math.abs(res.total - res.sum) > 0.5 ? ` · somme des lignes ${euro(res.sum)}, certaines lignes ont pu être mal lues` : ''}. Corrigez si besoin.</p>
+      <div class="card" style="padding:12px;background:var(--sunk);border:0;gap:8px">
+        <span class="label">Dépense</span>
+        <div class="adder-row"><input class="field num" id="tkAmt" inputmode="decimal" value="${amount ? String(amount.toFixed(2)).replace('.', ',') : ''}" placeholder="Total €" style="background:var(--surface)">
+          <select class="field" id="tkStore" style="background-color:var(--surface)">${storeOptions(st ? st.store : '', false)}<option value="Autre">Autre</option></select></div>
+      </div>
+      <div>${rows.map((r, i) => `<div class="rg-item ${r.track ? '' : 'off'}">
+        <div class="row" style="gap:8px"><input class="field" data-tkname="${i}" value="${esc(r.name)}" aria-label="Nom de l’article" style="height:36px;font-size:14.5px"><span class="num" style="flex:none;font-weight:600">${euro(r.price)}</span>
+          <button class="toggle" role="switch" aria-checked="${r.track}" data-tktrack="${i}" aria-label="Suivre la date"></button></div>
+        ${r.list ? `<span class="sub" style="color:var(--ok)">Sur la liste : ${esc((DB.state.items.find(x => x.id === r.list) || {}).name || '')}, sera retiré</span>` : ''}
+        <div class="rg-dates">${Object.entries(PLACES).map(([v, l]) => `<button class="chip" data-tkplace="${i}" data-v="${v}" aria-pressed="${r.place === v}">${l}</button>`).join('')}<input class="field" type="date" data-tkdate="${i}" value="${r.dlc}" aria-label="Date limite"></div>
+      </div>`).join('')}</div>
+      <button class="btn btn-primary btn-block" id="tkGo">Valider${amount ? ' la dépense' : ''}${nT ? ` · ${nT} produit${nT > 1 ? 's' : ''} au suivi` : ''}${nL ? ` · ${nL} retiré${nL > 1 ? 's' : ''} de la liste` : ''}</button>`);
+    document.querySelectorAll('[data-tkname]').forEach(inp => inp.onchange = e => { rows[+inp.dataset.tkname].name = e.target.value.trim() || rows[+inp.dataset.tkname].name; });
+    document.querySelectorAll('[data-tktrack]').forEach(b => b.onclick = () => { const r = rows[+b.dataset.tktrack]; r.track = !r.track; draw(); });
+    document.querySelectorAll('[data-tkplace]').forEach(b => b.onclick = () => { const r = rows[+b.dataset.tkplace]; r.place = b.dataset.v; const s = shelfInfo(r.name); if (r.place === 'congel') r.dlc = plusDays(s.z || 90); draw(); });
+    document.querySelectorAll('[data-tkdate]').forEach(inp => inp.onchange = e => { rows[+inp.dataset.tkdate].dlc = e.target.value; });
+    $('#tkGo').onclick = () => {
+      const amt = tkNum(($('#tkAmt').value || '0').replace(/[^\d,.-]/g, '')), store = $('#tkStore').value;
+      const listIds = new Set(rows.map(r => r.list).filter(Boolean));
+      let nF = 0;
+      DB.commit(S => {
+        rows.forEach(r => {
+          S.prices[hkey(r.name)] = {p:r.unit, at:Date.now(), store};
+          if (r.track) { nF++; S.frigo.push({id:uid(), name:r.name, dlc:r.dlc || '', qty:r.qty, rayon:guessRayon(r.name), place:r.place, prix:r.price, addedBy:me, addedAt:Date.now()}); }
+        });
+        S.items = S.items.filter(i => !listIds.has(i.id));
+        if (amt > 0) S.expenses.push({id:uid(), amount:Math.round(amt * 100) / 100, store, date:isoDate(), by:me, note:'ticket scanné'});
+        if (S.status && S.status.by === me) S.status = null;
+      });
+      closeSheet(true);
+      toast([amt > 0 ? euro(amt) + ' ajouté au budget' : '', nF ? `${nF} au suivi` : ''].filter(Boolean).join(' · ') || 'Ticket enregistré');
+    };
+  };
+  draw();
 }
 
 // ---------- Budget ----------
@@ -1296,7 +1799,7 @@ function pickMe(){
 
 // ---------- Délégation des clics ----------
 const ACTIONS = {
-  tab: el => { ui.tab = el.dataset.tab; window.scrollTo(0, 0); render(); },
+  tab: el => { ui.tab = el.dataset.tab; window.scrollTo(0, 0); render(); if (ui.tab === 'recettes') renderRecettes(); },
   pickMe, closeSheet: () => closeSheet(),
   setMe: el => { me = el.dataset.u; lsSet(LS_ME, me); closeSheet(); render(); const r = tokenRef(); if (r) r.update({user:me}); setupPush(); },
   toggle: el => toggleItem(el.dataset.id),
@@ -1310,6 +1813,25 @@ const ACTIONS = {
   pickOrderStore: el => setOrder(el.dataset.s),
   voice, scan,
   addFrigo: () => frigoSheet(null),
+  place: el => { ui.place = el.dataset.v; render(); },
+  rgPlace: el => { const d = ui.rgDraft.rows[el.dataset.id]; d.place = el.dataset.v; const it = ui.rgItems.find(i => i.id === el.dataset.id); const s = shelfInfo(it.name, it.rayon); d.dlc = d.place === 'congel' ? plusDays(s.z || 90) : defaultDlc({...s, place:d.place}); ui.rgDraw(); },
+  ticket: () => ticketSheet(),
+  seenRecall: el => DB.commit(S => { const r = S.recalls.find(x => x.id === el.dataset.id); if (r) r.seen = true; }),
+  recMode: el => { ui.recMode = el.dataset.v; render(); },
+  recTag: el => { ui.recTag = el.dataset.v; render(); },
+  recUrgent: () => { ui.tab = 'recettes'; ui.recMode = 'antigaspi'; window.scrollTo(0, 0); render(); },
+  openRec: el => { ui.menuSlot = null; ui.recPortions = 2; recipeSheet(el.dataset.id); },
+  recPortions: el => recipeSheet(el.dataset.id, Math.min(8, Math.max(1, (ui.recPortions || 2) + +el.dataset.v))),
+  recMissing: el => addMissing(el.dataset.id),
+  cooked: el => cookedSheet(el.dataset.id),
+  planRec: el => planSheet(el.dataset.id),
+  planTo: el => planTo(el.dataset.id, el.dataset.v),
+  unplan: el => { const id = el.dataset.id; DB.commit(S => S.menu = S.menu.filter(x => x.id !== id)); closeSheet(); ui.menuSlot = null; },
+  slot: el => slotPicker(el.dataset.v),
+  pickSlotRec: el => planTo(el.dataset.id, ui.menuSlot, 2),
+  menuToList: () => { const need = menuNeeds(); if (!need.length) return; addItems(need.map(x => PROD[x.k].n).join(', '), ''); },
+  pickFit: () => fitPicker(),
+  setFit: el => { prefs.fitnessId = el.dataset.id || null; savePrefs(); closeSheet(); render(); },
   login: () => showLogin(),
   retryPush: () => setupPush(true),
   skipLogin: () => closeLogin(),

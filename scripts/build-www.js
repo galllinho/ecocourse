@@ -13,6 +13,16 @@ const hasPush = fs.existsSync(path.join(root, 'android-config/google-services.js
 fs.writeFileSync(path.join(www, 'config.js'), fs.readFileSync(path.join(root, 'src/config.js'), 'utf8') +
   `\nwindow.ECOCOURSE_PUSH = ${hasPush};\nwindow.ECOCOURSE_BUILD = ${parseInt(process.env.GITHUB_RUN_NUMBER || '0', 10)};\n`);
 fs.copyFileSync(path.join(root, 'node_modules/@capacitor/core/dist/capacitor.js'), path.join(www, 'vendor', 'capacitor.js'));
+fs.copyFileSync(path.join(root, 'src/data.js'), path.join(www, 'data.js'));
+// Lecture des tickets : PDF (pdf.js) et photo (Tesseract, français), tout en local
+const nm = p => path.join(root, 'node_modules', p);
+fs.copyFileSync(nm('pdfjs-dist/legacy/build/pdf.min.js'), path.join(www, 'vendor/pdf.min.js'));
+fs.copyFileSync(nm('pdfjs-dist/legacy/build/pdf.worker.min.js'), path.join(www, 'vendor/pdf.worker.min.js'));
+const tdir = path.join(www, 'vendor/tesseract'); fs.mkdirSync(path.join(tdir, 'lang'), { recursive: true });
+fs.copyFileSync(nm('tesseract.js/dist/tesseract.min.js'), path.join(tdir, 'tesseract.min.js'));
+fs.copyFileSync(nm('tesseract.js/dist/worker.min.js'), path.join(tdir, 'worker.min.js'));
+for (const f of fs.readdirSync(nm('tesseract.js-core'))) if (/lstm\.wasm\.js$/.test(f)) fs.copyFileSync(nm('tesseract.js-core/' + f), path.join(tdir, f));
+fs.copyFileSync(nm('@tesseract.js-data/fra/4.0.0_best_int/fra.traineddata.gz'), path.join(tdir, 'lang/fra.traineddata.gz'));
 for (const f of ['firebase-app-compat.js', 'firebase-auth-compat.js', 'firebase-database-compat.js'])
   fs.copyFileSync(path.join(root, 'node_modules/firebase', f), path.join(www, 'vendor', f));
 console.log('www/ prêt');

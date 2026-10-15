@@ -12,7 +12,11 @@
     "@capacitor/push-notifications": "6.0.5",
     "@capacitor-mlkit/barcode-scanning": "6.2.0",
     "@capacitor-community/speech-recognition": "6.0.1",
-    "@capacitor-community/keep-awake": "5.0.1"
+    "@capacitor-community/keep-awake": "5.0.1",
+    "tesseract.js": "5.1.1",
+    "tesseract.js-core": "5.1.1",
+    "@tesseract.js-data/fra": "1.0.0",
+    "pdfjs-dist": "3.11.174"
   },
   "devDependencies": {
     "@capacitor/cli": "6.2.0"
