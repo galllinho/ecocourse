@@ -44,7 +44,12 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .brand-mark{width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
 .me-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:14px}
 .avatar{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
-.av-Nabs{background:#3d6fb4}.av-Gigi{background:#b4527a}
+.av-Nabs{background:#3d6fb4}.av-Gigi{background:#b4527a}.av-Maman{background:#8a5a2b}.av-Sami{background:#2f7d6d}.av-Sonia{background:#7a4fb0}
+.spacebar{padding-block:0 10px}
+.spacebar .seg button{height:34px;font-size:13.5px}
+.claim{flex:none;font-size:12px;font-weight:700;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
+.claim.mine{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.claim.other{background:var(--sunk);color:var(--muted);border-color:transparent}
 .status{display:flex;align-items:center;gap:10px;padding-block:9px;background:var(--warn-soft);color:var(--ink);font-size:14px}
 .status .dot{width:9px;height:9px;border-radius:50%;background:var(--warn);flex:none;animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.35}}
@@ -213,6 +218,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
     <div class="brand"><span class="brand-mark"><svg class="i" viewBox="0 0 24 24" style="width:17px;height:17px"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg></span>EcoCourse<span id="syncDot" class="sync" hidden></span></div>
     <button class="me-chip" data-act="pickMe" id="meChip" aria-label="Changer de profil"></button>
   </div>
+  <div class="wrap spacebar" id="spaceBar" hidden></div>
   <div id="statusBar" hidden></div>
   <div id="updateBar" class="status" style="background:var(--accent-soft)" hidden></div>
   <div id="exampleBar" class="example-bar" hidden><div class="wrap">Données d'exemple pour essayer l'appli. Réglages › Effacer les exemples.</div></div>
@@ -254,6 +260,15 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
     <div id="frigoBody" class="view"></div>
   </section>
 
+  <!-- REPAS (espace Famille) -->
+  <section class="view" id="view-repas" hidden>
+    <div class="view-head">
+      <div><h1>Repas de famille</h1><div class="sub">Chacun dit ce qu'il apporte</div></div>
+      <button class="btn btn-sm btn-soft" data-act="newMeal"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>Repas</button>
+    </div>
+    <div id="repasBody" class="view"></div>
+  </section>
+
   <!-- RECETTES -->
   <section class="view" id="view-recettes" hidden>
     <div class="view-head">
@@ -284,6 +299,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
   <div class="tabs-in wrap" style="padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))">
     <button class="tab" data-act="tab" data-tab="liste"><svg class="i" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Liste<span class="count" id="cnt-liste" hidden></span></button>
     <button class="tab" data-act="tab" data-tab="frigo"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M9 6v1.5M9 13.5V16"/></svg>Frigo<span class="count" id="cnt-frigo" hidden></span></button>
+    <button class="tab" data-act="tab" data-tab="repas" hidden><svg class="i" viewBox="0 0 24 24"><path d="M3 11h18M5 11a7 7 0 0 1 14 0M12 4v1M4 15h16l-1.5 4h-13z"/></svg>Repas</button>
     <button class="tab" data-act="tab" data-tab="recettes"><svg class="i" viewBox="0 0 24 24"><path d="M6 13.5V20h12v-6.5M6 13.5a4 4 0 0 1-.9-7.9A5 5 0 0 1 12 3a5 5 0 0 1 6.9 2.6 4 4 0 0 1-.9 7.9zM6 16.5h12"/></svg>Recettes</button>
     <button class="tab" data-act="tab" data-tab="budget"><svg class="i" viewBox="0 0 24 24"><path d="M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7l12-4 2 4M16 14h2"/></svg>Budget<span class="count" id="cnt-budget" hidden>!</span></button>
     <button class="tab" data-act="tab" data-tab="reglages"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
@@ -312,8 +328,13 @@ const Native = (() => {
 })();
 
 // ---------- Constantes ----------
+const SPACES = {main:{n:'Nabs & Gigi', users:['Nabs', 'Gigi']}, famille:{n:'Famille', users:['Nabs', 'Gigi', 'Maman', 'Sami', 'Sonia']}};
+const LS_SPACE = 'ecocourse.space';
+let space = (() => { try { return localStorage.getItem('ecocourse.space') === 'famille' ? 'famille' : 'main'; } catch(e){ return 'main'; } })();
+let ROOT = 'households/' + space;
 const USERS = ['Nabs', 'Gigi'];
-const LS_DATA = 'ecocourse.data.v1', LS_ME = 'ecocourse.me', LS_PREFS = 'ecocourse.prefs';
+const LS_ME = 'ecocourse.me', LS_PREFS = 'ecocourse.prefs';
+const lsData = () => space === 'main' ? 'ecocourse.data.v1' : 'ecocourse.data.' + space;
 const STATUS_TTL = 4 * 3600e3; // une commande "en cours" expire après 4 h
 
 // Rayons, dans l'ordre d'un parcours de magasin. per = périssable par défaut, dlc = jours proposés par défaut.
@@ -436,6 +457,8 @@ function emptyState(){
     expenses: [],   // dépenses de commandes
     history: {},    // fréquence d'achat -> favoris automatiques
     gaspi: [],      // {name, type:'mange'|'jete', at, value}
+    meals: [],      // repas de famille {id, title, date, slot, place, by}
+    dishes: [],     // plats d'un repas {id, meal, name, rid, by, bringBy}
     menu: [],       // menu de la semaine {id:'date_slot', date, slot, rid, portions}
     recalls: [],    // rappels de produits trouvés par le serveur
     prices: {},     // dernier prix connu par produit (tickets)
@@ -489,7 +512,7 @@ function exampleState(){
 
 // Format distant (Firebase) : collections indexées par id, pour que deux téléphones
 // puissent modifier des articles différents en même temps sans s'écraser.
-const KEYED = ['items', 'frigo', 'expenses', 'gaspi', 'menu', 'recalls'];
+const KEYED = ['items', 'frigo', 'expenses', 'gaspi', 'menu', 'recalls', 'meals', 'dishes'];
 const SCALARS = ['stores', 'budget', 'status', 'example'];
 function toRemote(s){
   const o = {};
@@ -525,11 +548,11 @@ function diffRemote(a, b){
 const DB = {
   state: null,
   load(){
-    const raw = lsGet(LS_DATA);
+    const raw = lsGet(lsData());
     if (raw) { try { this.state = Object.assign(emptyState(), JSON.parse(raw)); return; } catch(e){} }
-    this.state = exampleState(); this.save();
+    this.state = space === 'main' ? exampleState() : emptyState(); this.save();
   },
-  save(){ this.state.updatedAt = Date.now(); lsSet(LS_DATA, JSON.stringify(this.state)); },
+  save(){ this.state.updatedAt = Date.now(); lsSet(lsData(), JSON.stringify(this.state)); },
   commit(fn){
     const before = toRemote(this.state);
     fn(this.state); this.save(); render();
@@ -559,6 +582,8 @@ function render(){
   const S = DB.state;
   // Profil
   $('#meChip').innerHTML = me ? `${avatar(me)}${esc(me)}` : 'Qui êtes-vous ?';
+  $('#meChip').dataset.act = Member.legacy ? 'pickMe' : 'tab';
+  $('#meChip').dataset.tab = 'reglages';
   // Bandeau "commande en cours"
   const st = activeStatus();
   const bar = $('#statusBar');
@@ -573,9 +598,15 @@ function render(){
   dot.className = 'sync ' + (Sync.user && Sync.connected ? 'on' : 'off');
   dot.title = Sync.user ? (Sync.connected ? 'Synchronisé' : 'Hors ligne, envoi dès le retour du réseau') : 'Non connecté';
 
-  // Onglets
-  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.tab === ui.tab ? 'page' : 'false'));
-  ['liste', 'frigo', 'recettes', 'budget', 'reglages'].forEach(v => $('#view-' + v).hidden = v !== ui.tab);
+  // Espaces
+  const sps = availableSpaces(), sb = $('#spaceBar');
+  sb.hidden = sps.length < 2;
+  if (sps.length > 1) sb.innerHTML = `<div class="seg" role="group" aria-label="Espace">${sps.map(x => `<button data-act="space" data-v="${x}" aria-pressed="${space === x}">${esc(SPACES[x].n)}</button>`).join('')}</div>`;
+  // Onglets (l'espace Famille n'a ni frigo ni budget, mais des repas)
+  const hiddenTabs = isFam() ? ['frigo', 'budget'] : ['repas'];
+  document.querySelectorAll('.tab').forEach(t => { t.hidden = hiddenTabs.includes(t.dataset.tab); t.setAttribute('aria-current', t.dataset.tab === ui.tab ? 'page' : 'false'); });
+  ['liste', 'frigo', 'repas', 'recettes', 'budget', 'reglages'].forEach(v => $('#view-' + v).hidden = v !== ui.tab);
+  if (isFam()) renderRepas();
   const urgent = S.frigo.filter(f => f.dlc && daysUntil(f.dlc) <= 1).length;
   const cf = $('#cnt-frigo'); cf.hidden = !urgent; cf.textContent = urgent;
   const spent = monthTotal(monthKey(isoDate()));
@@ -637,12 +668,13 @@ function renderList(){
 
   const checkedAll = S.items.filter(i => i.checked).length;
   $('#dock').hidden = !(ui.tab === 'liste' && checkedAll);
-  $('#dockBtn').innerHTML = `Ranger les courses (${checkedAll})`;
+  $('#dockBtn').dataset.act = isFam() ? 'clearBought' : 'ranger';
+  $('#dockBtn').innerHTML = isFam() ? `Retirer les articles achetés (${checkedAll})` : `Ranger les courses (${checkedAll})`;
 }
 
 function itemRow(i){
   const meta = i.checked
-    ? `${avatar(i.checkedBy, 'mini-av')} pris par ${esc(i.checkedBy || '?')} ${i.checkedAt ? fmtWhen(i.checkedAt) : ''}`
+    ? `${avatar(i.checkedBy, 'mini-av')} ${isFam() ? 'acheté' : 'pris'} par ${esc(i.checkedBy || '?')} ${i.checkedAt ? fmtWhen(i.checkedAt) : ''}`
     : `${avatar(i.addedBy, 'mini-av')} ajouté par ${esc(i.addedBy || '?')} ${fmtWhen(i.addedAt)}`;
   return `<li class="item ${i.checked ? 'done' : ''}">
     <button class="check" data-act="toggle" data-id="${i.id}" aria-pressed="${i.checked}" aria-label="${i.checked ? 'Décocher' : 'Cocher'} ${esc(i.name)}">${icon.check}</button>
@@ -652,6 +684,7 @@ function itemRow(i){
       <span class="item-meta">${meta}</span>
     </button>
     ${i.store ? `<span class="tag">${esc(i.store)}</span>` : ''}
+    ${isFam() && !i.checked ? (i.takenBy ? `<button class="claim ${i.takenBy === me ? 'mine' : 'other'}" data-act="claim" data-id="${i.id}" ${i.takenBy === me ? '' : 'disabled'}>${i.takenBy === me ? 'Moi' : esc(i.takenBy)}</button>` : `<button class="claim" data-act="claim" data-id="${i.id}">Je m’en occupe</button>`) : ''}
   </li>`;
 }
 
@@ -786,9 +819,10 @@ function renderBudget(){
 function renderSettings(){
   const S = DB.state;
   $('#settingsBody').innerHTML = `
-    <div class="card"><span class="label">Ce téléphone est celui de</span>
+    ${Member.legacy ? `<div class="card"><span class="label">Ce téléphone est celui de</span>
       <div class="seg">${USERS.map(u => `<button data-act="setMe" data-u="${u}" aria-pressed="${me === u}">${avatar(u)}${u}</button>`).join('')}</div>
-    </div>
+    </div>` : `<div class="card"><span class="label">Ce téléphone</span><div class="row" style="justify-content:flex-start;gap:10px">${avatar(me)}<b>${esc(me)}</b></div>
+      <div class="sub">Espaces : ${availableSpaces().map(x => esc(SPACES[x].n)).join(' et ')}.</div></div>`}
     <div class="card"><span class="label">Magasins</span>
       <div class="chips wrapit">${S.stores.map(s => `<button class="chip" data-act="delStore" data-s="${esc(s)}" aria-label="Retirer ${esc(s)}">${esc(s)} <span class="x">×</span></button>`).join('')}</div>
       <form class="adder-row" id="storeForm"><input class="field" id="storeName" placeholder="Ajouter un magasin" aria-label="Nouveau magasin"><button class="btn" type="submit">Ajouter</button></form>
@@ -821,7 +855,8 @@ function renderSettings(){
 }
 
 // ---------- Synchronisation Firebase ----------
-const LS_CFG = 'ecocourse.firebase', LS_OUT = 'ecocourse.outbox', ROOT = 'households/main';
+const LS_CFG = 'ecocourse.firebase';
+const lsOut = () => space === 'main' ? 'ecocourse.outbox' : 'ecocourse.outbox.' + space;
 function parseConfig(t){
   const o = {};
   for (const m of String(t).matchAll(/["']?(\w+)["']?\s*:\s*["']([^"']+)["']/g)) o[m[1]] = m[2];
@@ -852,8 +887,8 @@ const Sync = {
     firebase.database().ref('.info/connected').on('value', s => { this.connected = !!s.val(); render(); });
     firebase.auth().onAuthStateChanged(u => {
       this.user = u;
-      if (u) { closeLogin(); this.attach(); if (!me) pickMe(); else setupPush(); }
-      else { this.detach(); showLogin(); }
+      if (u) { closeLogin(); resolveMembers().then(() => { this.attach(); this.attachFitness(); if (!me) pickMe(); else setupPush(); render(); }); }
+      else { this.detach(); this.detachFitness(); Member.checked = false; showLogin(); }
       render();
     });
   },
@@ -876,7 +911,11 @@ const Sync = {
       if (!this.first) announce(DB.state, next);
       this.first = false;
       DB.state = next; DB.save(); render();
-    }, () => toast("Accès refusé à la base. Vérifiez les règles Firebase."));
+    }, () => toast("Accès refusé à cet espace. Vérifiez que votre compte en fait partie."));
+  },
+  attachFitness(){
+    if (!Member.spaces.main || this.fitOn) return;
+    this.fitOn = true;
     // Profils publiés par AnounisFitness (même projet Firebase)
     firebase.database().ref('fitness/couple').on('value', snap => {
       Fit.profiles = snap.val() || {}; Fit.loaded = true;
@@ -888,18 +927,20 @@ const Sync = {
       if (ui.tab === 'recettes' || ui.tab === 'reglages') render();
     }, () => { Fit.loaded = true; });
   },
-  detach(){ if (this.ref) { this.ref.off(); this.ref = null; try { firebase.database().ref('fitness/couple').off(); } catch(e){} } },
-  outbox(){ try { return JSON.parse(lsGet(LS_OUT) || '{}'); } catch(e){ return {}; } },
+  detach(){ if (this.ref) { this.ref.off(); this.ref = null; } },
+  detachFitness(){ if (this.fitOn) { this.fitOn = false; try { firebase.database().ref('fitness/couple').off(); } catch(e){} } },
+  outbox(){ try { return JSON.parse(lsGet(lsOut()) || '{}'); } catch(e){ return {}; } },
   push(u){
     if (!this.enabled || !Object.keys(u).length) return;
-    lsSet(LS_OUT, JSON.stringify(Object.assign(this.outbox(), u)));
+    lsSet(lsOut(), JSON.stringify(Object.assign(this.outbox(), u)));
     if (this.ref) this.send(u);
   },
   send(u){
+    const key = lsOut();
     this.ref.update(u).then(() => {
-      const out = this.outbox();
+      let out = {}; try { out = JSON.parse(lsGet(key) || '{}'); } catch(e){}
       for (const k in u) if (JSON.stringify(out[k]) === JSON.stringify(u[k])) delete out[k];
-      lsSet(LS_OUT, JSON.stringify(out));
+      lsSet(key, JSON.stringify(out));
       render();
     }).catch(e => console.warn('Synchro refusée', e));
   },
@@ -945,11 +986,11 @@ function pushCard(){
     ${pushDiag.err ? `<div class="sub" style="color:var(--bad);overflow-wrap:anywhere">${esc(pushDiag.err)}</div>` : ''}
     ${ok ? '' : '<button class="btn btn-primary" data-act="retryPush">Activer les notifications</button>'}</div>`;
 }
-function tokenRef(){ const id = lsGet(LS_TOKEN); return id && Sync.enabled ? firebase.database().ref(ROOT + '/tokens/' + id) : null; }
+function tokenRefs(){ const id = lsGet(LS_TOKEN); return id && Sync.enabled ? availableSpaces().map(s => firebase.database().ref(`households/${s}/tokens/${id}`)) : []; }
 function saveToken(token){
   const id = token.replace(/[^A-Za-z0-9_-]/g, '_').slice(-140);
   lsSet(LS_TOKEN, id);
-  firebase.database().ref(ROOT + '/tokens/' + id).set({token, user:me, at:Date.now()}).catch(e => { pushDiag.err = 'Enregistrement dans la base impossible : ' + e.message; render(); });
+  availableSpaces().forEach(s => firebase.database().ref(`households/${s}/tokens/${id}`).set({token, user:me, at:Date.now()}).catch(e => { pushDiag.err = 'Enregistrement dans la base impossible : ' + e.message; render(); }));
 }
 
 // Nouvelle version disponible ?
@@ -983,6 +1024,13 @@ function announce(prev, next){
   if (st && st.by !== me && (!ps || ps.at !== st.at)) msgs.push(`${st.by} prépare une commande ${st.store}`);
   if (added.length) msgs.push(added.length === 1 ? `${added[0].addedBy} a ajouté « ${added[0].name} »` : `${added[0].addedBy} a ajouté ${added.length} articles`);
   if (taken.length) msgs.push(taken.length === 1 ? `${taken[0].checkedBy} a pris « ${taken[0].name} »` : `${taken[0].checkedBy} a pris ${taken.length} articles`);
+  const claimed = next.items.filter(i => pi[i.id] && i.takenBy && i.takenBy !== me && pi[i.id].takenBy !== i.takenBy);
+  if (claimed.length) msgs.push(`${claimed[0].takenBy} s’occupe de « ${claimed[0].name} »`);
+  const pm = new Set((prev.meals || []).map(m => m.id)), nm = (next.meals || []).filter(m => !pm.has(m.id) && m.by !== me);
+  if (nm.length) msgs.push(`${nm[0].by} propose un repas : ${nm[0].title}`);
+  const pd = Object.fromEntries((prev.dishes || []).map(d => [d.id, d]));
+  const nb = (next.dishes || []).filter(d => d.bringBy && d.bringBy !== me && (!pd[d.id] || pd[d.id].bringBy !== d.bringBy));
+  if (nb.length) msgs.push(`${nb[0].bringBy} apporte : ${nb[0].name}`);
   const pf = new Set(prev.frigo.map(f => f.id)), stocked = next.frigo.filter(f => !pf.has(f.id) && f.addedBy !== me);
   if (stocked.length) msgs.push(`${stocked[0].addedBy} a rangé ${stocked.length} produit${stocked.length > 1 ? 's' : ''} au frigo`);
   const pr = new Set((prev.recalls || []).map(r => r.id)), nr = (next.recalls || []).filter(r => !pr.has(r.id));
@@ -1044,6 +1092,138 @@ function syncCard(){
     <div class="row"><span>État</span><span class="badge ${Sync.connected ? 'ok' : 'warn'}">${Sync.connected ? 'Synchronisé' : 'Hors ligne'}</span></div>
     ${n ? `<div class="sub">${n} modification${n > 1 ? 's' : ''} en attente d'envoi.</div>` : ''}
     <button class="btn" data-act="logout">Se déconnecter</button></div>`;
+}
+
+// ---------- Espaces : Nabs & Gigi (privé) et Famille ----------
+// Les membres de chaque espace sont enregistrés dans Firebase (members/{espace}/{uid} = prénom).
+const Member = { checked:false, legacy:true, spaces:{} };
+const isFam = () => space === 'famille';
+function availableSpaces(){ return Object.keys(SPACES).filter(s => Member.spaces[s]); }
+async function resolveMembers(){
+  const uid = Sync.user && Sync.user.uid;
+  Member.spaces = {}; Member.legacy = true;
+  for (const s of Object.keys(SPACES)) {
+    try { const v = (await firebase.database().ref(`members/${s}/${uid}`).get()).val(); if (v) { Member.spaces[s] = v; Member.legacy = false; } } catch(e){}
+  }
+  if (Member.legacy) Member.spaces = {main:me || true};   // membres pas encore enregistrés : fonctionnement d'avant
+  Member.checked = true;
+  if (!Member.legacy) {
+    const name = Member.spaces.main || Member.spaces.famille;
+    if (name && name !== me) { me = name; lsSet(LS_ME, me); }
+  }
+  if (!Member.spaces[space]) setSpace(availableSpaces()[0] || 'main', true);
+}
+function setSpace(s, silent){
+  if (!SPACES[s] || s === space && !silent) return;
+  Sync.detach();
+  space = s; ROOT = 'households/' + s; lsSet(LS_SPACE, s);
+  DB.load();
+  if (!['liste', 'recettes', 'reglages', isFam() ? 'repas' : 'frigo', 'budget'].includes(ui.tab) || (isFam() && ['frigo', 'budget'].includes(ui.tab)) || (!isFam() && ui.tab === 'repas')) ui.tab = 'liste';
+  ui.storeFilter = '';
+  if (Sync.user && Member.checked) Sync.attach();
+  render();
+}
+
+// ---------- « Je m'en occupe » (espace Famille) ----------
+function claimItem(id){
+  if (needMe()) return;
+  DB.commit(S => { const i = S.items.find(x => x.id === id); if (!i) return; i.takenBy = i.takenBy === me ? null : me; i.takenAt = i.takenBy ? Date.now() : null; });
+}
+function clearBought(){
+  const n = DB.state.items.filter(i => i.checked).length; if (!n) return;
+  const removed = DB.state.items.filter(i => i.checked);
+  DB.commit(S => S.items = S.items.filter(i => !i.checked));
+  toast(`${n} article${n > 1 ? 's' : ''} retiré${n > 1 ? 's' : ''} de la liste`, 'Annuler', () => DB.commit(S => S.items.push(...removed)));
+}
+
+// ---------- Repas de famille ----------
+const DISH_IDEAS = ['Entrée', 'Salade', 'Plat', 'Couscous', 'Pain', 'Boissons', 'Fromage', 'Fruits', 'Dessert', 'Thé et gâteaux'];
+function nextSaturday(){ const d = new Date(); d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); return isoDate(d); }
+function mealLabel(m){
+  const [y, mo, d] = m.date.split('-').map(Number), dt = new Date(y, mo - 1, d), diff = daysUntil(m.date);
+  const day = diff === 0 ? "Aujourd'hui" : diff === 1 ? 'Demain' : dt.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  return `${cap(day)} ${m.slot === 'soir' ? 'soir' : 'midi'}`;
+}
+function renderRepas(){
+  const S = DB.state, past = plusDays(-1);
+  const meals = (S.meals || []).filter(m => m.date >= past).sort((a, b) => (a.date + a.slot).localeCompare(b.date + b.slot));
+  let html = '';
+  if (!meals.length) html += `<div class="empty"><b>Aucun repas prévu</b>Créez le prochain repas de famille : chacun pourra dire ce qu'il apporte.</div>`;
+  meals.forEach(m => {
+    const dishes = S.dishes.filter(d => d.meal === m.id);
+    const free = dishes.filter(d => !d.bringBy).length;
+    const mine = dishes.filter(d => d.bringBy === me);
+    html += `<button class="card" data-act="openMeal" data-id="${esc(m.id)}" style="text-align:left;gap:8px">
+      <div class="row"><span style="font-family:var(--f-display);font-weight:700;font-size:17px">${esc(m.title || 'Repas de famille')}</span>${free ? `<span class="badge warn">${free} à prendre</span>` : dishes.length ? '<span class="badge ok">Tout est pris</span>' : ''}</div>
+      <span class="sub">${esc(mealLabel(m))}${m.place ? ' · ' + esc(m.place) : ''}</span>
+      ${dishes.length ? `<span class="sub">${dishes.map(d => `${esc(d.name)}${d.bringBy ? ' (' + esc(d.bringBy) + ')' : ''}`).join(' · ')}</span>` : '<span class="sub">Aucun plat pour l’instant</span>'}
+      ${mine.length ? `<span class="sub" style="color:var(--accent);font-weight:600">Vous apportez : ${mine.map(d => esc(d.name)).join(', ')}</span>` : ''}
+    </button>`;
+  });
+  $('#repasBody').innerHTML = html;
+}
+function mealForm(m){
+  const isNew = !m;
+  m = m || {title:'Repas de famille', date:nextSaturday(), slot:'midi', place:'Chez Maman'};
+  openSheet(`<h2>${isNew ? 'Nouveau repas' : 'Modifier le repas'}</h2>
+    <form id="mealForm" class="set-list">
+      <div class="fgroup"><label class="label" for="mTitle">Nom</label><input class="field" id="mTitle" value="${esc(m.title)}"></div>
+      <div class="adder-row">
+        <div class="fgroup" style="flex:1;min-width:0"><label class="label" for="mDate">Date</label><input class="field" type="date" id="mDate" value="${esc(m.date)}"></div>
+        <div class="fgroup" style="flex:1;min-width:0"><label class="label" for="mSlot">Moment</label><select class="field" id="mSlot"><option value="midi" ${m.slot !== 'soir' ? 'selected' : ''}>Midi</option><option value="soir" ${m.slot === 'soir' ? 'selected' : ''}>Soir</option></select></div>
+      </div>
+      <div class="fgroup"><label class="label" for="mPlace">Où</label><input class="field" id="mPlace" value="${esc(m.place || '')}" placeholder="ex. Chez Maman"></div>
+      <button class="btn btn-primary" type="submit">${isNew ? 'Créer le repas' : 'Enregistrer'}</button>
+      ${isNew ? '' : `<button type="button" class="btn btn-danger" id="mDel">Supprimer ce repas</button>`}
+    </form>`);
+  $('#mealForm').onsubmit = e => {
+    e.preventDefault(); if (needMe()) return;
+    const v = {title:$('#mTitle').value.trim() || 'Repas de famille', date:$('#mDate').value || nextSaturday(), slot:$('#mSlot').value, place:$('#mPlace').value.trim()};
+    let id = m.id;
+    DB.commit(S => {
+      if (isNew) { id = uid(); S.meals.push({id, ...v, by:me, at:Date.now()}); const old = plusDays(-30); S.meals = S.meals.filter(x => x.date >= old); S.dishes = S.dishes.filter(d => S.meals.some(x => x.id === d.meal)); }
+      else Object.assign(S.meals.find(x => x.id === id) || {}, v);
+    });
+    mealSheet(id);
+  };
+  if (!isNew) $('#mDel').onclick = () => confirmSheet('Supprimer ce repas ?', 'Le repas et la liste des plats seront supprimés pour toute la famille.', 'Supprimer', () => {
+    DB.commit(S => { S.meals = S.meals.filter(x => x.id !== m.id); S.dishes = S.dishes.filter(d => d.meal !== m.id); });
+  }, true);
+}
+function mealSheet(id){
+  const S = DB.state, m = (S.meals || []).find(x => x.id === id); if (!m) { closeSheet(); return; }
+  ui.mealOpen = id;
+  const dishes = S.dishes.filter(d => d.meal === id).sort((a, b) => a.at - b.at);
+  const used = new Set(dishes.map(d => norm(d.name)));
+  openSheet(`<div class="row"><h2 style="min-width:0">${esc(m.title || 'Repas de famille')}</h2><button class="btn btn-sm" data-act="editMeal" data-id="${esc(id)}">Modifier</button></div>
+    <span class="sub">${esc(mealLabel(m))}${m.place ? ' · ' + esc(m.place) : ''} · proposé par ${esc(m.by || '?')}</span>
+    <div class="items">${dishes.length ? dishes.map(d => {
+      const r = d.rid && RECETTES.find(x => x.id === d.rid);
+      return `<div class="exp">${d.bringBy ? avatar(d.bringBy) : '<span class="avatar" style="background:var(--line);color:var(--muted)">?</span>'}
+        <div class="exp-main"><div style="font-weight:600">${esc(d.name)}</div><div class="sub">${d.bringBy ? (d.bringBy === me ? 'Vous l’apportez' : esc(d.bringBy) + ' l’apporte') : 'Personne pour l’instant'}${r ? ` · <button class="sub" data-act="openRec" data-id="${r.id}" style="text-decoration:underline">recette</button>` : ''}</div></div>
+        ${!d.bringBy ? `<button class="btn btn-sm btn-primary" data-act="bringDish" data-id="${esc(d.id)}">Je l’apporte</button>` : d.bringBy === me ? `<button class="btn btn-sm" data-act="bringDish" data-id="${esc(d.id)}">Je ne peux plus</button>` : ''}
+        ${d.by === me || d.bringBy === me || m.by === me ? `<button class="icon-btn" style="width:34px;height:34px;background:none;color:var(--muted)" data-act="delDish" data-id="${esc(d.id)}" aria-label="Retirer">${icon.trash}</button>` : ''}
+      </div>`; }).join('') : '<div class="exp"><span class="sub">Ajoutez ce qu’il faut pour ce repas, puis chacun choisit ce qu’il apporte.</span></div>'}</div>
+    <form class="adder-row" id="dishForm"><input class="field" id="dishName" placeholder="Ajouter : salade, pain, dessert…" aria-label="Plat ou produit"><button class="btn btn-primary" type="submit">Ajouter</button></form>
+    <div class="chips wrapit">${DISH_IDEAS.filter(x => !used.has(norm(x))).map(x => `<button class="chip" data-act="quickDish" data-v="${esc(x)}">+ ${esc(x)}</button>`).join('')}</div>
+    <div class="row"><label class="row" style="gap:8px;justify-content:flex-start"><input type="checkbox" id="dishMine" checked style="width:20px;height:20px"> <span class="sub">C’est moi qui l’apporte</span></label><button class="btn btn-sm btn-soft" data-act="dishFromRecipe">Choisir une recette</button></div>`);
+  $('#dishForm').onsubmit = e => { e.preventDefault(); const v = $('#dishName').value.trim(); if (v) addDish(id, v, null, $('#dishMine').checked); };
+}
+function addDish(mealId, name, rid, mine){
+  if (needMe()) return;
+  DB.commit(S => S.dishes.push({id:uid(), meal:mealId, name:cap(name), rid:rid || null, by:me, bringBy:mine ? me : null, at:Date.now()}));
+  mealSheet(mealId);
+}
+function dishRecipePicker(){
+  const mealId = ui.mealOpen;
+  openSheet(`<h2>Choisir une recette</h2>
+    <input class="field" id="dishSearch" type="search" placeholder="Chercher…" aria-label="Chercher une recette">
+    <ul class="items" id="dishList"></ul>
+    <button class="btn" data-act="backMeal">Retour</button>`);
+  const draw = q => { q = norm(q || ''); $('#dishList').innerHTML = RECETTES.filter(r => !q || norm(r.n).includes(q)).sort((a, b) => a.n.localeCompare(b.n, 'fr')).slice(0, 60)
+    .map(r => `<li class="item"><button class="item-main" data-act="pickDishRec" data-id="${r.id}"><span class="item-name">${esc(r.n)}</span><span class="item-meta">${r.t} min · ${r.tags.map(t => TAGS[t]).filter(Boolean).slice(0, 3).join(' · ')}</span></button></li>`).join(''); };
+  $('#dishSearch').oninput = e => draw(e.target.value); draw('');
+  ui.dishMine = true; ui.mealOpen = mealId;
 }
 
 // ---------- Feuilles & toasts ----------
@@ -1197,7 +1377,7 @@ function ranger(){
 // Commande en cours
 function startOrder(){
   if (needMe()) return;
-  openSheet(`<h2>Je prépare une commande</h2><p class="sub" style="margin:0">${me === 'Nabs' ? 'Gigi' : 'Nabs'} verra un bandeau et pourra ajouter un oubli à temps. La liste se filtre sur le magasin choisi.</p>
+  openSheet(`<h2>Je prépare une commande</h2><p class="sub" style="margin:0">${isFam() ? 'La famille verra' : (me === 'Nabs' ? 'Gigi' : 'Nabs') + ' verra'} un bandeau et pourra ajouter un oubli à temps. La liste se filtre sur le magasin choisi.</p>
     <div class="chips wrapit">${DB.state.stores.map(s => `<button class="chip" data-act="pickOrderStore" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>`);
 }
 function setOrder(store){
@@ -1546,7 +1726,7 @@ function recipeSheet(id, portions){
       return `<div class="exp"><div class="exp-main"><div style="font-weight:600">${esc(ingName(key, note))}</div>${q ? `<div class="sub num">${q}</div>` : ''}</div>${state}</div>`;
     }).join('')}</div>
     ${a.missing.length ? `<button class="btn btn-primary" data-act="recMissing" data-id="${r.id}">Ajouter les ${a.missing.length} manquant${a.missing.length > 1 ? 's' : ''} à la liste</button>` : ''}
-    <div class="btn-row"><button class="btn" data-act="planRec" data-id="${r.id}">${planned ? 'Changer de jour' : 'Mettre au menu'}</button><button class="btn btn-soft" data-act="cooked" data-id="${r.id}">J’ai cuisiné</button></div>
+    ${isFam() ? `<button class="btn" data-act="recToMeal" data-id="${r.id}">Proposer pour un repas de famille</button>` : `<div class="btn-row"><button class="btn" data-act="planRec" data-id="${r.id}">${planned ? 'Changer de jour' : 'Mettre au menu'}</button><button class="btn btn-soft" data-act="cooked" data-id="${r.id}">J’ai cuisiné</button></div>`}
     ${planned ? `<button class="btn btn-danger" data-act="unplan" data-id="${esc(planned.id)}">Retirer du menu</button>` : ''}
     <div class="fgroup"><span class="label">Préparation</span><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>`);
   ui.recOpen = id; ui.recPortions = portions;
@@ -1814,9 +1994,9 @@ function pickMe(){
 
 // ---------- Délégation des clics ----------
 const ACTIONS = {
-  tab: el => { ui.tab = el.dataset.tab; window.scrollTo(0, 0); render(); if (ui.tab === 'recettes') renderRecettes(); },
+  tab: el => { if (!el.dataset.tab) return; ui.tab = el.dataset.tab; window.scrollTo(0, 0); render(); if (ui.tab === 'recettes') renderRecettes(); },
   pickMe, closeSheet: () => closeSheet(),
-  setMe: el => { me = el.dataset.u; lsSet(LS_ME, me); closeSheet(); render(); const r = tokenRef(); if (r) r.update({user:me}); setupPush(); },
+  setMe: el => { me = el.dataset.u; lsSet(LS_ME, me); closeSheet(); render(); tokenRefs().forEach(r => r.update({user:me}).catch(() => {})); setupPush(); },
   toggle: el => toggleItem(el.dataset.id),
   editItem: el => editItem(el.dataset.id),
   addFav: el => { const h = DB.state.history[el.dataset.k]; if (h) addItems(h.name, ui.storeFilter); },
@@ -1828,6 +2008,24 @@ const ACTIONS = {
   pickOrderStore: el => setOrder(el.dataset.s),
   voice, scan,
   addFrigo: () => frigoSheet(null),
+  space: el => setSpace(el.dataset.v),
+  claim: el => claimItem(el.dataset.id),
+  clearBought: () => clearBought(),
+  newMeal: () => mealForm(null),
+  openMeal: el => mealSheet(el.dataset.id),
+  editMeal: el => mealForm(DB.state.meals.find(m => m.id === el.dataset.id)),
+  backMeal: () => mealSheet(ui.mealOpen),
+  quickDish: el => addDish(ui.mealOpen, el.dataset.v, null, $('#dishMine') ? $('#dishMine').checked : true),
+  dishFromRecipe: () => { ui.dishMine = $('#dishMine') ? $('#dishMine').checked : true; dishRecipePicker(); },
+  pickDishRec: el => { const r = RECETTES.find(x => x.id === el.dataset.id); if (r) addDish(ui.mealOpen, r.n, r.id, ui.dishMine !== false); },
+  bringDish: el => { if (needMe()) return; DB.commit(S => { const d = S.dishes.find(x => x.id === el.dataset.id); if (d) d.bringBy = d.bringBy === me ? null : me; }); mealSheet(ui.mealOpen); },
+  delDish: el => { DB.commit(S => S.dishes = S.dishes.filter(x => x.id !== el.dataset.id)); mealSheet(ui.mealOpen); },
+  recToMeal: el => {
+    const rid = el.dataset.id, past = plusDays(-1), meals = DB.state.meals.filter(m => m.date >= past).sort((a, b) => a.date.localeCompare(b.date));
+    if (!meals.length) { toast('Créez d’abord un repas dans l’onglet Repas'); return; }
+    openSheet(`<h2>Pour quel repas ?</h2><div class="items">${meals.map(m => `<button class="exp" data-act="recToMealGo" data-id="${esc(m.id)}" data-r="${rid}" style="width:100%;text-align:left"><div class="exp-main"><div style="font-weight:600">${esc(m.title)}</div><div class="sub">${esc(mealLabel(m))}</div></div></button>`).join('')}</div>`);
+  },
+  recToMealGo: el => { const r = RECETTES.find(x => x.id === el.dataset.r); if (r) addDish(el.dataset.id, r.n, r.id, true); },
   place: el => { ui.place = el.dataset.v; render(); },
   rgPlace: el => { const d = ui.rgDraft.rows[el.dataset.id]; d.place = el.dataset.v; const it = ui.rgItems.find(i => i.id === el.dataset.id); const s = shelfInfo(it.name, it.rayon); d.dlc = d.place === 'congel' ? plusDays(s.z || 90) : defaultDlc({...s, place:d.place}); ui.rgDraw(); },
   ticket: () => ticketSheet(),
@@ -1850,7 +2048,7 @@ const ACTIONS = {
   login: () => showLogin(),
   retryPush: () => setupPush(true),
   skipLogin: () => closeLogin(),
-  logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', async () => { const r = tokenRef(); if (r) { try { await r.remove(); } catch(e){} } pushStarted = false; firebase.auth().signOut(); }),
+  logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', async () => { for (const r of tokenRefs()) { try { await r.remove(); } catch(e){} } pushStarted = false; firebase.auth().signOut(); }),
   editFrigo: el => { const f = DB.state.frigo.find(x => x.id === el.dataset.id); if (f) frigoSheet(f); },
   addExpense: expenseSheet,
   delExpense: el => {
@@ -1910,7 +2108,7 @@ document.addEventListener('submit', e => {
   }
 });
 // Synchro entre onglets ouverts sur le même appareil
-window.addEventListener('storage', e => { if (e.key === LS_DATA) { DB.load(); render(); } });
+window.addEventListener('storage', e => { if (e.key === lsData()) { DB.load(); render(); } });
 
 // ---------- Démarrage ----------
 $('#micBtn').hidden = !(SR || Native.Speech);

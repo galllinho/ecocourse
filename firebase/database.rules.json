@@ -2,15 +2,24 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "members": {
+      "$space": {
+        "$uid": { ".read": "auth != null && auth.uid === $uid" }
+      }
+    },
     "households": {
       "main": {
-        ".read": "auth != null",
-        ".write": "auth != null"
+        ".read": "auth != null && root.child('members/main/' + auth.uid).exists()",
+        ".write": "auth != null && root.child('members/main/' + auth.uid).exists()"
+      },
+      "famille": {
+        ".read": "auth != null && root.child('members/famille/' + auth.uid).exists()",
+        ".write": "auth != null && root.child('members/famille/' + auth.uid).exists()"
       }
     },
     "fitness": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      ".read": "auth != null && root.child('members/main/' + auth.uid).exists()",
+      ".write": "auth != null && root.child('members/main/' + auth.uid).exists()"
     }
   }
 }

@@ -12,8 +12,8 @@ const db = () => admin.database().ref(ROOT);
 const euro = n => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
 
 // Envoie à tous les téléphones, sauf ceux de "exceptUser" (celui qui a fait l'action)
-async function notify(exceptUser, title, body, tag) {
-  const snap = await db().child('tokens').get();
+async function notify(exceptUser, title, body, tag, hh = 'main') {
+  const snap = await admin.database().ref(`households/${hh}/tokens`).get();
   const entries = Object.entries(snap.val() || {}).filter(([, t]) => t && t.token && (!exceptUser || t.user !== exceptUser));
   if (!entries.length) return;
   const res = await admin.messaging().sendEachForMulticast({
@@ -27,7 +27,7 @@ async function notify(exceptUser, title, body, tag) {
     const code = r.error && r.error.code;
     if (code === 'messaging/registration-token-not-registered' || code === 'messaging/invalid-registration-token') dead[`tokens/${entries[i][0]}`] = null;
   });
-  if (Object.keys(dead).length) await db().update(dead);
+  if (Object.keys(dead).length) await admin.database().ref(`households/${hh}`).update(dead);
 }
 
 const opts = path => ({ ref: `${ROOT}/${path}`, instance: INSTANCE, region: REGION });
@@ -134,4 +134,34 @@ exports.rappelConsoQuotidien = onSchedule({ schedule: '0 9 * * *', timeZone: 'Eu
   const frigo = Object.values((await db().child('frigo').get()).val() || {});
   const n = await verifierRappels(frigo);
   console.log(`RappelConso : ${frigo.filter(f => f.code).length} code(s) vérifié(s), ${n} nouveau(x) rappel(s)`);
+});
+
+// ---------- Espace Famille (Nabs, Gigi, Maman, Sami, Sonia) ----------
+const famOpts = path => ({ ref: `/households/famille/${path}`, instance: INSTANCE, region: REGION });
+const FAM = 'famille';
+exports.famArticle = onValueWritten(famOpts('items/{id}'), async ev => {
+  const before = ev.data.before.val(), after = ev.data.after.val();
+  if (!after) return;
+  const qty = after.qty > 1 ? `${after.qty}× ` : '';
+  if (!before) return notify(after.addedBy, 'Courses de la famille', `${after.addedBy} a ajouté ${qty}${after.name}`, `fadd-${ev.params.id}`, FAM);
+  if (after.takenBy && before.takenBy !== after.takenBy) return notify(after.takenBy, 'Courses de la famille', `${after.takenBy} s'occupe de : ${qty}${after.name}`, `ftake-${ev.params.id}`, FAM);
+  if (!before.checked && after.checked && after.checkedBy) return notify(after.checkedBy, 'Courses de la famille', `${after.checkedBy} a acheté ${qty}${after.name}`, `fbuy-${ev.params.id}`, FAM);
+});
+exports.famCommande = onValueWritten(famOpts('status'), async ev => {
+  const before = ev.data.before.val(), after = ev.data.after.val();
+  if (!after || (before && before.at === after.at)) return;
+  return notify(after.by, `Courses chez ${after.store}`, `${after.by} fait les courses. Ajoutez ce qu'il faut maintenant !`, 'fcommande', FAM);
+});
+const jourFR = (date, slot) => { const [y, m, d] = date.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Paris' }) + (slot === 'soir' ? ' soir' : ' midi'); };
+exports.famRepas = onValueCreated(famOpts('meals/{id}'), async ev => {
+  const m = ev.data.val(); if (!m) return;
+  return notify(m.by, `Nouveau repas : ${m.title}`, `${jourFR(m.date, m.slot)}${m.place ? ' · ' + m.place : ''}. Dites ce que vous apportez !`, `frepas-${ev.params.id}`, FAM);
+});
+exports.famPlat = onValueWritten(famOpts('dishes/{id}'), async ev => {
+  const before = ev.data.before.val(), after = ev.data.after.val();
+  if (!after) return;
+  const meal = (await admin.database().ref(`households/famille/meals/${after.meal}`).get()).val() || {};
+  const quand = meal.date ? ` (${jourFR(meal.date, meal.slot)})` : '';
+  if (after.bringBy && (!before || before.bringBy !== after.bringBy)) return notify(after.bringBy, meal.title || 'Repas de famille', `${after.bringBy} apporte : ${after.name}${quand}`, `fplat-${ev.params.id}`, FAM);
+  if (!before && !after.bringBy) return notify(after.by, meal.title || 'Repas de famille', `Qui apporte : ${after.name} ?${quand}`, `fplat-${ev.params.id}`, FAM);
 });
