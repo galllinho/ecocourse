@@ -260,6 +260,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
   <div class="wrap spacebar" id="spaceBar" hidden></div>
   <div id="statusBar" hidden></div>
   <div id="updateBar" class="status" style="background:var(--accent-soft)" hidden></div>
+  <div id="installBar" class="example-bar" hidden><div class="wrap row" style="gap:10px"><span>Installez EcoCourse : <b>Partager › Sur l’écran d’accueil</b>, puis ouvrez-la depuis l’icône.</span><button class="btn btn-sm" data-act="hideInstall">OK</button></div></div>
   <div id="exampleBar" class="example-bar" hidden><div class="wrap">Données d'exemple pour essayer l'appli. Réglages › Effacer les exemples.</div></div>
 </header>
 
@@ -637,6 +638,7 @@ function render(){
     bar.innerHTML = `<div class="wrap" style="display:flex;align-items:center;gap:10px;width:100%"><span class="dot"></span><span class="status-txt">${mine ? 'Vous préparez' : `<b>${esc(st.by)}</b> prépare`} une commande <b>${esc(st.store)}</b> · depuis ${fmtTime(st.at)}</span>${mine ? '<button class="btn btn-sm" data-act="endOrder">Terminé</button>' : ''}</div>`;
   } else bar.hidden = true;
   $('#exampleBar').hidden = !S.example;
+  const ib = $('#installBar'); ib.hidden = !(isIOS && !isStandalone() && !Native.isNative && !lsGet('ecocourse.noinstall'));
   const dot = $('#syncDot');
   dot.hidden = !Sync.enabled;
   dot.className = 'sync ' + (Sync.user && Sync.connected ? 'on' : 'off');
@@ -933,7 +935,7 @@ const Sync = {
     firebase.database().ref('.info/connected').on('value', s => { this.connected = !!s.val(); render(); });
     firebase.auth().onAuthStateChanged(u => {
       this.user = u;
-      if (u) { closeLogin(); resolveMembers().then(() => { this.attach(); this.attachFitness(); if (!me) pickMe(); else setupPush(); render(); }); }
+      if (u) { closeLogin(); resolveMembers().then(() => { this.attach(); this.attachFitness(); if (!me) pickMe(); else { setupPush(); setupWebPush(); } render(); }); }
       else { this.detach(); this.detachFitness(); Member.checked = false; showLogin(); }
       render();
     });
@@ -1021,8 +1023,43 @@ async function setupPush(force){
   } catch(e){ pushStarted = false; pushDiag.err = String((e && e.message) || e); }
   render();
 }
+// ---------- Version web installée (iPhone) : notifications Web Push ----------
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const webPushPossible = () => !Native.isNative && 'serviceWorker' in navigator && 'Notification' in window && 'PushManager' in window && location.protocol === 'https:';
+let swReg = null;
+if (!Native.isNative && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').then(r => swReg = r).catch(e => console.warn('SW', e));
+async function setupWebPush(fromClick){
+  if (!webPushPossible() || !Sync.user || !me) return;
+  if (!self.ECOCOURSE_VAPID) { pushDiag.err = 'Notifications web pas encore configurées (clé Web Push manquante).'; render(); return; }
+  if (Notification.permission === 'default' && !fromClick) return;   // iPhone : la demande doit venir d'un toucher
+  try {
+    const perm = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
+    pushDiag.perm = perm;
+    if (perm !== 'granted') { pushDiag.err = isIOS ? 'Notifications refusées : Réglages iPhone › Notifications › EcoCourse.' : 'Notifications refusées dans le navigateur.'; render(); return; }
+    await loadScript('vendor/firebase-messaging-compat.js');
+    const reg = swReg || await navigator.serviceWorker.ready;
+    const token = await firebase.messaging().getToken({vapidKey:self.ECOCOURSE_VAPID, serviceWorkerRegistration:reg});
+    if (token) { pushDiag.token = true; pushDiag.err = ''; saveToken(token); }
+  } catch(e){ pushDiag.err = 'Activation impossible : ' + ((e && e.message) || e); }
+  render();
+}
+function webPushCard(){
+  if (Native.isNative) return '';
+  if (isIOS && !isStandalone()) return `<div class="card"><span class="label">Installer sur l’iPhone</span>
+    <div class="sub">Pour avoir l’icône EcoCourse et les notifications :</div>
+    <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px"><li>Dans Safari, touchez le bouton <b>Partager</b> (carré avec une flèche).</li><li>Choisissez <b>Sur l’écran d’accueil</b>, puis <b>Ajouter</b>.</li><li>Ouvrez EcoCourse depuis la nouvelle icône et reconnectez-vous.</li></ol></div>`;
+  if (!webPushPossible()) return '';
+  const ok = pushDiag.token && !pushDiag.err;
+  const line = (k, v, good) => `<div class="row"><span>${k}</span><span class="badge ${good ? 'ok' : 'warn'}">${v}</span></div>`;
+  return `<div class="card"><span class="label">Notifications</span>
+    ${line('Autorisation', Notification.permission === 'granted' ? 'Accordée' : Notification.permission === 'denied' ? 'Refusée' : 'Pas encore demandée', Notification.permission === 'granted')}
+    ${line('Téléphone enregistré', pushDiag.token ? 'Oui' : 'Non', pushDiag.token)}
+    ${pushDiag.err ? `<div class="sub" style="color:var(--bad);overflow-wrap:anywhere">${esc(pushDiag.err)}</div>` : ''}
+    ${ok ? '' : '<button class="btn btn-primary" data-act="webPush">Activer les notifications</button>'}</div>`;
+}
 function pushCard(){
-  if (!Native.isNative) return '';
+  if (!Native.isNative) return webPushCard();
   const ok = pushDiag.token && !pushDiag.err;
   const line = (k, v, good) => `<div class="row"><span>${k}</span><span class="badge ${good ? 'ok' : 'warn'}">${v}</span></div>`;
   return `<div class="card"><span class="label">Notifications</span>
@@ -2145,6 +2182,8 @@ const ACTIONS = {
   setFit: el => { prefs.fitnessId = el.dataset.id || null; savePrefs(); closeSheet(); render(); },
   login: () => showLogin(),
   retryPush: () => setupPush(true),
+  webPush: () => setupWebPush(true),
+  hideInstall: () => { lsSet('ecocourse.noinstall', '1'); render(); },
   skipLogin: () => closeLogin(),
   logout: () => confirmSheet('Se déconnecter ?', 'La synchro s\'arrête sur ce téléphone jusqu\'à la prochaine connexion.', 'Se déconnecter', async () => { for (const r of tokenRefs()) { try { await r.remove(); } catch(e){} } pushStarted = false; firebase.auth().signOut(); }),
   editFrigo: el => { const f = DB.state.frigo.find(x => x.id === el.dataset.id); if (f) frigoSheet(f); },

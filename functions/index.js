@@ -20,6 +20,7 @@ async function notify(exceptUser, title, body, tag, hh = 'main') {
     tokens: entries.map(([, t]) => t.token),
     notification: { title, body },
     android: { priority: 'high', notification: { channelId: 'ecocourse', tag, color: '#2c6847' } },
+    webpush: { notification: { icon: 'https://galllinho.github.io/ecocourse/icons/icon-192.png', tag }, fcmOptions: { link: 'https://galllinho.github.io/ecocourse/' } },
   });
   // Nettoyage des téléphones désinstallés
   const dead = {};
