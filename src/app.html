@@ -25,6 +25,45 @@
   --ok:#6fcb92; --ok-soft:#1d3426; --warn:#e9a54a; --warn-soft:#3a2c17; --bad:#f07f69; --bad-soft:#3c211c;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark}
 
+/* ---------- Thèmes (skins) : chacun redéfinit les couleurs, en clair puis en sombre ---------- */
+:root[data-skin="fraise"]{--bg:#fff4f6;--sunk:#fde6ec;--ink:#2e1a22;--muted:#7a5c66;--line:#f3d3dc;--accent:#d9466f;--accent-ink:#fff;--accent-soft:#fde0e8;--r:18px}
+:root[data-skin="lavande"]{--bg:#f6f3fd;--sunk:#ece6fb;--ink:#231c33;--muted:#6b6182;--line:#e0d8f3;--accent:#7552c9;--accent-ink:#fff;--accent-soft:#e9e1fb;--r:18px}
+:root[data-skin="ocean"]{--bg:#f0f6fa;--sunk:#e0edf5;--ink:#14232e;--muted:#5a6d7a;--line:#d2e2ec;--accent:#1f78b4;--accent-ink:#fff;--accent-soft:#dcecf7;--r:18px}
+:root[data-skin="peche"]{--bg:#fff6ef;--sunk:#fde9da;--ink:#2b1d14;--muted:#7c6556;--line:#f4dccb;--accent:#d2611f;--accent-ink:#fff;--accent-soft:#fde3d1;--r:18px}
+:root[data-skin="famille"]{--bg:#faf4ee;--surface:#fffdfb;--sunk:#f3e6da;--ink:#2a1f1a;--muted:#7a6658;--line:#ecd9c9;--accent:#b0502c;--accent-ink:#fff;--accent-soft:#f6e0d4;--r:16px}
+:root[data-skin="nuit"]{--bg:#0f1424;--surface:#171d33;--sunk:#1f2742;--ink:#e9ecf8;--muted:#9aa3c4;--line:#283152;--accent:#f2c14e;--accent-ink:#1a1606;--accent-soft:#2e2a1c;--ok:#6fcb92;--ok-soft:#1d3426;--warn:#e9a54a;--warn-soft:#3a2c17;--bad:#f07f69;--bad-soft:#3c211c;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.3);--r:18px;color-scheme:dark}
+@media (prefers-color-scheme: dark){
+  :root[data-skin="fraise"]:not([data-theme="light"]){--bg:#1a1114;--surface:#24171c;--sunk:#2e1e24;--ink:#f6e8ec;--muted:#b896a2;--line:#3a262e;--accent:#ff8fb0;--accent-ink:#2a0f19;--accent-soft:#3b1d28}
+  :root[data-skin="lavande"]:not([data-theme="light"]){--bg:#13111b;--surface:#1c1927;--sunk:#252133;--ink:#ece8f8;--muted:#a69dc0;--line:#2f2a42;--accent:#b8a1ff;--accent-ink:#1b1330;--accent-soft:#2b2344}
+  :root[data-skin="ocean"]:not([data-theme="light"]){--bg:#0e161c;--surface:#152129;--sunk:#1c2b35;--ink:#e6f0f6;--muted:#94abb9;--line:#253744;--accent:#7cc1f0;--accent-ink:#0c1a24;--accent-soft:#18303f}
+  :root[data-skin="peche"]:not([data-theme="light"]){--bg:#19120e;--surface:#231a14;--sunk:#2d221a;--ink:#f6ece4;--muted:#b9a08e;--line:#392b21;--accent:#ffa56e;--accent-ink:#2a150a;--accent-soft:#3a2417}
+  :root[data-skin="famille"]:not([data-theme="light"]){--bg:#17110e;--surface:#211915;--sunk:#2b211b;--ink:#f5ebe4;--muted:#b8a294;--line:#372a22;--accent:#e8936e;--accent-ink:#2a120a;--accent-soft:#3a231a}
+}
+:root[data-skin="fraise"][data-theme="dark"]{--bg:#1a1114;--surface:#24171c;--sunk:#2e1e24;--ink:#f6e8ec;--muted:#b896a2;--line:#3a262e;--accent:#ff8fb0;--accent-ink:#2a0f19;--accent-soft:#3b1d28}
+:root[data-skin="lavande"][data-theme="dark"]{--bg:#13111b;--surface:#1c1927;--sunk:#252133;--ink:#ece8f8;--muted:#a69dc0;--line:#2f2a42;--accent:#b8a1ff;--accent-ink:#1b1330;--accent-soft:#2b2344}
+:root[data-skin="ocean"][data-theme="dark"]{--bg:#0e161c;--surface:#152129;--sunk:#1c2b35;--ink:#e6f0f6;--muted:#94abb9;--line:#253744;--accent:#7cc1f0;--accent-ink:#0c1a24;--accent-soft:#18303f}
+:root[data-skin="peche"][data-theme="dark"]{--bg:#19120e;--surface:#231a14;--sunk:#2d221a;--ink:#f6ece4;--muted:#b9a08e;--line:#392b21;--accent:#ffa56e;--accent-ink:#2a150a;--accent-soft:#3a2417}
+:root[data-skin="famille"][data-theme="dark"]{--bg:#17110e;--surface:#211915;--sunk:#2b211b;--ink:#f5ebe4;--muted:#b8a294;--line:#372a22;--accent:#e8936e;--accent-ink:#2a120a;--accent-soft:#3a231a}
+:root[data-skin]:not([data-skin="famille"]) .brand-mark{border-radius:50%}
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.skin{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:10px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;font-size:13.5px;text-align:left}
+.skin[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.skin .dots{display:flex}
+.skin .dots i{width:18px;height:18px;border-radius:50%;margin-right:-5px;border:2px solid var(--surface)}
+/* Bandeau photo du thème Famille */
+#hero{margin-bottom:18px}
+.hero{position:relative;height:220px;width:100%;border-radius:22px;overflow:hidden;background:var(--sunk);box-shadow:0 10px 30px rgba(60,30,15,.18)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.02)}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(20,10,5,0) 35%,rgba(20,10,5,.72) 100%)}
+.hero::after{content:"";position:absolute;inset:8px;z-index:2;border:1px solid rgba(255,255,255,.55);border-radius:16px;pointer-events:none}
+.hero-txt{position:absolute;left:22px;right:22px;bottom:18px;z-index:3;color:#fff;display:flex;flex-direction:column;gap:2px;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.hero-k{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.hero-t{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1.05}
+.hero-s{font-size:13px;opacity:.9}
+.hero-empty{display:grid;place-items:center;text-align:center;padding:20px;color:var(--muted);border:2px dashed var(--line);background:var(--surface);box-shadow:none}
+.hero-empty::before,.hero-empty::after{display:none}
+input[type=range]{accent-color:var(--accent);width:100%}
+
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 *{box-sizing:border-box}
@@ -225,6 +264,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
 </header>
 
 <main class="wrap" id="main">
+  <div id="hero" hidden></div>
   <!-- MA LISTE -->
   <section class="view" id="view-liste">
     <div class="view-head">
@@ -462,6 +502,7 @@ function emptyState(){
     menu: [],       // menu de la semaine {id:'date_slot', date, slot, rid, portions}
     recalls: [],    // rappels de produits trouvés par le serveur
     prices: {},     // dernier prix connu par produit (tickets)
+    photo: null,    // photo du thème Famille {src, pos, by, at} (privée à l'espace)
     stores: ['Leclerc', 'Carrefour', 'Lidl', 'Boucherie Halal'],
     budget: 600,
     status: null,   // {store, by, at}
@@ -513,7 +554,7 @@ function exampleState(){
 // Format distant (Firebase) : collections indexées par id, pour que deux téléphones
 // puissent modifier des articles différents en même temps sans s'écraser.
 const KEYED = ['items', 'frigo', 'expenses', 'gaspi', 'menu', 'recalls', 'meals', 'dishes'];
-const SCALARS = ['stores', 'budget', 'status', 'example'];
+const SCALARS = ['stores', 'budget', 'status', 'example', 'photo'];
 function toRemote(s){
   const o = {};
   KEYED.forEach(k => { o[k] = {}; (s[k] || []).forEach(x => { if (!x.id) x.id = uid(); o[k][x.id] = x; }); });
@@ -531,6 +572,7 @@ function fromRemote(v){
   if (v.stores) s.stores = Object.values(v.stores).filter(Boolean);
   if (v.budget != null) s.budget = v.budget;
   s.status = v.status || null;
+  s.photo = v.photo || null;
   s.example = !!v.example;
   return s;
 }
@@ -567,7 +609,7 @@ const DB = {
 
 // Préférences propres à ce téléphone
 let me = lsGet(LS_ME);
-const prefs = (() => { try { return Object.assign({theme:'system', bigUi:false, wake:true}, JSON.parse(lsGet(LS_PREFS) || '{}')); } catch(e){ return {theme:'system', bigUi:false, wake:true}; } })();
+const prefs = (() => { try { return Object.assign({theme:'system', bigUi:false, wake:true, skin:'classique'}, JSON.parse(lsGet(LS_PREFS) || '{}')); } catch(e){ return {theme:'system', bigUi:false, wake:true}; } })();
 const savePrefs = () => lsSet(LS_PREFS, JSON.stringify(prefs));
 const ui = { tab:'liste', storeFilter:'', budgetMonth:monthKey(isoDate()), pendingProduct:null, place:'all', recMode:'antigaspi', recTag:'', recPortions:2, menuSlot:null };
 
@@ -575,6 +617,8 @@ function applyPrefs(){
   const root = document.documentElement;
   if (prefs.theme === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', prefs.theme);
   root.classList.toggle('big-ui', !!prefs.bigUi);
+  if (prefs.skin && prefs.skin !== 'classique') root.setAttribute('data-skin', prefs.skin); else root.removeAttribute('data-skin');
+  const meta = document.querySelector('meta[name=theme-color]'); if (meta) meta.content = getComputedStyle(root).getPropertyValue('--accent').trim() || '#2c6847';
 }
 
 // ---------- Rendu ----------
@@ -607,6 +651,7 @@ function render(){
   document.querySelectorAll('.tab').forEach(t => { t.hidden = hiddenTabs.includes(t.dataset.tab); t.setAttribute('aria-current', t.dataset.tab === ui.tab ? 'page' : 'false'); });
   ['liste', 'frigo', 'repas', 'recettes', 'budget', 'reglages'].forEach(v => $('#view-' + v).hidden = v !== ui.tab);
   if (isFam()) renderRepas();
+  renderHero();
   const urgent = S.frigo.filter(f => f.dlc && daysUntil(f.dlc) <= 1).length;
   const cf = $('#cnt-frigo'); cf.hidden = !urgent; cf.textContent = urgent;
   const spent = monthTotal(monthKey(isoDate()));
@@ -831,6 +876,7 @@ function renderSettings(){
       <form class="adder-row" id="budgetForm"><input class="field num" id="budgetInput" inputmode="decimal" value="${S.budget || ''}" aria-label="Budget mensuel en euros"><button class="btn" type="submit">Enregistrer</button></form>
       <span class="sub">Alerte à 80 % puis au dépassement.</span>
     </div>
+    ${skinCard()}
     <div class="card set-list"><span class="label">Affichage</span>
       <div class="seg">${[['system', 'Auto'], ['light', 'Clair'], ['dark', 'Sombre']].map(([v, l]) => `<button data-act="theme" data-v="${v}" aria-pressed="${prefs.theme === v}">${l}</button>`).join('')}</div>
       <div class="row"><span>Grosses touches</span><button class="toggle" role="switch" aria-checked="${!!prefs.bigUi}" data-act="pref" data-k="bigUi" aria-label="Grosses touches"></button></div>
@@ -1225,6 +1271,55 @@ function dishRecipePicker(){
   $('#dishSearch').oninput = e => draw(e.target.value); draw('');
   ui.dishMine = true; ui.mealOpen = mealId;
 }
+
+// ---------- Thèmes ----------
+const SKINS = [
+  ['classique', 'Classique', ['#2c6847', '#deede2', '#f2f5ef']], ['fraise', 'Fraise', ['#d9466f', '#fde0e8', '#fff4f6']],
+  ['lavande', 'Lavande', ['#7552c9', '#e9e1fb', '#f6f3fd']], ['ocean', 'Océan', ['#1f78b4', '#dcecf7', '#f0f6fa']],
+  ['peche', 'Pêche', ['#d2611f', '#fde3d1', '#fff6ef']], ['nuit', 'Nuit étoilée', ['#0f1424', '#f2c14e', '#283152']],
+  ['famille', 'Famille (photo)', ['#b0502c', '#f6e0d4', '#2a1f1a']],
+];
+function renderHero(){
+  const h = $('#hero'), photo = DB.state.photo;
+  const show = prefs.skin === 'famille' && (ui.tab === 'liste' || ui.tab === 'repas');
+  h.hidden = !show; if (!show) return;
+  const sp = SPACES[space], who = sp.users.join(', ');
+  h.innerHTML = photo && photo.src
+    ? `<div class="hero"><img src="${photo.src}" alt="Photo de famille" style="object-position:50% ${photo.pos ?? 42}%"><div class="hero-txt"><span class="hero-k">EcoCourse</span><span class="hero-t">${isFam() ? 'La famille' : esc(sp.n)}</span><span class="hero-s">${esc(who)}</span></div></div>`
+    : `<button class="hero hero-empty" data-act="tab" data-tab="reglages"><span><b style="display:block;color:var(--ink);font-family:var(--f-display);font-size:18px;margin-bottom:4px">Ajoutez votre photo de famille</b>Réglages › Thème › Choisir la photo</span></button>`;
+}
+function skinCard(){
+  const photo = DB.state.photo;
+  return `<div class="card"><span class="label">Thème</span>
+    <div class="skins">${SKINS.map(([id, n, c]) => `<button class="skin" data-act="skin" data-v="${id}" aria-pressed="${prefs.skin === id}"><span class="dots">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
+    ${prefs.skin === 'famille' ? `<div class="set-list" style="gap:10px">
+      <input type="file" id="photoFile" accept="image/*" hidden>
+      ${photo && photo.src ? `<img src="${photo.src}" alt="" style="width:100%;height:120px;object-fit:cover;object-position:50% ${photo.pos ?? 42}%;border-radius:12px">
+        <label class="fgroup"><span class="label">Cadrage</span><input type="range" id="photoPos" min="0" max="100" value="${photo.pos ?? 42}"></label>` : ''}
+      <div class="btn-row"><button class="btn btn-primary" data-act="pickPhoto">${photo && photo.src ? 'Changer la photo' : 'Choisir la photo'}</button>${photo && photo.src ? '<button class="btn" data-act="delPhoto">Retirer</button>' : ''}</div>
+      <span class="sub">La photo est enregistrée dans l’espace « ${esc(SPACES[space].n)} » : seuls ses membres la voient. Elle n’est jamais publiée sur internet.</span>
+    </div>` : ''}</div>`;
+}
+async function setPhoto(file){
+  if (!file) return;
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+    const sc = Math.min(1, 1400 / img.width);
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const src = c.toDataURL('image/jpeg', 0.78);
+    DB.commit(S => S.photo = {src, pos:42, by:me || '', at:Date.now()});
+    toast('Photo ajoutée');
+  } catch(e){ toast('Impossible de lire cette image'); }
+}
+document.addEventListener('change', e => {
+  if (e.target.id === 'photoFile') setPhoto(e.target.files && e.target.files[0]);
+  if (e.target.id === 'photoPos') DB.commit(S => { if (S.photo) S.photo.pos = +e.target.value; });
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'photoPos') return;
+  document.querySelectorAll('#hero img, .card img').forEach(i => i.style.objectPosition = `50% ${e.target.value}%`);
+});
 
 // ---------- Feuilles & toasts ----------
 let sheetCleanup = null, sheetLocked = false;
@@ -2008,6 +2103,9 @@ const ACTIONS = {
   pickOrderStore: el => setOrder(el.dataset.s),
   voice, scan,
   addFrigo: () => frigoSheet(null),
+  skin: el => { prefs.skin = el.dataset.v; savePrefs(); applyPrefs(); render(); },
+  pickPhoto: () => { const f = $('#photoFile'); if (f) f.click(); },
+  delPhoto: () => confirmSheet('Retirer la photo ?', 'Elle disparaîtra pour tous les membres de cet espace.', 'Retirer', () => DB.commit(S => S.photo = null)),
   space: el => setSpace(el.dataset.v),
   claim: el => claimItem(el.dataset.id),
   clearBought: () => clearBought(),
