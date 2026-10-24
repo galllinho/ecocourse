@@ -137,6 +137,11 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
 .items{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line);min-height:58px}
 .item:first-child{border-top:0}
+#listBody .items{background:var(--bad)}
+#listBody .item{position:relative;background:var(--surface);touch-action:pan-y}
+#listBody .item.swiping{transition:none}
+#listBody .item.snap{transition:transform .18s ease}
+#listBody .item::after{content:"Supprimer";position:absolute;left:100%;top:0;bottom:0;width:140px;display:flex;align-items:center;padding-left:18px;background:var(--bad);color:#fff;font-weight:700;font-size:14px}
 .check{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none;color:transparent;transition:background .15s,border-color .15s}
 .check svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3}
 .item.done .check{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -282,7 +287,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
         <select class="field" id="addStore" aria-label="Magasin"></select>
         <button class="btn btn-primary" type="submit"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Ajouter</button>
       </div>
-      <div class="adder-hint">Astuce : « 2 lait » ajoute 2 laits. Plusieurs articles : séparez par des virgules.</div>
+      <div class="adder-hint">Astuce : « 2 lait » ajoute 2 laits. Glissez un article vers la gauche pour le supprimer.</div>
     </form>
     <div class="fgroup" id="favBox">
       <span class="label">Vous achetez souvent</span>
@@ -2123,6 +2128,34 @@ function pickMe(){
   openSheet(`<h2>Qui utilise ce téléphone ?</h2><p class="sub" style="margin:0">On l'affiche à côté de ce que vous ajoutez et cochez. Modifiable dans Réglages.</p>
     <div class="seg" style="padding:4px">${USERS.map(u => `<button data-act="setMe" data-u="${u}" style="height:56px;font-size:16px">${avatar(u)}${u}</button>`).join('')}</div>`);
 }
+
+// ---------- Glisser vers la gauche pour supprimer un article ----------
+(() => {
+  let sw = null;
+  document.addEventListener('touchstart', e => {
+    const li = e.target.closest('#listBody .item'); if (!li || e.touches.length !== 1) return;
+    const id = (li.querySelector('[data-id]') || {}).dataset; if (!id || !id.id) return;
+    sw = {li, id:id.id, x:e.touches[0].clientX, y:e.touches[0].clientY, dx:0, active:false};
+  }, {passive:true});
+  document.addEventListener('touchmove', e => {
+    if (!sw) return;
+    const dx = e.touches[0].clientX - sw.x, dy = e.touches[0].clientY - sw.y;
+    if (!sw.active) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { sw = null; return; } if (Math.abs(dx) > 12) { sw.active = true; sw.li.classList.add('swiping'); } else return; }
+    sw.dx = Math.min(0, dx); sw.li.style.transform = `translateX(${sw.dx}px)`;
+  }, {passive:true});
+  document.addEventListener('touchend', () => {
+    if (!sw) return;
+    const s = sw; sw = null;
+    s.li.classList.remove('swiping'); s.li.classList.add('snap');
+    if (s.active && s.dx < -Math.min(110, s.li.offsetWidth * 0.3)) {
+      s.li.style.transform = 'translateX(-100%)';
+      s.li.dataset.swiped = '1';
+      setTimeout(() => removeItem(s.id), 160);
+    } else s.li.style.transform = '';
+  });
+  // Un glissement ne doit pas aussi ouvrir la fiche de l'article
+  document.addEventListener('click', e => { const li = e.target.closest('#listBody .item'); if (li && li.dataset.swiped) { e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 
 // ---------- Délégation des clics ----------
 const ACTIONS = {
