@@ -275,7 +275,7 @@ textarea.field{height:140px;padding:10px 12px;resize:vertical}
   <section class="view" id="view-liste">
     <div class="view-head">
       <div><h1>Ma liste</h1><div class="sub num" id="listCount"></div></div>
-      <button class="btn btn-sm btn-soft" data-act="startOrder" id="orderBtn"></button>
+      <span class="row" style="gap:6px"><button class="btn btn-sm" data-act="shareList" aria-label="Partager la liste">Partager</button><button class="btn btn-sm btn-soft" data-act="startOrder" id="orderBtn"></button></span>
     </div>
     <form class="adder" id="addForm" autocomplete="off">
       <div class="adder-row">
@@ -370,7 +370,7 @@ const Native = (() => {
   const C = window.Capacitor;
   const isNative = !!(C && C.isNativePlatform && C.isNativePlatform());
   const plug = n => (isNative && C.registerPlugin && C.isPluginAvailable(n)) ? C.registerPlugin(n) : null;
-  return { isNative, Push:plug('PushNotifications'), Scanner:plug('BarcodeScanner'), Speech:plug('SpeechRecognition'), Awake:plug('KeepAwake') };
+  return { isNative, Share:plug('Share'), Push:plug('PushNotifications'), Scanner:plug('BarcodeScanner'), Speech:plug('SpeechRecognition'), Awake:plug('KeepAwake') };
 })();
 
 // ---------- Constantes ----------
@@ -733,6 +733,7 @@ function itemRow(i){
     ${i.img ? `<img class="thumb" src="${esc(i.img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
     <button class="item-main" data-act="editItem" data-id="${i.id}">
       <span class="item-name">${i.qty > 1 ? `<span class="qty num">${i.qty}×</span> ` : ''}${esc(i.name)}</span>
+      ${i.note ? `<span class="item-meta" style="font-style:italic;color:var(--ink)">${esc(i.note)}</span>` : ''}
       <span class="item-meta">${meta}</span>
     </button>
     ${i.store ? `<span class="tag">${esc(i.store)}</span>` : ''}
@@ -863,7 +864,7 @@ function renderBudget(){
       <span class="sub">Ligne pointillée : budget de ${euro(S.budget || 0)} par mois.</span>
     </div>
     <div class="group"><div class="group-head"><span class="label">Commandes du mois</span></div>
-      ${exps.length ? `<div class="items">${exps.map(e => `<div class="exp">${avatar(e.by)}<div class="exp-main"><div style="font-weight:600">${esc(e.store || 'Autre')}</div><div class="sub">${fmtDay(e.date)} · ${esc(e.by || '')}${e.note ? ' · ' + esc(e.note) : ''}</div></div><span class="exp-amt num">${euro(e.amount)}</span><button class="icon-btn" style="width:36px;height:36px;background:none;color:var(--muted)" data-act="delExpense" data-id="${e.id}" aria-label="Supprimer">${icon.trash}</button></div>`).join('')}</div>`
+      ${exps.length ? `<div class="items">${exps.map(e => `<div class="exp">${avatar(e.by)}<button class="exp-main" data-act="editExpense" data-id="${e.id}" style="text-align:left"><div style="font-weight:600">${esc(e.store || 'Autre')}</div><div class="sub">${fmtDay(e.date)} · ${esc(e.by || '')}${e.note ? ' · ' + esc(e.note) : ''}</div></button><span class="exp-amt num">${euro(e.amount)}</span><button class="icon-btn" style="width:36px;height:36px;background:none;color:var(--muted)" data-act="delExpense" data-id="${e.id}" aria-label="Supprimer">${icon.trash}</button></div>`).join('')}</div>`
         : `<div class="empty"><b>Aucune dépense</b>Après chaque drive, ajoutez le montant total du ticket.</div>`}
     </div>`;
 }
@@ -1061,7 +1062,7 @@ function webPushCard(){
     ${line('Autorisation', Notification.permission === 'granted' ? 'Accordée' : Notification.permission === 'denied' ? 'Refusée' : 'Pas encore demandée', Notification.permission === 'granted')}
     ${line('Téléphone enregistré', pushDiag.token ? 'Oui' : 'Non', pushDiag.token)}
     ${pushDiag.err ? `<div class="sub" style="color:var(--bad);overflow-wrap:anywhere">${esc(pushDiag.err)}</div>` : ''}
-    ${ok ? '' : '<button class="btn btn-primary" data-act="webPush">Activer les notifications</button>'}</div>`;
+    ${ok ? '' : '<button class="btn btn-primary" data-act="webPush">Activer les notifications</button>'}${muteRows()}</div>`;
 }
 function pushCard(){
   if (!Native.isNative) return webPushCard();
@@ -1072,13 +1073,20 @@ function pushCard(){
     ${line('Autorisation', pushDiag.perm === 'granted' ? 'Accordée' : pushDiag.perm === '?' ? 'Pas encore demandée' : 'Refusée', pushDiag.perm === 'granted')}
     ${line('Téléphone enregistré', pushDiag.token ? 'Oui' : 'Non', pushDiag.token)}
     ${pushDiag.err ? `<div class="sub" style="color:var(--bad);overflow-wrap:anywhere">${esc(pushDiag.err)}</div>` : ''}
-    ${ok ? '' : '<button class="btn btn-primary" data-act="retryPush">Activer les notifications</button>'}</div>`;
+    ${ok ? '' : '<button class="btn btn-primary" data-act="retryPush">Activer les notifications</button>'}${muteRows()}</div>`;
+}
+function muteRows(){
+  const sps = availableSpaces(); if (!Sync.user || !sps.length) return '';
+  return sps.map(s => `<div class="row"><span>Notifications « ${esc(SPACES[s].n)} »</span><button class="toggle" role="switch" aria-checked="${!(prefs.mute && prefs.mute[s])}" data-act="mute" data-v="${s}" aria-label="Notifications ${esc(SPACES[s].n)}"></button></div>`).join('');
 }
 function tokenRefs(){ const id = lsGet(LS_TOKEN); return id && Sync.enabled ? availableSpaces().map(s => firebase.database().ref(`households/${s}/tokens/${id}`)) : []; }
 function saveToken(token){
   const id = token.replace(/[^A-Za-z0-9_-]/g, '_').slice(-140);
-  lsSet(LS_TOKEN, id);
-  availableSpaces().forEach(s => firebase.database().ref(`households/${s}/tokens/${id}`).set({token, user:me, at:Date.now()}).catch(e => { pushDiag.err = 'Enregistrement dans la base impossible : ' + e.message; render(); }));
+  lsSet(LS_TOKEN, id); lsSet('ecocourse.tokenval', token);
+  availableSpaces().forEach(s => {
+    const ref = firebase.database().ref(`households/${s}/tokens/${id}`);
+    (prefs.mute && prefs.mute[s] ? ref.remove() : ref.set({token, user:me, at:Date.now()})).catch(e => { pushDiag.err = 'Enregistrement dans la base impossible : ' + e.message; render(); });
+  });
 }
 
 // Nouvelle version disponible ?
@@ -1141,6 +1149,7 @@ function showLogin(){
       <div class="fgroup"><label class="label" for="lgPass">Mot de passe</label><input class="field" id="lgPass" type="password" autocomplete="current-password"></div>
       <p class="sub" id="lgErr" style="margin:0;color:var(--bad)" hidden></p>
       <button class="btn btn-primary" type="submit" id="lgBtn">Se connecter</button>
+      <button type="button" class="btn" id="lgForgot">Mot de passe oublié ?</button>
       <button type="button" class="btn" data-act="skipLogin">Plus tard (sans synchro)</button>
     </form>`, null, true);
   $('#loginForm').onsubmit = async e => {
@@ -1148,6 +1157,18 @@ function showLogin(){
     const err = $('#lgErr'), btn = $('#lgBtn'); err.hidden = true; btn.disabled = true; btn.textContent = 'Connexion…';
     try { await firebase.auth().signInWithEmailAndPassword($('#lgMail').value.trim(), $('#lgPass').value); }
     catch(x){ err.textContent = AUTH_MSG[x.code] || `Connexion impossible (${x.code || 'erreur inconnue'}).`; err.hidden = false; btn.disabled = false; btn.textContent = 'Se connecter'; }
+  };
+  $('#lgForgot').onclick = async () => {
+    const err = $('#lgErr'), mail = $('#lgMail').value.trim();
+    err.style.color = 'var(--bad)';
+    if (!mail) { err.textContent = 'Écrivez d’abord votre adresse e-mail ci-dessus.'; err.hidden = false; $('#lgMail').focus(); return; }
+    try {
+      firebase.auth().languageCode = 'fr';
+      await firebase.auth().sendPasswordResetEmail(mail);
+      err.style.color = 'var(--ok)';
+      err.textContent = `Un e-mail a été envoyé à ${mail} pour choisir un nouveau mot de passe. Pensez à regarder dans les spams.`;
+    } catch(x){ err.textContent = AUTH_MSG[x.code] || `Envoi impossible (${x.code || 'erreur inconnue'}).`; }
+    err.hidden = false;
   };
 }
 function closeLogin(){ if (loginOpen) { loginOpen = false; closeSheet(true); } }
@@ -1441,6 +1462,7 @@ function editItem(id){
         <div class="fgroup" style="flex:0 0 96px"><label class="label" for="eQty">Quantité</label><input class="field num" id="eQty" type="number" min="1" max="999" value="${it.qty}"></div>
         <div class="fgroup" style="flex:1;min-width:0"><label class="label" for="eStore">Magasin</label><select class="field" id="eStore">${storeOptions(it.store)}</select></div>
       </div>
+      <div class="fgroup"><label class="label" for="eNote">Précision (marque, taille…)</label><input class="field" id="eNote" value="${esc(it.note || '')}" placeholder="ex. Lactel demi-écrémé, sans sel"></div>
       <div class="fgroup"><label class="label" for="eRayon">Rayon</label><select class="field" id="eRayon">${RAYONS.map(r => `<option value="${r.id}" ${r.id === it.rayon ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></div>
       <div class="btn-row"><button type="button" class="btn btn-danger" id="eDel">${icon.trash}Supprimer</button><button class="btn btn-primary" type="submit">Enregistrer</button></div>
     </form>`);
@@ -1449,7 +1471,7 @@ function editItem(id){
     e.preventDefault();
     const name = cap($('#eName').value.trim()); if (!name) return;
     DB.commit(S => { const x = S.items.find(y => y.id === id); if (!x) return;
-      x.name = name; x.qty = Math.max(1, parseInt($('#eQty').value, 10) || 1); x.store = $('#eStore').value; x.rayon = $('#eRayon').value; });
+      x.name = name; x.qty = Math.max(1, parseInt($('#eQty').value, 10) || 1); x.store = $('#eStore').value; x.rayon = $('#eRayon').value; x.note = $('#eNote').value.trim() || null; });
     closeSheet();
   };
 }
@@ -1646,7 +1668,9 @@ function frigoSheet(f){
   const canOpen = !isNew && !draft.openedAt && draft.place !== 'congel' && s.o;
   openSheet(`<h2>${isNew ? 'Ajouter un produit' : esc(f.name)}</h2>
     <form id="frForm" class="set-list">
-      ${isNew ? `<div class="fgroup"><label class="label" for="frName">Produit</label><input class="field" id="frName" autofocus placeholder="ex. Reste de couscous"></div>` : ''}
+      ${isNew ? `<div class="fgroup"><label class="label" for="frName">Produit</label><input class="field" id="frName" autofocus placeholder="ex. Reste de couscous"></div>`
+        : `<div class="adder-row"><div class="fgroup" style="flex:1;min-width:0"><label class="label" for="frEditName">Produit</label><input class="field" id="frEditName" value="${esc(f.name)}"></div>
+           <div class="fgroup" style="flex:0 0 90px"><label class="label" for="frQty">Quantité</label><input class="field num" id="frQty" type="number" min="1" max="99" value="${f.qty || 1}"></div></div>`}
       <div class="fgroup"><span class="label">Emplacement</span>
         <div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button type="button" data-frplace="${v}" aria-pressed="${draft.place === v}">${l}</button>`).join('')}</div></div>
       <div class="fgroup"><span class="label">Date limite</span>
@@ -1660,8 +1684,9 @@ function frigoSheet(f){
         ${canFreeze ? `<button type="button" class="btn" id="frFreeze">Congeler<br><span class="sub">garde ${freezeDays >= 60 ? Math.round(freezeDays / 30) + ' mois' : freezeDays + ' j'}</span></button>` : ''}
         ${draft.place === 'congel' ? `<button type="button" class="btn" id="frThaw">Décongeler<br><span class="sub">à manger sous 24 h</span></button>` : ''}
       </div>` : ''}
-      <div class="btn-row"><button type="button" class="btn" id="frEat" style="color:var(--ok)">Consommé</button><button type="button" class="btn" id="frThrow" style="color:var(--bad)">Jeté</button></div>
-      <button type="button" class="btn btn-soft" id="frRebuy">Remettre sur la liste</button>`}
+      ${(f.qty || 1) > 1 ? `<div class="btn-row"><button type="button" class="btn" id="frEat1" style="color:var(--ok)">1 consommé<br><span class="sub">il en restera ${f.qty - 1}</span></button><button type="button" class="btn" id="frThrow1" style="color:var(--bad)">1 jeté<br><span class="sub">il en restera ${f.qty - 1}</span></button></div>` : ''}
+      <div class="btn-row"><button type="button" class="btn" id="frEat" style="color:var(--ok)">${(f.qty || 1) > 1 ? 'Tout consommé' : 'Consommé'}</button><button type="button" class="btn" id="frThrow" style="color:var(--bad)">${(f.qty || 1) > 1 ? 'Tout jeté' : 'Jeté'}</button></div>
+      <div class="btn-row"><button type="button" class="btn btn-soft" id="frRebuy">Remettre sur la liste</button><button type="button" class="btn" id="frDelete">Supprimer<br><span class="sub">erreur de saisie</span></button></div>`}
     </form>`);
   const markQuick = () => document.querySelectorAll('[data-frq]').forEach(b => {
     const v = b.dataset.frq, val = v === 'none' ? '' : v === 'm' ? plusMonths(1) : plusDays(+v);
@@ -1689,7 +1714,8 @@ function frigoSheet(f){
       DB.commit(S => S.frigo.push({id:uid(), name:cap(name.trim()), dlc:$('#frDate').value, qty, rayon:guessRayon(name), place:draft.place, addedBy:me, addedAt:Date.now()}));
     } else {
       const p = parseFloat(($('#frPrix').value || '').replace(',', '.'));
-      update({dlc:$('#frDate').value, place:draft.place, prix:p > 0 ? Math.round(p * 100) / 100 : (f.prix || null)});
+      const nm = cap($('#frEditName').value.trim()) || f.name, q = Math.max(1, parseInt($('#frQty').value, 10) || 1);
+      update({name:nm, qty:q, dlc:$('#frDate').value, place:draft.place, prix:p > 0 ? Math.round(p * 100) / 100 : (f.prix || null)});
     }
     closeSheet();
   };
@@ -1697,6 +1723,17 @@ function frigoSheet(f){
     $('#frEat').onclick = () => outFrigo(f, 'mange');
     $('#frThrow').onclick = () => outFrigo(f, 'jete');
     $('#frRebuy').onclick = () => { closeSheet(); addItems(f.name, ''); };
+    $('#frDelete').onclick = () => {
+      closeSheet();
+      DB.commit(S => S.frigo = S.frigo.filter(x => x.id !== f.id));
+      toast(`${f.name} supprimé`, 'Annuler', () => DB.commit(S => S.frigo.push(f)));
+    };
+    const partial = type => {
+      const unit = Math.round(priceOf(f) / (f.qty || 1) * 100) / 100;
+      DB.commit(S => { const x = S.frigo.find(y => y.id === f.id); if (!x) return; x.qty = Math.max(1, (x.qty || 1) - 1); if (x.prix) x.prix = Math.round(x.prix / (x.qty + 1) * x.qty * 100) / 100; S.gaspi.push({id:uid(), name:f.name, type, at:Date.now(), value:unit}); });
+      closeSheet(); toast(`${f.name} : 1 ${type === 'mange' ? 'consommé' : 'jeté'}, il en reste ${(f.qty || 1) - 1}`);
+    };
+    if ($('#frEat1')) { $('#frEat1').onclick = () => partial('mange'); $('#frThrow1').onclick = () => partial('jete'); }
     if ($('#frOpen')) $('#frOpen').onclick = () => {
       const lim = plusDays(s.o), dlc = f.dlc && f.dlc < lim ? f.dlc : lim;
       update({openedAt:Date.now(), dlc}); closeSheet(); toast(`${f.name} : à finir avant le ${fmtDay(dlc)}`);
@@ -2097,10 +2134,10 @@ function ticketReview(res){
 }
 
 // ---------- Budget ----------
-function expenseSheet(){
+function expenseSheet(edit){
   if (needMe()) return;
   const st = activeStatus();
-  openSheet(`<h2>Nouvelle dépense</h2>
+  openSheet(`<h2>${edit ? 'Modifier la dépense' : 'Nouvelle dépense'}</h2>
     <form id="exForm" class="set-list">
       <div class="fgroup"><label class="label" for="exAmt">Montant total du ticket</label><input class="field num" id="exAmt" inputmode="decimal" placeholder="ex. 87,40" autofocus style="font-size:22px;height:52px"></div>
       <div class="fgroup"><label class="label" for="exStore">Magasin</label><select class="field" id="exStore">${storeOptions(st ? st.store : '', false)}<option value="Autre">Autre</option></select></div>
@@ -2112,14 +2149,20 @@ function expenseSheet(){
       <p class="sub" id="exErr" style="margin:0;color:var(--bad)" hidden>Entrez un montant, par exemple 42,50.</p>
       <button class="btn btn-primary" type="submit">Enregistrer</button>
     </form>`);
+  if (edit) {
+    $('#exAmt').value = String(edit.amount).replace('.', ','); $('#exDate').value = edit.date; $('#exNote').value = edit.note || '';
+    if (![...$('#exStore').options].some(o => o.value === edit.store)) $('#exStore').insertAdjacentHTML('beforeend', `<option>${esc(edit.store)}</option>`);
+    $('#exStore').value = edit.store || 'Autre'; if (edit.by) $('#exBy').value = edit.by;
+  }
   $('#exForm').onsubmit = e => {
     e.preventDefault();
     const a = parseFloat($('#exAmt').value.replace(',', '.').replace(/[^\d.]/g, ''));
     if (!(a > 0)) { $('#exErr').hidden = false; return; }
     const date = $('#exDate').value || isoDate();
-    DB.commit(S => S.expenses.push({id:uid(), amount:Math.round(a * 100) / 100, store:$('#exStore').value, date, by:$('#exBy').value, note:$('#exNote').value.trim()}));
+    const v = {amount:Math.round(a * 100) / 100, store:$('#exStore').value, date, by:$('#exBy').value, note:$('#exNote').value.trim()};
+    DB.commit(S => { if (edit) Object.assign(S.expenses.find(x => x.id === edit.id) || {}, v); else S.expenses.push({id:uid(), ...v}); });
     ui.budgetMonth = monthKey(date); render();
-    closeSheet(); toast(`${euro(a)} ajouté`);
+    closeSheet(); toast(edit ? `Dépense modifiée : ${euro(a)}` : `${euro(a)} ajouté`);
   };
 }
 
@@ -2127,6 +2170,24 @@ function expenseSheet(){
 function pickMe(){
   openSheet(`<h2>Qui utilise ce téléphone ?</h2><p class="sub" style="margin:0">On l'affiche à côté de ce que vous ajoutez et cochez. Modifiable dans Réglages.</p>
     <div class="seg" style="padding:4px">${USERS.map(u => `<button data-act="setMe" data-u="${u}" style="height:56px;font-size:16px">${avatar(u)}${u}</button>`).join('')}</div>`);
+}
+
+// ---------- Partager la liste (WhatsApp, SMS…) ----------
+async function shareList(){
+  const S = DB.state, todo = S.items.filter(i => !i.checked);
+  if (!todo.length) { toast('La liste est vide'); return; }
+  let txt = `Liste de courses${isFam() ? ' de la famille' : ''} :\n`;
+  for (const r of RAYONS) {
+    const g = todo.filter(i => (i.rayon || 'au') === r.id); if (!g.length) continue;
+    txt += `\n${r.name}\n` + g.map(i => `- ${i.qty > 1 ? i.qty + '× ' : ''}${i.name}${i.note ? ' (' + i.note + ')' : ''}${i.store ? ' [' + i.store + ']' : ''}${i.takenBy ? ' → ' + i.takenBy : ''}`).join('\n') + '\n';
+  }
+  txt += '\nEnvoyé depuis EcoCourse';
+  try {
+    if (Native.Share) { await Native.Share.share({title:'Liste de courses', text:txt, dialogTitle:'Partager la liste'}); return; }
+    if (navigator.share) { await navigator.share({title:'Liste de courses', text:txt}); return; }
+  } catch(e){ if (/cancel|abort/i.test(String(e && (e.message || e.name)))) return; }
+  try { await navigator.clipboard.writeText(txt); toast('Liste copiée : collez-la dans WhatsApp ou un SMS'); }
+  catch(e){ openSheet(`<h2>Partager la liste</h2><p class="sub" style="margin:0">Sélectionnez et copiez le texte.</p><textarea class="field" readonly id="shareTxt" style="height:260px">${esc(txt)}</textarea>`); $('#shareTxt').select(); }
 }
 
 // ---------- Glisser vers la gauche pour supprimer un article ----------
@@ -2173,6 +2234,13 @@ const ACTIONS = {
   pickOrderStore: el => setOrder(el.dataset.s),
   voice, scan,
   addFrigo: () => frigoSheet(null),
+  shareList: () => shareList(),
+  editExpense: el => { const e = DB.state.expenses.find(x => x.id === el.dataset.id); if (e) expenseSheet(e); },
+  mute: el => {
+    const sp = el.dataset.v; prefs.mute = prefs.mute || {}; prefs.mute[sp] = !prefs.mute[sp]; savePrefs();
+    const tok = lsGet('ecocourse.tokenval'); if (tok && Sync.user) saveToken(tok);
+    toast(prefs.mute[sp] ? `Notifications « ${SPACES[sp].n} » coupées sur ce téléphone` : `Notifications « ${SPACES[sp].n} » réactivées`); render();
+  },
   skin: el => { prefs.skin = el.dataset.v; savePrefs(); applyPrefs(); render(); },
   pickPhoto: () => { const f = $('#photoFile'); if (f) f.click(); },
   delPhoto: () => confirmSheet('Retirer la photo ?', 'Elle disparaîtra pour tous les membres de cet espace.', 'Retirer', () => DB.commit(S => S.photo = null)),

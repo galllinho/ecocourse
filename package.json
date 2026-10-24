@@ -16,7 +16,8 @@
     "tesseract.js": "5.1.1",
     "tesseract.js-core": "5.1.1",
     "@tesseract.js-data/fra": "1.0.0",
-    "pdfjs-dist": "3.11.174"
+    "pdfjs-dist": "3.11.174",
+    "@capacitor/share": "6.0.4"
   },
   "devDependencies": {
     "@capacitor/cli": "6.2.0"
