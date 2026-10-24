@@ -12,4 +12,4 @@ self.ECOCOURSE_FIREBASE = {
 };
 
 // Clé publique Web Push (Firebase › Paramètres › Cloud Messaging › Certificats Web Push) pour les notifications sur iPhone.
-self.ECOCOURSE_VAPID = "";
+self.ECOCOURSE_VAPID = "BFV2-Hf-xEivAWC2dgstIqUACGrSGLuBJ4XOjErunbEOMx5guY3iDoc2tIFdw-i96-S1qPmmxBx9TeuwRifkHi4";
