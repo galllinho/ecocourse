@@ -729,15 +729,15 @@ function itemRow(i){
     ? `${avatar(i.checkedBy, 'mini-av')} ${isFam() ? 'acheté' : 'pris'} par ${esc(i.checkedBy || '?')} ${i.checkedAt ? fmtWhen(i.checkedAt) : ''}`
     : `${avatar(i.addedBy, 'mini-av')} ajouté par ${esc(i.addedBy || '?')} ${fmtWhen(i.addedAt)}`;
   return `<li class="item ${i.checked ? 'done' : ''}">
-    <button class="check" data-act="toggle" data-id="${i.id}" aria-pressed="${i.checked}" aria-label="${i.checked ? 'Décocher' : 'Cocher'} ${esc(i.name)}">${icon.check}</button>
+    <button class="check" data-act="toggle" data-id="${esc(i.id)}" aria-pressed="${i.checked}" aria-label="${i.checked ? 'Décocher' : 'Cocher'} ${esc(i.name)}">${icon.check}</button>
     ${i.img ? `<img class="thumb" src="${esc(i.img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
-    <button class="item-main" data-act="editItem" data-id="${i.id}">
+    <button class="item-main" data-act="editItem" data-id="${esc(i.id)}">
       <span class="item-name">${i.qty > 1 ? `<span class="qty num">${i.qty}×</span> ` : ''}${esc(i.name)}</span>
       ${i.note ? `<span class="item-meta" style="font-style:italic;color:var(--ink)">${esc(i.note)}</span>` : ''}
       <span class="item-meta">${meta}</span>
     </button>
     ${i.store ? `<span class="tag">${esc(i.store)}</span>` : ''}
-    ${isFam() && !i.checked ? (i.takenBy ? `<button class="claim ${i.takenBy === me ? 'mine' : 'other'}" data-act="claim" data-id="${i.id}" ${i.takenBy === me ? '' : 'disabled'}>${i.takenBy === me ? 'Moi' : esc(i.takenBy)}</button>` : `<button class="claim" data-act="claim" data-id="${i.id}">Je m’en occupe</button>`) : ''}
+    ${isFam() && !i.checked ? (i.takenBy ? `<button class="claim ${i.takenBy === me ? 'mine' : 'other'}" data-act="claim" data-id="${esc(i.id)}" ${i.takenBy === me ? '' : 'disabled'}>${i.takenBy === me ? 'Moi' : esc(i.takenBy)}</button>` : `<button class="claim" data-act="claim" data-id="${esc(i.id)}">Je m’en occupe</button>`) : ''}
   </li>`;
 }
 
@@ -771,7 +771,7 @@ function renderFrigo(){
   recalls.forEach(r => {
     html += `<div class="alert bad" style="flex-direction:column;gap:8px"><span><b>Rappel produit : ${esc(r.product || r.title || 'produit')}</b>${r.brand ? ' (' + esc(r.brand) + ')' : ''}. ${esc(r.risk || 'Ce produit fait l’objet d’un rappel officiel.')}</span>
       <span class="sub" style="color:inherit">${esc(r.advice || 'Ne le consommez pas et rapportez-le au magasin.')}</span>
-      <div class="btn-row">${r.link ? `<a class="btn btn-sm" href="${esc(r.link)}" target="_blank" rel="noopener" style="text-decoration:none">Voir la fiche</a>` : ''}<button class="btn btn-sm" data-act="seenRecall" data-id="${esc(r.id)}">J'ai vu</button></div></div>`;
+      <div class="btn-row">${/^https:\/\//.test(r.link || '') ? `<a class="btn btn-sm" href="${esc(r.link)}" target="_blank" rel="noopener" style="text-decoration:none">Voir la fiche</a>` : ''}<button class="btn btn-sm" data-act="seenRecall" data-id="${esc(r.id)}">J'ai vu</button></div></div>`;
   });
   html += `<div class="stats">
     <div class="stat"><div class="v num">${eaten.length}</div><div class="k">consommés ce mois</div></div>
@@ -800,7 +800,7 @@ function renderFrigo(){
     if (!g2.length) continue;
     html += `<div class="group"><div class="group-head"><span class="label">${name}</span><span class="sub num">${g2.length}</span></div><ul class="items">${g2.map(({f, info, place}) => `
       <li class="item"><span class="stripe ${info.cls}"></span>
-        <button class="item-main" data-act="editFrigo" data-id="${f.id}">
+        <button class="item-main" data-act="editFrigo" data-id="${esc(f.id)}">
           <span class="item-name">${f.qty > 1 ? `<span class="qty num">${f.qty}×</span> ` : ''}${esc(f.name)}</span>
           <span class="item-meta">${ui.place === 'all' && place !== 'frigo' ? `<span class="tag" style="max-width:none">${PLACES[place]}</span>` : ''}${f.openedAt ? '<span class="tag" style="max-width:none">Ouvert</span>' : ''}${f.dlc ? 'DLC ' + fmtDay(f.dlc) : 'Ajoutez une date'}</span>
         </button>
@@ -864,7 +864,7 @@ function renderBudget(){
       <span class="sub">Ligne pointillée : budget de ${euro(S.budget || 0)} par mois.</span>
     </div>
     <div class="group"><div class="group-head"><span class="label">Commandes du mois</span></div>
-      ${exps.length ? `<div class="items">${exps.map(e => `<div class="exp">${avatar(e.by)}<button class="exp-main" data-act="editExpense" data-id="${e.id}" style="text-align:left"><div style="font-weight:600">${esc(e.store || 'Autre')}</div><div class="sub">${fmtDay(e.date)} · ${esc(e.by || '')}${e.note ? ' · ' + esc(e.note) : ''}</div></button><span class="exp-amt num">${euro(e.amount)}</span><button class="icon-btn" style="width:36px;height:36px;background:none;color:var(--muted)" data-act="delExpense" data-id="${e.id}" aria-label="Supprimer">${icon.trash}</button></div>`).join('')}</div>`
+      ${exps.length ? `<div class="items">${exps.map(e => `<div class="exp">${avatar(e.by)}<button class="exp-main" data-act="editExpense" data-id="${esc(e.id)}" style="text-align:left"><div style="font-weight:600">${esc(e.store || 'Autre')}</div><div class="sub">${fmtDay(e.date)} · ${esc(e.by || '')}${e.note ? ' · ' + esc(e.note) : ''}</div></button><span class="exp-amt num">${euro(e.amount)}</span><button class="icon-btn" style="width:36px;height:36px;background:none;color:var(--muted)" data-act="delExpense" data-id="${esc(e.id)}" aria-label="Supprimer">${icon.trash}</button></div>`).join('')}</div>`
         : `<div class="empty"><b>Aucune dépense</b>Après chaque drive, ajoutez le montant total du ticket.</div>`}
     </div>`;
 }
@@ -1309,7 +1309,7 @@ function mealSheet(id){
     <div class="items">${dishes.length ? dishes.map(d => {
       const r = d.rid && RECETTES.find(x => x.id === d.rid);
       return `<div class="exp">${d.bringBy ? avatar(d.bringBy) : '<span class="avatar" style="background:var(--line);color:var(--muted)">?</span>'}
-        <div class="exp-main"><div style="font-weight:600">${esc(d.name)}</div><div class="sub">${d.bringBy ? (d.bringBy === me ? 'Vous l’apportez' : esc(d.bringBy) + ' l’apporte') : 'Personne pour l’instant'}${r ? ` · <button class="sub" data-act="openRec" data-id="${r.id}" style="text-decoration:underline">recette</button>` : ''}</div></div>
+        <div class="exp-main"><div style="font-weight:600">${esc(d.name)}</div><div class="sub">${d.bringBy ? (d.bringBy === me ? 'Vous l’apportez' : esc(d.bringBy) + ' l’apporte') : 'Personne pour l’instant'}${r ? ` · <button class="sub" data-act="openRec" data-id="${esc(r.id)}" style="text-decoration:underline">recette</button>` : ''}</div></div>
         ${!d.bringBy ? `<button class="btn btn-sm btn-primary" data-act="bringDish" data-id="${esc(d.id)}">Je l’apporte</button>` : d.bringBy === me ? `<button class="btn btn-sm" data-act="bringDish" data-id="${esc(d.id)}">Je ne peux plus</button>` : ''}
         ${d.by === me || d.bringBy === me || m.by === me ? `<button class="icon-btn" style="width:34px;height:34px;background:none;color:var(--muted)" data-act="delDish" data-id="${esc(d.id)}" aria-label="Retirer">${icon.trash}</button>` : ''}
       </div>`; }).join('') : '<div class="exp"><span class="sub">Ajoutez ce qu’il faut pour ce repas, puis chacun choisit ce qu’il apporte.</span></div>'}</div>
@@ -1330,7 +1330,7 @@ function dishRecipePicker(){
     <ul class="items" id="dishList"></ul>
     <button class="btn" data-act="backMeal">Retour</button>`);
   const draw = q => { q = norm(q || ''); $('#dishList').innerHTML = RECETTES.filter(r => !q || norm(r.n).includes(q)).sort((a, b) => a.n.localeCompare(b.n, 'fr')).slice(0, 60)
-    .map(r => `<li class="item"><button class="item-main" data-act="pickDishRec" data-id="${r.id}"><span class="item-name">${esc(r.n)}</span><span class="item-meta">${r.t} min · ${r.tags.map(t => TAGS[t]).filter(Boolean).slice(0, 3).join(' · ')}</span></button></li>`).join(''); };
+    .map(r => `<li class="item"><button class="item-main" data-act="pickDishRec" data-id="${esc(r.id)}"><span class="item-name">${esc(r.n)}</span><span class="item-meta">${r.t} min · ${r.tags.map(t => TAGS[t]).filter(Boolean).slice(0, 3).join(' · ')}</span></button></li>`).join(''); };
   $('#dishSearch').oninput = e => draw(e.target.value); draw('');
   ui.dishMine = true; ui.mealOpen = mealId;
 }
@@ -1342,13 +1342,15 @@ const SKINS = [
   ['peche', 'Pêche', ['#d2611f', '#fde3d1', '#fff6ef']], ['nuit', 'Nuit étoilée', ['#0f1424', '#f2c14e', '#283152']],
   ['famille', 'Famille (photo)', ['#b0502c', '#f6e0d4', '#2a1f1a']],
 ];
+// N'accepte que des images encodées par l'appli (empêche d'injecter du code via la photo)
+const safeImg = src => /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(String(src || '')) ? src : '';
 function renderHero(){
   const h = $('#hero'), photo = DB.state.photo;
   const show = prefs.skin === 'famille' && (ui.tab === 'liste' || ui.tab === 'repas');
   h.hidden = !show; if (!show) return;
   const sp = SPACES[space], who = sp.users.join(', ');
   h.innerHTML = photo && photo.src
-    ? `<div class="hero"><img src="${photo.src}" alt="Photo de famille" style="object-position:50% ${photo.pos ?? 42}%"><div class="hero-txt"><span class="hero-k">EcoCourse</span><span class="hero-t">${isFam() ? 'La famille' : esc(sp.n)}</span><span class="hero-s">${esc(who)}</span></div></div>`
+    ? `<div class="hero"><img src="${safeImg(photo.src)}" alt="Photo de famille" style="object-position:50% ${photo.pos ?? 42}%"><div class="hero-txt"><span class="hero-k">EcoCourse</span><span class="hero-t">${isFam() ? 'La famille' : esc(sp.n)}</span><span class="hero-s">${esc(who)}</span></div></div>`
     : `<button class="hero hero-empty" data-act="tab" data-tab="reglages"><span><b style="display:block;color:var(--ink);font-family:var(--f-display);font-size:18px;margin-bottom:4px">Ajoutez votre photo de famille</b>Réglages › Thème › Choisir la photo</span></button>`;
 }
 function skinCard(){
@@ -1357,7 +1359,7 @@ function skinCard(){
     <div class="skins">${SKINS.map(([id, n, c]) => `<button class="skin" data-act="skin" data-v="${id}" aria-pressed="${prefs.skin === id}"><span class="dots">${c.map(x => `<i style="background:${x}"></i>`).join('')}</span>${n}</button>`).join('')}</div>
     ${prefs.skin === 'famille' ? `<div class="set-list" style="gap:10px">
       <input type="file" id="photoFile" accept="image/*" hidden>
-      ${photo && photo.src ? `<img src="${photo.src}" alt="" style="width:100%;height:120px;object-fit:cover;object-position:50% ${photo.pos ?? 42}%;border-radius:12px">
+      ${photo && photo.src ? `<img src="${safeImg(photo.src)}" alt="" style="width:100%;height:120px;object-fit:cover;object-position:50% ${photo.pos ?? 42}%;border-radius:12px">
         <label class="fgroup"><span class="label">Cadrage</span><input type="range" id="photoPos" min="0" max="100" value="${photo.pos ?? 42}"></label>` : ''}
       <div class="btn-row"><button class="btn btn-primary" data-act="pickPhoto">${photo && photo.src ? 'Changer la photo' : 'Choisir la photo'}</button>${photo && photo.src ? '<button class="btn" data-act="delPhoto">Retirer</button>' : ''}</div>
       <span class="sub">La photo est enregistrée dans l’espace « ${esc(SPACES[space].n)} » : seuls ses membres la voient. Elle n’est jamais publiée sur internet.</span>
@@ -1494,9 +1496,9 @@ function ranger(){
       <div>${checked.map(i => { const d = draft.rows[i.id]; return `
         <div class="rg-item ${d.frigo ? '' : 'off'}">
           <div class="row"><span style="font-weight:600;min-width:0;overflow-wrap:anywhere">${i.qty > 1 ? i.qty + '× ' : ''}${esc(i.name)}</span>
-            <span class="row" style="gap:8px;flex:none"><span class="sub">Suivre</span><button class="toggle" role="switch" aria-checked="${d.frigo}" data-act="rgToggle" data-id="${i.id}" aria-label="Suivre la date de ${esc(i.name)}"></button></span></div>
-          <div class="rg-dates">${Object.entries(PLACES).map(([v, l]) => `<button class="chip" data-act="rgPlace" data-id="${i.id}" data-v="${v}" aria-pressed="${d.place === v}">${l}</button>`).join('')}</div>
-          <div class="rg-dates">${quick.map(([l, f], qi) => `<button class="chip" data-act="rgQuick" data-id="${i.id}" data-q="${qi}" aria-pressed="${d.dlc === f()}">${l}</button>`).join('')}
+            <span class="row" style="gap:8px;flex:none"><span class="sub">Suivre</span><button class="toggle" role="switch" aria-checked="${d.frigo}" data-act="rgToggle" data-id="${esc(i.id)}" aria-label="Suivre la date de ${esc(i.name)}"></button></span></div>
+          <div class="rg-dates">${Object.entries(PLACES).map(([v, l]) => `<button class="chip" data-act="rgPlace" data-id="${esc(i.id)}" data-v="${v}" aria-pressed="${d.place === v}">${l}</button>`).join('')}</div>
+          <div class="rg-dates">${quick.map(([l, f], qi) => `<button class="chip" data-act="rgQuick" data-id="${esc(i.id)}" data-q="${qi}" aria-pressed="${d.dlc === f()}">${l}</button>`).join('')}
             <input class="field" type="date" data-rgdate="${i.id}" value="${d.dlc}" aria-label="Date limite de ${esc(i.name)}"></div>
         </div>`; }).join('')}</div>
       <div class="card" style="padding:12px;background:var(--sunk);border:0">
@@ -1817,7 +1819,7 @@ function recipeCard(r, a, goal){
   const m = a.m;
   const fits = goal && goal.ok(m);
   return `<li class="item" style="align-items:flex-start">
-    <button class="item-main" data-act="openRec" data-id="${r.id}">
+    <button class="item-main" data-act="openRec" data-id="${esc(r.id)}">
       <span class="item-name">${esc(r.n)}</span>
       <span class="item-meta"><span class="num">${r.t} min</span> · <span class="num">${m.kcal} kcal</span> · <b class="num" style="color:var(--accent)">${m.p} g prot.</b>${fits ? ' · <span class="badge ok" style="padding:2px 7px">Objectif</span>' : ''}</span>
       ${a.urgent.length ? `<span class="item-meta" style="color:var(--warn);font-weight:600">Utilise : ${a.urgent.slice(0, 3).map(u => esc(u.f.name) + (u.d <= 0 ? ' (aujourd’hui)' : u.d === 1 ? ' (demain)' : ` (${u.d} j)`)).join(', ')}</span>`
@@ -1892,15 +1894,15 @@ function recipeSheet(id, portions){
       ${[['kcal', m.kcal], ['prot.', m.p + ' g'], ['gluc.', m.g + ' g'], ['lip.', m.l + ' g']].map(([l, v]) => `<div class="stat" style="padding:8px"><div class="v num" style="font-size:18px">${v}</div><div class="k">${l}</div></div>`).join('')}
     </div>
     <div class="row"><span class="sub">Par portion · ${goal.ok(m) ? `<b style="color:var(--ok)">conforme à « ${esc(goal.n)} »</b>` : 'valeurs indicatives'}</span>
-      <span class="row" style="gap:6px;flex:none"><button class="icon-btn" style="width:34px;height:34px" data-act="recPortions" data-id="${r.id}" data-v="-1" aria-label="Moins de portions">−</button><b class="num">${portions} pers.</b><button class="icon-btn" style="width:34px;height:34px" data-act="recPortions" data-id="${r.id}" data-v="1" aria-label="Plus de portions">+</button></span></div>
+      <span class="row" style="gap:6px;flex:none"><button class="icon-btn" style="width:34px;height:34px" data-act="recPortions" data-id="${esc(r.id)}" data-v="-1" aria-label="Moins de portions">−</button><b class="num">${portions} pers.</b><button class="icon-btn" style="width:34px;height:34px" data-act="recPortions" data-id="${esc(r.id)}" data-v="1" aria-label="Plus de portions">+</button></span></div>
     <div class="items" style="padding:2px 0">${r.ing.map(([key, g, note, opt]) => {
       const P = PROD[key]; if (!P) return '';
       const st = inStock(idx, key), q = qtyLabel(key, g * k);
       const state = st ? `<span class="badge ok">${productKey(st[0].f.name) !== key ? esc(st[0].f.name) : 'Chez vous'}${st[0].d <= 3 && st[0].d !== 99 ? ' · ' + dlcInfo(st[0].f.dlc).txt.toLowerCase() : ''}</span>` : P.base ? '<span class="badge none">Placard</span>' : opt ? '<span class="badge none">Facultatif</span>' : '<span class="badge warn">À acheter</span>';
       return `<div class="exp"><div class="exp-main"><div style="font-weight:600">${esc(ingName(key, note))}</div>${q ? `<div class="sub num">${q}</div>` : ''}</div>${state}</div>`;
     }).join('')}</div>
-    ${a.missing.length ? `<button class="btn btn-primary" data-act="recMissing" data-id="${r.id}">Ajouter les ${a.missing.length} manquant${a.missing.length > 1 ? 's' : ''} à la liste</button>` : ''}
-    ${isFam() ? `<button class="btn" data-act="recToMeal" data-id="${r.id}">Proposer pour un repas de famille</button>` : `<div class="btn-row"><button class="btn" data-act="planRec" data-id="${r.id}">${planned ? 'Changer de jour' : 'Mettre au menu'}</button><button class="btn btn-soft" data-act="cooked" data-id="${r.id}">J’ai cuisiné</button></div>`}
+    ${a.missing.length ? `<button class="btn btn-primary" data-act="recMissing" data-id="${esc(r.id)}">Ajouter les ${a.missing.length} manquant${a.missing.length > 1 ? 's' : ''} à la liste</button>` : ''}
+    ${isFam() ? `<button class="btn" data-act="recToMeal" data-id="${esc(r.id)}">Proposer pour un repas de famille</button>` : `<div class="btn-row"><button class="btn" data-act="planRec" data-id="${esc(r.id)}">${planned ? 'Changer de jour' : 'Mettre au menu'}</button><button class="btn btn-soft" data-act="cooked" data-id="${esc(r.id)}">J’ai cuisiné</button></div>`}
     ${planned ? `<button class="btn btn-danger" data-act="unplan" data-id="${esc(planned.id)}">Retirer du menu</button>` : ''}
     <div class="fgroup"><span class="label">Préparation</span><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>`);
   ui.recOpen = id; ui.recPortions = portions;
@@ -2033,7 +2035,7 @@ function parseReceipt(text){
 async function pdfText(file){
   await loadScript('vendor/pdf.min.js').catch(() => { throw new Error('script'); });
   const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
-  const doc = await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const doc = await lib.getDocument({data:new Uint8Array(await file.arrayBuffer()), isEvalSupported:false}).promise; // évite l'exécution de code caché dans un PDF piégé
   const out = [];
   for (let p = 1; p <= Math.min(doc.numPages, 6); p++) {
     const tc = await (await doc.getPage(p)).getTextContent();

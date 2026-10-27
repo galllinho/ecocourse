@@ -6,8 +6,8 @@
     "build:www": "node scripts/build-www.js"
   },
   "dependencies": {
-    "@capacitor/android": "6.2.0",
-    "@capacitor/core": "6.2.0",
+    "@capacitor/android": "6.2.2",
+    "@capacitor/core": "6.2.2",
     "firebase": "10.12.2",
     "@capacitor/push-notifications": "6.0.5",
     "@capacitor-mlkit/barcode-scanning": "6.2.0",
@@ -20,6 +20,6 @@
     "@capacitor/share": "6.0.4"
   },
   "devDependencies": {
-    "@capacitor/cli": "6.2.0"
+    "@capacitor/cli": "6.2.2"
   }
 }
